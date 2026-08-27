@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan-E — Ecosystem Hub & Unified App Launchpad</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: '#7de720',
+            darkbg: '#000000',
+            darkcard: '#121212',
+            darkborder: '#2a2a2a'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-teal-500/20">
+          <i class="fa-solid fa-plane-departure"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-2xl tracking-tight text-white">Plan-E</span>
+          <span class="ml-2 text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-950 text-teal-300 border border-teal-800">OTA 500-User Beta Stack</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4 text-xs font-semibold text-slate-400">
+        <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span> Backend Engine: Active</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="max-w-7xl mx-auto px-6 py-12 flex-1 w-full space-y-12">
+    <div class="text-center max-w-3xl mx-auto space-y-4">
+      <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-white">
+        Cross-Platform Travel Reservation Ecosystem
+      </h1>
+      <p class="text-base text-slate-400 leading-relaxed">
+        High-performance OTA architecture engineered with strict dual-path search (Hotels vs. Resorts), Local Guide Bundling, and zero-overbooking allocation locks.
+      </p>
+    </div>
+
+    <!-- 4-APP ECOSYSTEM DIRECTORY GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- 1. Consumer Mobile Experience -->
+      <a href="/consumer" target="_blank" class="group bg-slate-900 border border-slate-800 hover:border-teal-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/10 hover:-translate-y-1">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-teal-950 border border-teal-800 text-teal-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-mobile-screen"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-teal-400 uppercase tracking-wider">Client Interface</div>
+            <h3 class="text-xl font-black text-white mt-1">Traveler App</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Dual-path search (Hotels vs Resorts), interactive Local Guide Bundling sheet, and composite one-tap checkout.
+            </p>
+          </div>
+        </div>
+        <div class="pt-6 flex items-center text-xs font-bold text-teal-400 group-hover:translate-x-1 transition">
+          <span>Launch Live Simulator</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </a>
+
+      <!-- 2. Vendor Management Portal -->
+      <a href="/vendor" target="_blank" class="group bg-slate-900 border border-slate-800 hover:border-indigo-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-800 text-indigo-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-hotel"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Vendor Interface</div>
+            <h3 class="text-xl font-black text-white mt-1">Vendor Portal</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              The Vendor Allocation Engine matrix: assign daily room quotas, adjust dynamic rate multipliers, and link local guides.
+            </p>
+          </div>
+        </div>
+        <div class="pt-6 flex items-center text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition">
+          <span>Open Vendor Console</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </a>
+
+      <!-- 3. Admin Operations Dashboard -->
+      <a href="/admin" target="_blank" class="group bg-slate-900 border border-slate-800 hover:border-amber-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-950 border border-amber-800 text-amber-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">Operations & Telemetry</div>
+            <h3 class="text-xl font-black text-white mt-1">Admin Dashboard</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Real-time gross booking volume, 5% platform revenue cut, and the Local Guide background vetting queue.
+            </p>
+          </div>
+        </div>
+        <div class="pt-6 flex items-center text-xs font-bold text-amber-400 group-hover:translate-x-1 transition">
+          <span>Access Admin Operations</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </a>
+
+      <!-- 4. Interactive OpenAPI / Swagger Engine -->
+      <a href="/api/v1/docs" target="_blank" class="group bg-slate-900 border border-slate-800 hover:border-emerald-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-800 text-emerald-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
+            <i class="fa-solid fa-code"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-emerald-400 uppercase tracking-wider">FastAPI Core</div>
+            <h3 class="text-xl font-black text-white mt-1">Swagger API Docs</h3>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+              Interactive OpenAPI documentation for testing all Hotel, Resort, Guide, and Allocation Booking endpoints.
+            </p>
+          </div>
+        </div>
+        <div class="pt-6 flex items-center text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition">
+          <span>Explore OpenAPI Spec</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- SCALING ARCHITECTURE TO 500 USERS & BEYOND -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-6">
+      <div class="border-b border-slate-800 pb-4 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white">500-User Scaling Architecture & Concurrency Safeguards</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Engineered to scale seamlessly from 200 to 500+ active beta users.</p>
+        </div>
+        <span class="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800 px-3 py-1 rounded-full font-bold">100% Tested</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
+        <div class="space-y-2">
+          <strong class="text-slate-200 block text-sm flex items-center"><i class="fa-solid fa-lock text-teal-400 mr-2"></i> Zero-Overbooking Model</strong>
+          <p class="text-slate-400 leading-relaxed">
+            Pessimistic row-level locking (<code class="text-teal-300">SELECT ... FOR UPDATE</code>) on daily allocations guarantees that 500 concurrent users competing for identical dates never cause an overbooking.
+          </p>
+        </div>
+        <div class="space-y-2">
+          <strong class="text-slate-200 block text-sm flex items-center"><i class="fa-solid fa-arrows-split-up-and-left text-indigo-400 mr-2"></i> Separated Domain Pipelines</strong>
+          <p class="text-slate-400 leading-relaxed">
+            Hotel queries execute on lean, sub-50ms query paths, while Resort queries aggregate rich media and certified guide rosters without cross-polluting caches.
+          </p>
+        </div>
+        <div class="space-y-2">
+          <strong class="text-slate-200 block text-sm flex items-center"><i class="fa-solid fa-server text-amber-400 mr-2"></i> High Throughput Async ASGI</strong>
+          <p class="text-slate-400 leading-relaxed">
+            Uvicorn workers on <code class="text-amber-300">uvloop</code> deliver thousands of non-blocking requests per second with PostgreSQL connection pooling.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800 text-center py-6 text-xs text-slate-500">
+    Plan-E Travel Reservation Ecosystem • Built with FastAPI, PostgreSQL, Flutter & Mapbox
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      if (htmlEl.classList.contains('dark')) {
+        htmlEl.classList.remove('dark');
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      } else {
+        htmlEl.classList.add('dark');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      }
+    }
+  </script>
+</body>
+
+</html>

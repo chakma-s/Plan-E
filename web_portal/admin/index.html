@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan-E — Internal Admin & Telemetry Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Admin Header -->
+  <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-md">
+          <i class="fa-solid fa-shield-halved text-sm"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight">Plan-E</span>
+          <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800">Admin Operations</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 bg-emerald-950 text-emerald-400 border border-emerald-800 px-3 py-1 rounded-full text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>API Engine: Operational</span>
+        </div>
+        <span class="text-xs text-slate-400">Admin: <strong class="text-slate-200">admin@plane-travel.com</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Main Layout -->
+  <main class="max-w-7xl mx-auto px-6 py-8 flex-1 w-full space-y-8">
+    
+    <!-- TOP METRICS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 shadow-sm">
+        <div class="flex justify-between items-start text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <span>Gross Booking Volume</span>
+          <i class="fa-solid fa-chart-line text-indigo-400"></i>
+        </div>
+        <div class="text-2xl font-black text-white mt-2" id="metric-volume">$0.00</div>
+        <div class="text-xs text-emerald-400 font-semibold mt-1"><i class="fa-solid fa-arrow-up"></i> Real-time Beta Activity</div>
+      </div>
+
+      <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 shadow-sm">
+        <div class="flex justify-between items-start text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <span>Platform Revenue (5%)</span>
+          <i class="fa-solid fa-sack-dollar text-emerald-400"></i>
+        </div>
+        <div class="text-2xl font-black text-emerald-400 mt-2" id="metric-revenue">$0.00</div>
+        <div class="text-xs text-slate-400 mt-1">Direct platform fee cut</div>
+      </div>
+
+      <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 shadow-sm">
+        <div class="flex justify-between items-start text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <span>Active Properties</span>
+          <i class="fa-solid fa-hotel text-amber-400"></i>
+        </div>
+        <div class="text-2xl font-black text-white mt-2" id="metric-properties">0</div>
+        <div class="text-xs text-slate-400 mt-1"><span id="metric-hotels">0</span> Hotels • <span id="metric-resorts">0</span> Resorts</div>
+      </div>
+
+      <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/80 shadow-sm">
+        <div class="flex justify-between items-start text-slate-400 text-xs font-bold uppercase tracking-wider">
+          <span>Certified Local Guides</span>
+          <i class="fa-solid fa-compass text-teal-400"></i>
+        </div>
+        <div class="text-2xl font-black text-white mt-2" id="metric-guides">0</div>
+        <div class="text-xs text-slate-400 mt-1">Active tour guides in network</div>
+      </div>
+
+    </div>
+
+    <!-- GUIDE COMPLIANCE & VERIFICATION QUEUE -->
+    <div class="bg-slate-800/90 rounded-2xl p-6 border border-slate-700 shadow-sm space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-id-card text-indigo-400"></i>
+            <span>Local Guide Verification & Background Vetting</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Manage licenses, background checks, and verification badges for resident guides.</p>
+        </div>
+        <button onclick="loadAdminData()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg text-slate-200 font-semibold transition">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Refresh
+        </button>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-700">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-950 text-slate-400 text-xs uppercase font-bold border-b border-slate-700">
+            <tr>
+              <th class="px-4 py-3">Guide Identity</th>
+              <th class="px-4 py-3">License & Credentials</th>
+              <th class="px-4 py-3">Specialties</th>
+              <th class="px-4 py-3">Daily Fee</th>
+              <th class="px-4 py-3">Rating</th>
+              <th class="px-4 py-3">Certification Status</th>
+              <th class="px-4 py-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="guideAdminTableBody" class="divide-y divide-slate-700 text-slate-200">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8000/api/v1";
+    let adminToken = "";
+
+    async function initAdmin() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: 'admin@plane-travel.com', password: 'Password123!' })
+        });
+        const json = await res.json();
+        adminToken = json.data.access_token;
+        loadAdminData();
+      } catch (e) {
+        console.error("Admin login failed:", e);
+      }
+    }
+
+    async function loadAdminData() {
+      // 1. Load Overview Telemetry
+      try {
+        const res = await fetch(`${API_BASE}/admin/overview`, {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const json = await res.json();
+        const d = json.data;
+        document.getElementById('metric-volume').innerText = `$${d.gross_booking_volume.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        document.getElementById('metric-revenue').innerText = `$${d.total_platform_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        document.getElementById('metric-properties').innerText = d.total_hotels + d.total_resorts;
+        document.getElementById('metric-hotels').innerText = d.total_hotels;
+        document.getElementById('metric-resorts').innerText = d.total_resorts;
+        document.getElementById('metric-guides').innerText = d.total_guides;
+      } catch (e) {
+        console.error("Error loading overview:", e);
+      }
+
+      // 2. Load Guides for Verification Table
+      try {
+        const res = await fetch(`${API_BASE}/guides`);
+        const json = await res.json();
+        const guides = json.data || [];
+        const tbody = document.getElementById('guideAdminTableBody');
+        
+        tbody.innerHTML = guides.map(g => `
+          <tr class="hover:bg-slate-750 transition">
+            <td class="px-4 py-3 flex items-center space-x-3">
+              <img src="${g.profile_photo_url}" class="w-9 h-9 rounded-full object-cover border border-slate-600">
+              <div>
+                <div class="font-bold text-white text-sm">${g.full_name}</div>
+                <div class="text-xs text-slate-400">${g.headline}</div>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-xs font-mono text-slate-300">USCG-VERIFIED</td>
+            <td class="px-4 py-3 text-xs text-slate-300">${g.specialties.slice(0, 2).join(', ')}</td>
+            <td class="px-4 py-3 text-xs font-bold text-emerald-400">$${g.daily_rate}/day</td>
+            <td class="px-4 py-3 text-xs font-bold text-amber-400">★ ${g.rating}</td>
+            <td class="px-4 py-3">
+              ${g.is_verified 
+                ? '<span class="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">VERIFIED</span>' 
+                : '<span class="px-2 py-0.5 text-xs font-bold rounded-full bg-amber-950 text-amber-300 border border-amber-700">PENDING</span>'}
+            </td>
+            <td class="px-4 py-3 text-right">
+              <button onclick="toggleVerification('${g.id}', ${!g.is_verified})" class="text-xs px-3 py-1.5 rounded-lg ${g.is_verified ? 'bg-rose-950 text-rose-300 hover:bg-rose-900' : 'bg-emerald-950 text-emerald-300 hover:bg-emerald-900'} font-bold border border-slate-700 transition">
+                ${g.is_verified ? 'Revoke Badge' : 'Verify & Approve'}
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error("Error loading guides table:", e);
+      }
+    }
+
+    async function toggleVerification(guideId, newStatus) {
+      try {
+        await fetch(`${API_BASE}/admin/guides/${guideId}/verify?is_verified=${newStatus}`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        loadAdminData();
+      } catch (e) {
+        alert("Verification update failed");
+      }
+    }
+
+    window.onload = initAdmin;
+  </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan-E — Traveler Experience (Consumer App)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: '#7de720',
+            darkbg: '#000000',
+            darkcard: '#121212',
+            darkborder: '#2a2a2a'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] { box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.25); }
+    .hotel-active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] { box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.25); }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex justify-center items-center py-6 px-4">
+
+  <!-- Mobile Device Simulation Frame -->
+  <div class="w-full max-w-md bg-white dark:bg-darkbg text-slate-900 dark:text-white rounded-[40px] shadow-2xl overflow-hidden border-[8px] border-slate-800 flex flex-col h-[860px] relative">
+    
+    <!-- Top Status Bar Mock -->
+    <div class="h-6 bg-slate-900 flex items-center justify-between px-6 text-[10px] text-white font-medium">
+      <span>9:41</span>
+      <div class="flex items-center space-x-1.5">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>
+      </div>
+    </div>
+
+    <!-- App Header -->
+    <header class="bg-white dark:bg-darkbg border-b border-slate-100 dark:border-darkborder px-5 pt-3 pb-3 sticky top-0 z-20">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-black text-sm">
+            <i class="fa-solid fa-plane-departure text-xs"></i>
+          </div>
+          <span class="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">Plan-E</span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="toggleTheme()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+          <button onclick="toggleMyTrips()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i class="fa-regular fa-bookmark"></i></button>
+        </div>
+      </div>
+
+      <!-- DUAL-JOURNEY SEGMENTED SWITCHER (Mandatory Core Architecture) -->
+      <div class="bg-slate-100 dark:bg-darkborder p-1 rounded-2xl flex border border-slate-200 dark:border-darkborder">
+        <!-- Tab 1: City Hotels -->
+        <button id="tab-hotel" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400">
+          <i class="fa-solid fa-hotel text-xs"></i>
+          <span>City Hotels</span>
+        </button>
+        <!-- Tab 2: Resorts & Guides -->
+        <button id="tab-resort" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black text-white active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)]">
+          <i class="fa-solid fa-umbrella-beach text-xs"></i>
+          <span>Resorts & Guides</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- App Scrollable Body -->
+    <main id="appBody" class="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <!-- SEARCH BAR -->
+      <div class="bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3 shadow-sm">
+        <div class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-xl px-3 py-2 text-xs">
+          <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+          <input type="text" id="destinationInput" placeholder="Search destinations..." class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400">
+        </div>
+        <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200 dark:border-darkborder text-[11px] text-slate-600 dark:text-gray-400 font-semibold px-1">
+          <span id="dateRangeText"><i class="fa-regular fa-calendar mr-1 text-brand"></i> Sep 1 - Sep 4 (3 Nights)</span>
+          <span><i class="fa-solid fa-user-group mr-1 text-slate-400"></i> 2 Guests</span>
+        </div>
+      </div>
+
+      <!-- FEED CONTAINER (Hotels or Resorts) -->
+      <div id="resultsFeed" class="space-y-4">
+        <!-- Dynamically loaded cards -->
+      </div>
+
+    </main>
+
+    <!-- MODAL: LOCAL GUIDE BUNDLING SHEET (First-Class Feature) -->
+    <div id="guideModal" class="hidden absolute inset-0 bg-black/60 z-30 flex flex-col justify-end backdrop-blur-sm transition">
+      <div class="bg-white dark:bg-darkbg rounded-t-3xl p-5 space-y-4 max-h-[85%] overflow-y-auto animate-slide-up">
+        <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-2"></div>
+        <div class="flex items-center space-x-4">
+          <img id="guideModalPhoto" src="" class="w-16 h-16 rounded-full object-cover border-2 border-amber-400 shadow">
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <h3 id="guideModalName" class="font-bold text-slate-900 dark:text-white text-base"></h3>
+              <i class="fa-solid fa-certificate text-blue-500 text-xs"></i>
+            </div>
+            <p id="guideModalHeadline" class="text-xs text-slate-500 dark:text-gray-400 line-clamp-1"></p>
+            <p id="guideModalRating" class="text-xs text-brand font-bold mt-0.5"></p>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-darkcard rounded-xl p-3 border border-slate-200 dark:border-darkborder flex justify-around text-center">
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold">EXPERIENCE</div>
+            <div id="guideModalExp" class="text-xs font-bold text-slate-800 dark:text-gray-200"></div>
+          </div>
+          <div class="w-[1px] bg-slate-200"></div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold">DAILY RATE</div>
+            <div id="guideModalRate" class="text-xs font-extrabold text-brand"></div>
+          </div>
+          <div class="w-[1px] bg-slate-200"></div>
+          <div>
+            <div class="text-[10px] text-slate-400 font-bold">LANGUAGES</div>
+            <div id="guideModalLangs" class="text-xs font-bold text-slate-800 dark:text-gray-200"></div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-800 dark:text-gray-200 uppercase tracking-wider mb-1.5">Curated Specialties</h4>
+          <div id="guideModalSpecs" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-slate-800 dark:text-gray-200 uppercase tracking-wider mb-1">Biography</h4>
+          <p id="guideModalBio" class="text-xs text-slate-600 dark:text-gray-400 leading-relaxed"></p>
+        </div>
+
+        <div class="pt-2">
+          <button id="guideBundleBtn" onclick="toggleBundleCurrentGuide()" class="w-full bg-brand text-black hover:bg-[#68c918] text-black text-white font-bold py-3 rounded-xl shadow text-xs transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-plus-circle"></i>
+            <span id="guideBundleBtnText">Bundle Guide with Resort (+$300/day)</span>
+          </button>
+          <button onclick="closeGuideModal()" class="w-full mt-2 text-slate-400 text-xs font-medium py-1.5">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CHECKOUT & RECEIPT -->
+    <div id="checkoutModal" class="hidden absolute inset-0 bg-white dark:bg-darkbg z-40 flex flex-col p-5 space-y-4 overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-darkborder pb-3">
+        <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Confirm Reservation</h3>
+        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-sm"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="checkoutSummary" class="space-y-3">
+        <!-- Dynamically rendered checkout details -->
+      </div>
+
+      <div class="pt-4 mt-auto">
+        <button id="payBtn" onclick="submitBooking()" class="w-full bg-brand text-black hover:bg-[#68c918] text-white font-extrabold py-3.5 rounded-2xl shadow-lg text-sm transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-lock text-xs"></i>
+          <span id="payBtnText">Confirm & Pay</span>
+        </button>
+        <p class="text-[10px] text-center text-slate-400 mt-2">Zero-overbooking guaranteed via database allocation lock.</p>
+      </div>
+    </div>
+
+    <!-- MODAL: BOOKING CONFIRMATION SUCCESS -->
+    <div id="successModal" class="hidden absolute inset-0 bg-white dark:bg-darkbg z-50 flex flex-col items-center justify-center p-6 text-center space-y-4">
+      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl shadow-inner">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">Booking Confirmed!</h3>
+      <p class="text-xs text-slate-500 dark:text-gray-400">Your room allocation has been atomically reserved.</p>
+      
+      <div class="w-full bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-4 text-left space-y-2 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Reservation Code:</span>
+          <strong id="successResCode" class="text-slate-900 dark:text-white font-mono">OTA-2026-X8B2</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Property:</span>
+          <strong id="successPropName" class="text-slate-900 dark:text-white">Azure Bay Resort</strong>
+        </div>
+        <div id="successGuideRow" class="flex justify-between text-brand">
+          <span>Bundled Guide:</span>
+          <strong id="successGuideName">Captain Kai Tanaka</strong>
+        </div>
+      </div>
+
+      <button onclick="dismissSuccess()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs">Return to Explorer</button>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8000/api/v1";
+    let currentJourney = "resort"; // 'hotel' or 'resort'
+    let selectedGuide = null;
+    let activeProperty = null;
+    let activeRoom = null;
+    let activeGuideModal = null;
+
+    async function initConsumerApp() {
+      // Login as test beta user
+      await loginBeta();
+      switchJourney('resort');
+    }
+
+    async function loginBeta() {
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: 'traveler.alex@example.com', password: 'Password123!' })
+        });
+        const json = await res.json();
+        window.userToken = json.data.access_token;
+      } catch (e) {
+        console.error("Auth error", e);
+      }
+    }
+
+    function switchJourney(type) {
+      currentJourney = type;
+      const hotelBtn = document.getElementById('tab-hotel');
+      const resortBtn = document.getElementById('tab-resort');
+
+      const inactiveClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400";
+      const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)]";
+
+      if (type === 'hotel') {
+        hotelBtn.className = activeClass;
+        resortBtn.className = inactiveClass;
+        document.getElementById('destinationInput').placeholder = "Search City Hotels (e.g. San Francisco)...";
+        loadHotels();
+      } else {
+        resortBtn.className = activeClass;
+        hotelBtn.className = inactiveClass;
+        document.getElementById('destinationInput').placeholder = "Search Resorts & Sanctuaries (e.g. Carmel)...";
+        loadResorts();
+      }
+    }
+
+    async function loadHotels() {
+      const feed = document.getElementById('resultsFeed');
+      feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading transactional hotels...</div>`;
+      try {
+        const res = await fetch(`${API_BASE}/hotels`);
+        const json = await res.json();
+        const hotels = json.data || [];
+        feed.innerHTML = hotels.map(h => `
+          <div onclick="openHotelDetail('${h.id}')" class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer">
+            <div class="relative h-36">
+              <img src="${h.cover_image_url}" class="w-full h-full object-cover">
+              <span class="absolute top-2 left-2 bg-darkbg dark:bg-darkborder text-brand border border-brand text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow"><i class="fa-solid fa-bolt mr-1"></i> Instant Hotel</span>
+              <span class="absolute bottom-2 right-2 bg-brand text-black text-xs font-extrabold px-2.5 py-1 rounded-lg">$${h.min_price_per_night} / nt</span>
+            </div>
+            <div class="p-3">
+              <div class="flex justify-between items-start">
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white">${h.name}</h4>
+                <span class="text-xs font-bold text-brand">★ ${h.review_score}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">${h.address}, ${h.city}</p>
+              <div class="flex gap-1.5 mt-2">
+                ${h.amenities.slice(0, 2).map(a => `<span class="text-[10px] bg-brand/10 text-brand px-2 py-0.5 rounded font-medium">${a}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        feed.innerHTML = `<div class="text-center text-xs text-red-500">Error loading hotels</div>`;
+      }
+    }
+
+    async function loadResorts() {
+      const feed = document.getElementById('resultsFeed');
+      feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2 text-brand"></i>Loading resort sanctuaries & guides...</div>`;
+      try {
+        const res = await fetch(`${API_BASE}/resorts`);
+        const json = await res.json();
+        const resorts = json.data || [];
+        feed.innerHTML = resorts.map(r => `
+          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+            <div onclick="openResortDetail('${r.id}')" class="relative h-44 cursor-pointer">
+              <img src="${r.cover_image_url}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30"></div>
+              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-white text-[10px] font-bold px-2.5 py-0.5 rounded-lg shadow"><i class="fa-solid fa-spa mr-1"></i> Luxury Sanctuary</span>
+              <span class="absolute bottom-2.5 right-2.5 bg-brand text-black text-xs font-extrabold px-3 py-1 rounded-lg border border-white/20">From $${r.starting_price_per_night} / nt</span>
+              <span class="absolute bottom-2.5 left-2.5 text-white text-xs font-semibold drop-shadow"><i class="fa-solid fa-location-dot mr-1"></i>${r.city}, ${r.country}</span>
+            </div>
+            <div class="p-3.5 space-y-2.5">
+              <div onclick="openResortDetail('${r.id}')" class="cursor-pointer">
+                <div class="flex justify-between items-start">
+                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">${r.name}</h4>
+                  <span class="text-xs font-bold text-brand">★ ${r.review_score}</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-gray-400 italic line-clamp-1">${r.tagline || ''}</p>
+              </div>
+
+              <!-- LOCAL GUIDE BUNDLING SECTION -->
+              <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-2.5">
+                <div class="flex justify-between items-center text-[11px] font-bold text-amber-800 mb-1.5">
+                  <span><i class="fa-solid fa-compass text-brand mr-1"></i> Certified Resident Guides</span>
+                  <span class="text-[10px] font-semibold text-slate-500 dark:text-gray-400">${r.available_guides_count} Available</span>
+                </div>
+                <div class="flex space-x-2 overflow-x-auto pb-1">
+                  ${r.featured_guides.map(g => `
+                    <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-brand/50 rounded-full py-1 px-2.5 cursor-pointer shadow-xs hover:border-brand transition shrink-0">
+                      <img src="${g.profile_photo_url}" class="w-6 h-6 rounded-full object-cover">
+                      <div class="text-[10px]">
+                        <span class="font-bold text-slate-900 dark:text-white">${g.full_name.split(' ')[0]}</span>
+                        <span class="text-brand font-extrabold ml-1">+$${g.daily_rate}/d</span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        feed.innerHTML = `<div class="text-center text-xs text-red-500">Error loading resorts</div>`;
+      }
+    }
+
+    async function showGuideModal(guideId) {
+      try {
+        const res = await fetch(`${API_BASE}/guides/${guideId}`);
+        const json = await res.json();
+        const g = json.data;
+        activeGuideModal = g;
+
+        document.getElementById('guideModalPhoto').src = g.profile_photo_url;
+        document.getElementById('guideModalName').innerText = g.full_name;
+        document.getElementById('guideModalHeadline').innerText = g.headline;
+        document.getElementById('guideModalRating').innerText = `★ ${g.rating} (${g.review_count} reviews)`;
+        document.getElementById('guideModalExp').innerText = `${g.years_of_experience} Years`;
+        document.getElementById('guideModalRate').innerText = `$${g.daily_rate}/day`;
+        document.getElementById('guideModalLangs').innerText = g.languages.join(', ');
+        document.getElementById('guideModalBio').innerText = g.bio;
+        document.getElementById('guideModalSpecs').innerHTML = g.specialties.map(s => `<span class="bg-brand/20 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${s}</span>`).join('');
+        
+        const isSelected = selectedGuide && selectedGuide.id === g.id;
+        document.getElementById('guideBundleBtnText').innerText = isSelected ? "Remove Guide Bundle" : `Bundle Guide with Resort (+$${g.daily_rate}/day)`;
+        document.getElementById('guideBundleBtn').className = isSelected 
+          ? "w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow text-xs transition" 
+          : "w-full bg-brand text-black hover:bg-[#68c918] text-black text-white font-bold py-3 rounded-xl shadow text-xs transition";
+
+        document.getElementById('guideModal').classList.remove('hidden');
+      } catch (e) {
+        alert("Error loading guide profile");
+      }
+    }
+
+    function toggleBundleCurrentGuide() {
+      if (selectedGuide && selectedGuide.id === activeGuideModal.id) {
+        selectedGuide = null;
+      } else {
+        selectedGuide = activeGuideModal;
+      }
+      closeGuideModal();
+      alert(selectedGuide ? `🎉 ${selectedGuide.full_name} attached to your booking bundle!` : "Guide bundle removed.");
+    }
+
+    function closeGuideModal() {
+      document.getElementById('guideModal').classList.add('hidden');
+    }
+
+    async function openResortDetail(resortId) {
+      try {
+        const res = await fetch(`${API_BASE}/resorts/${resortId}`);
+        const json = await res.json();
+        activeProperty = json.data;
+        activeRoom = activeProperty.room_types[0];
+        openCheckout();
+      } catch (e) {
+        alert("Error opening resort detail");
+      }
+    }
+
+    async function openHotelDetail(hotelId) {
+      try {
+        const res = await fetch(`${API_BASE}/hotels/${hotelId}`);
+        const json = await res.json();
+        activeProperty = json.data;
+        activeRoom = activeProperty.room_types[0];
+        selectedGuide = null; // Hotels do not bundle guides
+        openCheckout();
+      } catch (e) {
+        alert("Error opening hotel detail");
+      }
+    }
+
+    async function openCheckout() {
+      const today = new Date();
+      const checkIn = new Date(today); checkIn.setDate(today.getDate() + 2);
+      const checkOut = new Date(today); checkOut.setDate(today.getDate() + 5);
+      const checkInStr = checkIn.toISOString().split('T')[0];
+      const checkOutStr = checkOut.toISOString().split('T')[0];
+
+      // Get Quote
+      const quoteBody = {
+        property_id: activeProperty.id,
+        check_in_date: checkInStr,
+        check_out_date: checkOutStr,
+        room_items: [{ room_type_id: activeRoom.id, rooms_count: 1 }],
+        guide_bundle: selectedGuide ? {
+          guide_id: selectedGuide.id,
+          service_date: checkInStr,
+          duration_days: 1
+        } : null
+      };
+
+      try {
+        const quoteRes = await fetch(`${API_BASE}/bookings/quote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(quoteBody)
+        });
+        const quoteJson = await quoteRes.json();
+        const q = quoteJson.data;
+
+        document.getElementById('checkoutSummary').innerHTML = `
+          <div class="bg-slate-50 dark:bg-darkcard p-3.5 rounded-xl border border-slate-200 dark:border-darkborder flex items-center space-x-3">
+            <img src="${activeProperty.cover_image_url}" class="w-14 h-14 rounded-lg object-cover">
+            <div>
+              <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${activeProperty.property_type === 'RESORT' ? 'bg-brand/20 text-brand' : 'bg-brand/10 text-brand'}">${activeProperty.property_type}</span>
+              <h4 class="font-bold text-xs text-slate-900 dark:text-white mt-1">${activeProperty.name}</h4>
+              <p class="text-[10px] text-slate-500 dark:text-gray-400">${activeRoom.name} • 3 Nights</p>
+            </div>
+          </div>
+
+          ${selectedGuide ? `
+            <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-center space-x-3">
+              <img src="${selectedGuide.profile_photo_url}" class="w-10 h-10 rounded-full object-cover">
+              <div class="flex-1">
+                <div class="flex items-center space-x-1"><strong class="text-xs text-slate-900 dark:text-white">${selectedGuide.full_name}</strong><span class="text-[9px] text-brand font-bold bg-brand/20 px-1 rounded">BUNDLED</span></div>
+                <p class="text-[10px] text-slate-500 dark:text-gray-400">Curated Local Expedition ($${selectedGuide.daily_rate})</p>
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="bg-slate-50 dark:bg-darkcard p-3 rounded-xl border border-slate-200 dark:border-darkborder space-y-1.5 text-xs">
+            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Room (${q.total_nights} nts)</span><span>$${q.room_subtotal}</span></div>
+            ${selectedGuide ? `<div class="flex justify-between text-brand font-bold"><span>Bundled Guide Fee</span><span>+$${q.guide_subtotal}</span></div>` : ''}
+            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Platform Service Fee (5%)</span><span>$${q.platform_fee}</span></div>
+            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Lodging Tax (8.5%)</span><span>$${q.tax_amount}</span></div>
+            <div class="border-t border-slate-200 dark:border-darkborder pt-1.5 flex justify-between font-black text-sm text-slate-900 dark:text-white"><span>Total</span><span>$${q.total_amount} USD</span></div>
+          </div>
+        `;
+
+        document.getElementById('payBtnText').innerText = `Confirm & Pay $${q.total_amount}`;
+        document.getElementById('checkoutModal').classList.remove('hidden');
+      } catch (e) {
+        alert("Quote calculation failed");
+      }
+    }
+
+    async function submitBooking() {
+      const today = new Date();
+      const checkIn = new Date(today); checkIn.setDate(today.getDate() + 2);
+      const checkOut = new Date(today); checkOut.setDate(today.getDate() + 5);
+
+      const reqBody = {
+        property_id: activeProperty.id,
+        check_in_date: checkIn.toISOString().split('T')[0],
+        check_out_date: checkOut.toISOString().split('T')[0],
+        guest_count: 2,
+        room_items: [{ room_type_id: activeRoom.id, rooms_count: 1 }],
+        guide_bundle: selectedGuide ? {
+          guide_id: selectedGuide.id,
+          service_date: checkIn.toISOString().split('T')[0],
+          duration_days: 1
+        } : null
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/bookings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.userToken}`
+          },
+          body: JSON.stringify(reqBody)
+        });
+        const json = await res.json();
+        if (res.status === 201) {
+          const booking = json.data;
+          document.getElementById('successResCode').innerText = booking.reservation_code;
+          document.getElementById('successPropName').innerText = booking.property_name;
+          if (booking.guide_item) {
+            document.getElementById('successGuideRow').classList.remove('hidden');
+            document.getElementById('successGuideName').innerText = booking.guide_item.guide_name;
+          } else {
+            document.getElementById('successGuideRow').classList.add('hidden');
+          }
+          closeCheckoutModal();
+          document.getElementById('successModal').classList.remove('hidden');
+        } else {
+          alert(`Booking Error: ${json.detail}`);
+        }
+      } catch (e) {
+        alert("Booking execution failed");
+      }
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkoutModal').classList.add('hidden');
+    }
+
+    function dismissSuccess() {
+      document.getElementById('successModal').classList.add('hidden');
+    }
+
+    
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      if (htmlEl.classList.contains('dark')) {
+        htmlEl.classList.remove('dark');
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+      } else {
+        htmlEl.classList.add('dark');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+      }
+    }
+
+    function toggleMyTrips() {
+      alert("Opening My Trips view.");
+    }
+
+    window.onload = initConsumerApp;
+  </script>
+</body>
+</html>

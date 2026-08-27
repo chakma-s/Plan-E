@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan-E — Vendor Management Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- Navigation Bar -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-teal-600 flex items-center justify-center text-white font-black text-lg shadow-md">
+          <i class="fa-solid fa-plane-departure text-sm"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-lg tracking-tight">Plan-E</span>
+          <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-teal-900 text-teal-300 border border-teal-700">Vendor Portal</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div id="vendorAuthStatus" class="flex items-center space-x-3">
+          <span class="text-xs text-slate-400">Authenticated: <strong class="text-slate-200" id="vendorName">Metropolis Group</strong></span>
+          <button onclick="switchVendor('resort')" class="text-xs bg-teal-700 hover:bg-teal-600 px-3 py-1.5 rounded-lg text-white font-medium transition">Switch to Resort Host</button>
+          <button onclick="switchVendor('hotel')" class="text-xs bg-indigo-700 hover:bg-indigo-600 px-3 py-1.5 rounded-lg text-white font-medium transition">Switch to Hotel Host</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="max-w-7xl mx-auto px-6 py-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-4 gap-8">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="lg:col-span-1 space-y-4">
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Operations Console</div>
+        <nav class="space-y-2">
+          <button onclick="showSection('allocations')" id="nav-allocations" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold bg-teal-50 text-teal-800 border border-teal-200">
+            <i class="fa-solid fa-calendar-days text-teal-600"></i>
+            <span>Allocation Engine</span>
+          </button>
+          <button onclick="showSection('properties')" id="nav-properties" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            <i class="fa-solid fa-hotel text-slate-500"></i>
+            <span>My Properties</span>
+          </button>
+          <button onclick="showSection('guides')" id="nav-guides" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+            <i class="fa-solid fa-compass text-amber-500"></i>
+            <span>Guide Roster Linker</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Quick Allocation Summary -->
+      <div class="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 shadow-sm">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Allocation Safety</h4>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          The MVP Allocation Model guarantees <strong>zero overbooking</strong>. Rooms allocated to Plan-E are locked transactionally during checkout.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <section class="lg:col-span-3 space-y-6">
+
+      <!-- SECTION 1: ALLOCATION ENGINE (Core MVP Feature) -->
+      <div id="section-allocations" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Room Allocation & Inventory Matrix</h2>
+            <p class="text-xs text-slate-500">Allocate daily room quotas and dynamic pricing multipliers to the Plan-E database.</p>
+          </div>
+          <button onclick="openAllocationModal()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center space-x-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>Batch Set Allocations</span>
+          </button>
+        </div>
+
+        <!-- Allocation Matrix Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">Date</th>
+                <th class="px-4 py-3">Room Type</th>
+                <th class="px-4 py-3">Total Allocated</th>
+                <th class="px-4 py-3">Booked Rooms</th>
+                <th class="px-4 py-3">Free Availability</th>
+                <th class="px-4 py-3">Rate Multiplier</th>
+                <th class="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody id="allocationTableBody" class="divide-y divide-slate-200">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 2: MY PROPERTIES -->
+      <div id="section-properties" class="hidden bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Managed Properties & Room Types</h2>
+            <p class="text-xs text-slate-500">Overview of active listings under your vendor account.</p>
+          </div>
+        </div>
+        <div id="vendorPropertiesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- SECTION 3: GUIDE ROSTER LINKER -->
+      <div id="section-guides" class="hidden bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <h2 class="text-xl font-bold text-slate-900">Resort Local Guide Roster</h2>
+          <p class="text-xs text-slate-500">Associate certified local tour guides to your resort for the Local Guide Bundling feature.</p>
+        </div>
+        <div id="guideRosterList" class="space-y-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://127.0.0.1:8000/api/v1";
+    let currentToken = "";
+    let currentVendorType = "hotel"; // 'hotel' or 'resort'
+
+    async function initVendorPortal() {
+      await switchVendor('hotel');
+    }
+
+    async function switchVendor(type) {
+      currentVendorType = type;
+      const email = type === 'hotel' ? 'host@grandmetropolis.com' : 'host@azurebayresort.com';
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: 'Password123!' })
+        });
+        const data = await res.json();
+        currentToken = data.data.access_token;
+        document.getElementById('vendorName').innerText = data.data.user.full_name;
+        loadAllocations();
+        loadProperties();
+        loadGuideRoster();
+      } catch (err) {
+        console.error("Vendor auth error:", err);
+      }
+    }
+
+    async function loadAllocations() {
+      const tbody = document.getElementById('allocationTableBody');
+      tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">Loading live allocations...</td></tr>`;
+
+      try {
+        // 1. Fetch Vendor's Properties
+        const propRes = await fetch(`${API_BASE}/vendor/properties`, {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        const propData = await propRes.json();
+        
+        if (!propData.data || propData.data.length === 0) {
+           tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-500">No properties configured yet.</td></tr>`;
+           return;
+        }
+
+        const today = new Date();
+        const startStr = today.toISOString().split('T')[0];
+        
+        const end = new Date(today);
+        end.setDate(today.getDate() + 7); // Fetch next 7 days
+        const endStr = end.toISOString().split('T')[0];
+
+        let rowsHtml = '';
+
+        for (const prop of propData.data) {
+           // For each room type in property
+           for (const room of prop.room_types) {
+              // 2. Fetch real allocations for this room type
+              const url = new URL(`${API_BASE}/vendor/allocations`);
+              url.searchParams.append('room_type_id', room.id);
+              url.searchParams.append('start_date', startStr);
+              url.searchParams.append('end_date', endStr);
+              
+              const allocRes = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+              });
+              
+              if (allocRes.ok) {
+                 const allocData = await allocRes.json();
+                 
+                 // Render real rows
+                 allocData.data.forEach(alloc => {
+                    const statusHtml = alloc.is_closed 
+                        ? `<span class="px-2.5 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800">CLOSED</span>`
+                        : `<span class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800">OPEN</span>`;
+                        
+                    rowsHtml += `
+                      <tr class="hover:bg-slate-50 transition">
+                        <td class="px-4 py-3 font-semibold text-slate-800">${alloc.allocation_date}</td>
+                        <td class="px-4 py-3 text-slate-700 font-medium">${room.name}</td>
+                        <td class="px-4 py-3 font-bold text-slate-900">${alloc.total_allocated}</td>
+                        <td class="px-4 py-3 font-semibold text-indigo-600">${alloc.booked_count}</td>
+                        <td class="px-4 py-3 font-bold text-emerald-600">${alloc.available_count} available</td>
+                        <td class="px-4 py-3 text-slate-600">${parseFloat(alloc.rate_multiplier).toFixed(2)}x ($${parseFloat(alloc.effective_price).toFixed(2)})</td>
+                        <td class="px-4 py-3">${statusHtml}</td>
+                      </tr>
+                    `;
+                 });
+              }
+           }
+        }
+        
+        if (rowsHtml === '') {
+           tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-500">No allocations set for the next 7 days.</td></tr>`;
+        } else {
+           tbody.innerHTML = rowsHtml;
+        }
+
+      } catch (e) {
+        console.error("Error loading allocations", e);
+        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">Failed to load live allocations</td></tr>`;
+      }
+    }
+
+    async function loadProperties() {
+      const container = document.getElementById('vendorPropertiesList');
+      try {
+        const res = await fetch(`${API_BASE}/vendor/properties`, {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        const json = await res.json();
+        container.innerHTML = (json.data || []).map(p => `
+          <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-extrabold px-2 py-0.5 rounded ${p.property_type === 'RESORT' ? 'bg-teal-100 text-teal-800' : 'bg-indigo-100 text-indigo-800'}">${p.property_type}</span>
+              <span class="text-xs text-slate-400">★ ${p.star_rating}</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mt-2">${p.name}</h3>
+            <p class="text-xs text-slate-500 mt-1">${p.city} • ${p.room_types_count} Room Types Configured</p>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<p class="text-xs text-slate-400">Error loading properties.</p>';
+      }
+    }
+
+    async function loadGuideRoster() {
+      const container = document.getElementById('guideRosterList');
+      try {
+        const res = await fetch(`${API_BASE}/guides`);
+        const json = await res.json();
+        container.innerHTML = (json.data || []).map(g => `
+          <div class="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-300 transition">
+            <div class="flex items-center space-x-4">
+              <img src="${g.profile_photo_url}" class="w-12 h-12 rounded-full object-cover border border-slate-200">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h4 class="text-sm font-bold text-slate-900">${g.full_name}</h4>
+                  ${g.is_verified ? '<span class="text-blue-500 text-xs"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+                </div>
+                <p class="text-xs text-slate-500">${g.headline}</p>
+                <p class="text-xs text-amber-600 font-bold mt-0.5">$${g.daily_rate} / day • ${g.specialties.slice(0, 2).join(', ')}</p>
+              </div>
+            </div>
+            <button class="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-300">
+              Linked to Resort
+            </button>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<p class="text-xs text-slate-400">Error loading guides.</p>';
+      }
+    }
+
+    function showSection(section) {
+      ['allocations', 'properties', 'guides'].forEach(s => {
+        document.getElementById(`section-${s}`).classList.add('hidden');
+        document.getElementById(`nav-${s}`).className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition";
+      });
+      document.getElementById(`section-${section}`).classList.remove('hidden');
+      document.getElementById(`nav-${section}`).className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold bg-teal-50 text-teal-800 border border-teal-200";
+    }
+
+    async function openAllocationModal() {
+      // For demonstration, we will auto-submit a batch allocation for the first room type of the vendor
+      try {
+        const propRes = await fetch(`${API_BASE}/vendor/properties`, {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        const propData = await propRes.json();
+        
+        if (!propData.data || propData.data.length === 0 || propData.data[0].room_types.length === 0) {
+           alert("No room types available to allocate.");
+           return;
+        }
+        
+        const targetRoomId = propData.data[0].room_types[0].id;
+        
+        const today = new Date();
+        const startStr = today.toISOString().split('T')[0];
+        const end = new Date(today);
+        end.setDate(today.getDate() + 7);
+        const endStr = end.toISOString().split('T')[0];
+
+        // Let's ask the user how many rooms to allocate via a prompt
+        const quota = prompt(`How many rooms per day do you want to allocate for ${propData.data[0].room_types[0].name}?`, "5");
+        if (quota === null) return; // User cancelled
+        
+        const payload = {
+            room_type_id: targetRoomId,
+            start_date: startStr,
+            end_date: endStr,
+            total_allocated: parseInt(quota),
+            rate_multiplier: 1.25, // Let's pretend it's peak season
+            is_closed: false
+        };
+
+        const res = await fetch(`${API_BASE}/vendor/allocations/batch`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) {
+           alert(`Successfully updated batch allocations for next 7 days!`);
+           loadAllocations(); // Reload the table!
+        } else {
+           const errData = await res.json();
+           alert(`Error: ${JSON.stringify(errData)}`);
+        }
+
+      } catch(e) {
+          alert("Error submitting batch: " + e.message);
+      }
+    }
+
+    window.onload = initVendorPortal;
+  </script>
+</body>
+</html>
