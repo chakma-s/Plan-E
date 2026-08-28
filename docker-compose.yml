@@ -65,8 +65,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./web_portal/vendor:/usr/share/nginx/html/vendor:ro
-      - ./web_portal/admin:/usr/share/nginx/html/admin:ro
+      - ./web_portal:/usr/share/nginx/html:ro
     ports:
       - "${WEB_PORT:-80}:80"
     depends_on:

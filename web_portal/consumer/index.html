@@ -55,6 +55,7 @@
         <div class="flex items-center space-x-3">
           <button onclick="toggleTheme()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
           <button onclick="toggleMyTrips()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i class="fa-regular fa-bookmark"></i></button>
+          <button onclick="openAuthModal()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i id="authProfileIcon" class="fa-regular fa-circle-user"></i></button>
         </div>
       </div>
 
@@ -76,15 +77,25 @@
     <!-- App Scrollable Body -->
     <main id="appBody" class="flex-1 overflow-y-auto p-4 space-y-4">
 
-      <!-- SEARCH BAR -->
-      <div class="bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3 shadow-sm">
+      <!-- SEARCH BAR & FILTERS -->
+      <div class="bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3 shadow-sm space-y-2">
         <div class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-xl px-3 py-2 text-xs">
           <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
           <input type="text" id="destinationInput" placeholder="Search destinations..." class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400">
         </div>
-        <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-200 dark:border-darkborder text-[11px] text-slate-600 dark:text-gray-400 font-semibold px-1">
-          <span id="dateRangeText"><i class="fa-regular fa-calendar mr-1 text-brand"></i> Sep 1 - Sep 4 (3 Nights)</span>
-          <span><i class="fa-solid fa-user-group mr-1 text-slate-400"></i> 2 Guests</span>
+        <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-gray-400 font-semibold px-1">
+          <span id="dateRangeText" class="cursor-pointer hover:text-brand transition"><i class="fa-regular fa-calendar mr-1 text-brand"></i> Sep 1 - Sep 4</span>
+          <span class="cursor-pointer hover:text-brand transition"><i class="fa-solid fa-user-group mr-1 text-slate-400"></i> 2 Guests</span>
+        </div>
+        <div class="flex items-center space-x-2 pt-2 border-t border-slate-200 dark:border-darkborder">
+          <button class="flex-1 py-1.5 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-1.5">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Filters</span>
+          </button>
+          <button class="flex-1 py-1.5 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-1.5">
+            <i class="fa-solid fa-map"></i>
+            <span>Map View</span>
+          </button>
         </div>
       </div>
 
@@ -194,6 +205,47 @@
       <button onclick="dismissSuccess()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs">Return to Explorer</button>
     </div>
 
+    <!-- MODAL: AUTHENTICATION (Login / Signup) -->
+    <div id="authModal" class="hidden absolute inset-0 bg-white dark:bg-darkbg z-[60] flex flex-col justify-end transition animate-slide-up">
+      <div class="p-6 flex flex-col h-full bg-white dark:bg-darkbg rounded-t-3xl">
+        <div class="flex justify-end pt-2">
+          <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-lg"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex-1 flex flex-col justify-center space-y-6">
+          <div class="text-center space-y-2">
+            <div class="w-14 h-14 rounded-2xl bg-slate-900 mx-auto flex items-center justify-center text-white font-black text-2xl mb-4 shadow-lg shadow-slate-500/20">
+              <i class="fa-solid fa-plane-departure text-xl"></i>
+            </div>
+            <h3 class="font-black text-2xl text-slate-900 dark:text-white">Welcome to Plan-E</h3>
+            <p class="text-sm text-slate-500 dark:text-gray-400">Log in or sign up to unlock frictionless travel.</p>
+          </div>
+          
+          <div class="space-y-3 pt-2">
+            <button onclick="handleSocialLogin('Apple')" class="w-full bg-black text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center space-x-2 text-sm shadow-md hover:scale-[1.02] transition">
+              <i class="fa-brands fa-apple text-lg"></i>
+              <span>Continue with Apple</span>
+            </button>
+            <button onclick="handleSocialLogin('Google')" class="w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-700 font-semibold py-3.5 rounded-2xl flex items-center justify-center space-x-2 text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-[1.02] transition">
+              <i class="fa-brands fa-google text-blue-500 text-lg"></i>
+              <span>Continue with Google</span>
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-4 my-2">
+            <div class="flex-1 h-px bg-slate-200 dark:bg-darkborder"></div>
+            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">or</span>
+            <div class="flex-1 h-px bg-slate-200 dark:bg-darkborder"></div>
+          </div>
+
+          <form onsubmit="handleEmailLogin(event)" class="space-y-3">
+            <input type="email" required placeholder="Email address" class="w-full bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-xl px-4 py-3.5 text-sm outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <input type="password" required placeholder="Password" class="w-full bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-xl px-4 py-3.5 text-sm outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <button type="submit" class="w-full bg-brand text-black hover:bg-[#68c918] font-bold py-3.5 rounded-xl shadow-lg text-sm transition mt-2">Continue with Email</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -205,9 +257,33 @@
     let activeGuideModal = null;
 
     async function initConsumerApp() {
-      // Login as test beta user
-      await loginBeta();
       switchJourney('resort');
+      setTimeout(() => {
+        if (!window.userToken) openAuthModal();
+      }, 1000);
+    }
+
+    function openAuthModal() {
+      document.getElementById('authModal').classList.remove('hidden');
+    }
+    
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.add('hidden');
+    }
+
+    async function handleSocialLogin(provider) {
+      await loginBeta();
+      closeAuthModal();
+      document.getElementById('authProfileIcon').classList.remove('fa-regular');
+      document.getElementById('authProfileIcon').classList.add('fa-solid', 'text-brand');
+    }
+
+    async function handleEmailLogin(e) {
+      e.preventDefault();
+      await loginBeta();
+      closeAuthModal();
+      document.getElementById('authProfileIcon').classList.remove('fa-regular');
+      document.getElementById('authProfileIcon').classList.add('fa-solid', 'text-brand');
     }
 
     async function loginBeta() {
@@ -247,7 +323,27 @@
 
     async function loadHotels() {
       const feed = document.getElementById('resultsFeed');
-      feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading transactional hotels...</div>`;
+      feed.innerHTML = `
+        <div class="animate-pulse space-y-4">
+          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
+            <div class="h-36 bg-slate-200 dark:bg-slate-800"></div>
+            <div class="p-3 space-y-2.5">
+              <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-2/3"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
+              <div class="flex gap-1.5 mt-2">
+                <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div>
+                <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
+            <div class="h-36 bg-slate-200 dark:bg-slate-800"></div>
+            <div class="p-3 space-y-2.5">
+              <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-2/5"></div>
+            </div>
+          </div>
+        </div>`;
       try {
         const res = await fetch(`${API_BASE}/hotels`);
         const json = await res.json();
@@ -278,7 +374,17 @@
 
     async function loadResorts() {
       const feed = document.getElementById('resultsFeed');
-      feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2 text-brand"></i>Loading resort sanctuaries & guides...</div>`;
+      feed.innerHTML = `
+        <div class="animate-pulse space-y-4">
+          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
+            <div class="h-44 bg-slate-200 dark:bg-slate-800"></div>
+            <div class="p-3.5 space-y-3">
+              <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
+              <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-full"></div>
+              <div class="h-16 bg-slate-100 dark:bg-slate-800/50 rounded-xl mt-2 border border-slate-200 dark:border-darkborder"></div>
+            </div>
+          </div>
+        </div>`;
       try {
         const res = await fetch(`${API_BASE}/resorts`);
         const json = await res.json();
@@ -532,7 +638,19 @@
     }
 
     function toggleMyTrips() {
-      alert("Opening My Trips view.");
+      const appBody = document.getElementById('appBody');
+      appBody.innerHTML = `
+        <div class="flex flex-col items-center justify-center h-full text-center space-y-4 pt-10 animate-slide-up">
+          <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 text-2xl shadow-inner">
+            <i class="fa-solid fa-suitcase-rolling"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">No trips yet</h3>
+            <p class="text-xs text-slate-500 dark:text-gray-400 mt-1 max-w-[220px] mx-auto">Time to dust off your bags and start planning your next sanctuary escape.</p>
+          </div>
+          <button onclick="window.location.reload()" class="mt-4 bg-slate-900 dark:bg-brand text-white dark:text-black font-bold text-xs py-2.5 px-6 rounded-xl shadow hover:scale-105 transition">Start Exploring</button>
+        </div>
+      `;
     }
 
     window.onload = initConsumerApp;
