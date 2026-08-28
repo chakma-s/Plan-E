@@ -161,11 +161,49 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.luggage_outlined, size: 64, color: AppTheme.textMuted),
-          const SizedBox(height: 12),
-          const Text("No active bookings found.", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 6),
-          const Text("Your confirmed reservations will appear here.", style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppTheme.getSurfaceColor(context),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+            child: const Icon(Icons.luggage_outlined, size: 64, color: AppTheme.textMuted),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            "No trips yet",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.getTextColor(context)),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              "Time to dust off your bags and start planning your next sanctuary escape.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: AppTheme.getSecondaryTextColor(context), height: 1.4),
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.brandColor,
+              foregroundColor: AppTheme.blackColor,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              // Normally this would pop or change nav index. For now just go back.
+              Navigator.pop(context);
+            },
+            child: const Text("Start Exploring", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          ),
         ],
       ),
     );

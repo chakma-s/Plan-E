@@ -4,7 +4,7 @@ import '../providers/app_state.dart';
 import '../theme/app_theme.dart';
 import 'hotel_search_screen.dart';
 import 'resort_search_screen.dart';
-import 'my_trips_screen.dart';
+import 'my_trips_screen.dart';import '../widgets/auth_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppTheme.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.flight_takeoff, color: AppTheme.getCardColor(context), size: 20),
+              child: const Icon(Icons.flight_takeoff, color: AppTheme.blackColor, size: 20),
             ),
             const SizedBox(width: 10),
             const Text(
@@ -47,8 +47,17 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.account_circle_outlined),
-            onPressed: () {},
+            icon: Icon(
+              state.isAuthenticated ? Icons.account_circle : Icons.account_circle_outlined,
+              color: state.isAuthenticated ? AppTheme.brandColor : AppTheme.getTextColor(context),
+            ),
+            onPressed: () {
+              if (!state.isAuthenticated) {
+                AuthBottomSheet.show(context);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Already logged in")));
+              }
+            },
           ),
         ],
         bottom: PreferredSize(

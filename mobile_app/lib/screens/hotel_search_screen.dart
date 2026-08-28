@@ -4,7 +4,7 @@ import '../providers/app_state.dart';
 import '../widgets/hotel_card.dart';
 import '../widgets/mapbox_map_view.dart';
 import '../theme/app_theme.dart';
-import 'hotel_detail_screen.dart';
+import 'hotel_detail_screen.dart';import '../widgets/skeleton_loader.dart';
 
 class HotelSearchScreen extends StatefulWidget {
   const HotelSearchScreen({super.key});
@@ -84,47 +84,63 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-
-                  // Map/List View switcher removed because layout is now split 50/50
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      side: const BorderSide(color: AppTheme.getDividerColor(context)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {},
+                    icon: const Icon(Icons.tune, size: 14, color: AppTheme.hotelAccent),
+                    label: const Text("Filters", style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      side: const BorderSide(color: AppTheme.getDividerColor(context)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isMapView = !isMapView;
+                      });
+                    },
+                    icon: Icon(isMapView ? Icons.list : Icons.map, size: 14, color: AppTheme.hotelAccent),
+                    label: Text(isMapView ? "List" : "Map", style: const TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600)),
+                  ),
                 ],
               ),
             ],
           ),
         ),
 
-        // Body: 50% Map View / 50% List View
+        // Body: Map View or List View
         Expanded(
           child: state.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    // Top 50%: Map View
-                    Expanded(
-                      flex: 1,
-                      child: MapboxMapView(
-                        properties: state.hotelResults,
-                        onPropertySelected: (prop) => _navigateToDetail(context, state, prop.id),
-                      ),
-                    ),
-                    // Bottom 50%: List View
-                    Expanded(
-                      flex: 1,
-                      child: state.hotelResults.isEmpty
-                          ? _buildEmptyState(state)
-                          : ListView.builder(
-                              padding: const EdgeInsets.only(top: 8, bottom: 24),
-                              itemCount: state.hotelResults.length,
-                              itemBuilder: (context, idx) {
-                                final hotel = state.hotelResults[idx];
-                                return HotelCard(
-                                  hotel: hotel,
-                                  onTap: () => _navigateToDetail(context, state, hotel.id),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                ),
+              ? ListView.builder(
+                  padding: const EdgeInsets.only(top: 8, bottom: 24),
+                  itemCount: 3,
+                  itemBuilder: (context, index) => const SkeletonCard(),
+                )
+              : isMapView
+                  ? MapboxMapView(
+                      properties: state.hotelResults,
+                      onPropertySelected: (prop) => _navigateToDetail(context, state, prop.id),
+                    )
+                  : state.hotelResults.isEmpty
+                      ? _buildEmptyState(state)
+                      : ListView.builder(
+                          padding: const EdgeInsets.only(top: 8, bottom: 24),
+                          itemCount: state.hotelResults.length,
+                          itemBuilder: (context, idx) {
+                            final hotel = state.hotelResults[idx];
+                            return HotelCard(
+                              hotel: hotel,
+                              onTap: () => _navigateToDetail(context, state, hotel.id),
+                            );
+                          },
+                        ),
         ),
       ],
     );
