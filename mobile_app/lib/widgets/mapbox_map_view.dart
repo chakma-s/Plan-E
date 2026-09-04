@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
@@ -20,11 +20,20 @@ class MapboxMapView extends StatefulWidget {
 }
 
 class _MapboxMapViewState extends State<MapboxMapView> {
-  MapboxMapController? mapController;
+  MapLibreMapController? mapController;
   dynamic selectedProperty;
+  bool isStyleLoaded = false;
 
-  static const String mapboxStyle = MapboxStyles.MAPBOX_STREETS;
-  static const String accessToken = "pk.eyJ1IjoicGxhbmUtdHJhdmVsIiwiYSI6ImNsdGVzdHRva2VuIn0.demo";
+  // High-performance worldwide vector tile style with unlimited street-level zoom (no API key required)
+  static const String mapboxStyle = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json";
+
+  @override
+  void didUpdateWidget(covariant MapboxMapView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (isStyleLoaded && oldWidget.properties != widget.properties) {
+      _addPropertyMarkers();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +44,7 @@ class _MapboxMapViewState extends State<MapboxMapView> {
 
     return Stack(
       children: [
-        MapboxMap(
-          accessToken: accessToken,
+        MapLibreMap(
           styleString: mapboxStyle,
           initialCameraPosition: CameraPosition(
             target: initialTarget,
@@ -44,20 +52,50 @@ class _MapboxMapViewState extends State<MapboxMapView> {
           ),
           onMapCreated: (controller) {
             mapController = controller;
+            controller.onSymbolTapped.add(_onSymbolTapped);
+            controller.onCircleTapped.add(_onCircleTapped);
+          },
+          onStyleLoadedCallback: () {
+            if (mounted) {
+              setState(() {
+                isStyleLoaded = true;
+              });
+            }
             _addPropertyMarkers();
           },
           onCameraIdle: () async {
             if (mapController != null && widget.onBoundsChanged != null) {
-              final bounds = await mapController!.getVisibleRegion();
-              widget.onBoundsChanged!(
-                bounds.southwest.latitude,
-                bounds.northeast.latitude,
-                bounds.southwest.longitude,
-                bounds.northeast.longitude,
-              );
+              try {
+                final bounds = await mapController!.getVisibleRegion();
+                widget.onBoundsChanged!(
+                  bounds.southwest.latitude,
+                  bounds.northeast.latitude,
+                  bounds.southwest.longitude,
+                  bounds.northeast.longitude,
+                );
+              } catch (_) {}
             }
           },
         ),
+
+        // Loading overlay until map style is initialized
+        if (!isStyleLoaded)
+          Container(
+            color: Colors.grey.shade100,
+            child: const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(strokeWidth: 2),
+                  SizedBox(height: 12),
+                  Text(
+                    "Loading vector map...",
+                    style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
 
         // Floating Selection Card at bottom of map
         if (selectedProperty != null)
@@ -71,45 +109,67 @@ class _MapboxMapViewState extends State<MapboxMapView> {
     );
   }
 
-  void _addPropertyMarkers() {
-    if (mapController == null) return;
-    mapController!.clearSymbols();
+  Future<void> _addPropertyMarkers() async {
+    if (mapController == null || !isStyleLoaded) return;
+    try {
+      await mapController!.clearSymbols();
+      await mapController!.clearCircles();
 
-    for (final prop in widget.properties) {
-      final isResort = prop is ResortCardModel;
-      final price = isResort
-          ? "\$${prop.startingPricePerNight.toStringAsFixed(0)}"
-          : "\$${prop.minPricePerNight.toStringAsFixed(0)}";
+      for (final prop in widget.properties) {
+        final isResort = prop is ResortCardModel;
+        final price = isResort
+            ? "\$${prop.startingPricePerNight.toStringAsFixed(0)}"
+            : "\$${prop.minPricePerNight.toStringAsFixed(0)}";
 
-      mapController!.addSymbol(
-        SymbolOptions(
-          geometry: LatLng(prop.latitude, prop.longitude),
-          iconImage: isResort ? "resort-pin" : "hotel-pin",
-          iconSize: 1.2,
-          textField: price,
-          textOffset: const Offset(0, 1.2),
-          textSize: 12.0,
-          textColor: isResort ? "#0D9488" : "#4F46E5",
-          textHaloColor: "#FFFFFF",
-          textHaloWidth: 2.0,
-        ),
-        {'id': prop.id},
-      );
-    }
+        // Circle pill background
+        await mapController!.addCircle(
+          CircleOptions(
+            geometry: LatLng(prop.latitude, prop.longitude),
+            circleRadius: 15.0,
+            circleColor: isResort ? "#0D9488" : "#4F46E5",
+            circleStrokeWidth: 2.0,
+            circleStrokeColor: "#FFFFFF",
+          ),
+          {'id': prop.id},
+        );
 
-    mapController!.onSymbolTapped.add((symbol) {
-      final propId = symbol.data?['id'];
-      final match = widget.properties.firstWhere(
-        (p) => p.id == propId,
-        orElse: () => null,
-      );
-      if (match != null) {
-        setState(() {
-          selectedProperty = match;
-        });
-        widget.onPropertySelected(match);
+        // Price text centered in the pill
+        await mapController!.addSymbol(
+          SymbolOptions(
+            geometry: LatLng(prop.latitude, prop.longitude),
+            textField: price,
+            textSize: 10.0,
+            textColor: "#FFFFFF",
+            textAnchor: "center",
+          ),
+          {'id': prop.id},
+        );
       }
-    });
+    } catch (e) {
+      debugPrint("Error updating map markers: $e");
+    }
+  }
+
+  void _onSymbolTapped(Symbol symbol) {
+    _handlePropertyTap(symbol.data?['id']);
+  }
+
+  void _onCircleTapped(Circle circle) {
+    _handlePropertyTap(circle.data?['id']);
+  }
+
+  void _handlePropertyTap(dynamic propId) {
+    if (propId == null) return;
+    final match = widget.properties.firstWhere(
+      (p) => p.id == propId,
+      orElse: () => null,
+    );
+    if (match != null && mounted) {
+      setState(() {
+        selectedProperty = match;
+      });
+      widget.onPropertySelected(match);
+    }
   }
 
   Widget _buildPropertyMiniCard(dynamic prop) {

@@ -70,14 +70,14 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        side: const BorderSide(color: AppTheme.getDividerColor(context)),
+                        side: BorderSide(color: AppTheme.getDividerColor(context)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () => _selectDateRange(context, state),
                       icon: const Icon(Icons.calendar_today, size: 14, color: AppTheme.hotelAccent),
                       label: Text(
                         state.displayDateRange,
-                        style: const TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -87,18 +87,18 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      side: const BorderSide(color: AppTheme.getDividerColor(context)),
+                      side: BorderSide(color: AppTheme.getDividerColor(context)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {},
                     icon: const Icon(Icons.tune, size: 14, color: AppTheme.hotelAccent),
-                    label: const Text("Filters", style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600)),
+                    label: Text("Filters", style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600)),
                   ),
                   const SizedBox(width: 8),
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      side: const BorderSide(color: AppTheme.getDividerColor(context)),
+                      side: BorderSide(color: AppTheme.getDividerColor(context)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {
@@ -107,7 +107,7 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                       });
                     },
                     icon: Icon(isMapView ? Icons.list : Icons.map, size: 14, color: AppTheme.hotelAccent),
-                    label: Text(isMapView ? "List" : "Map", style: const TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600)),
+                    label: Text(isMapView ? "List" : "Map", style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -184,12 +184,12 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
         children: [
           const Icon(Icons.hotel_outlined, size: 64, color: AppTheme.textMuted),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             "No hotels found for your dates.",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.getTextColor(context)),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             "Try expanding your date range or searching another city.",
             style: TextStyle(fontSize: 13, color: AppTheme.getSecondaryTextColor(context)),
           ),

@@ -21,11 +21,17 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Interactive Map Engine (Leaflet + Carto Tiles) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] { box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.25); }
     .hotel-active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] { box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.25); }
+    .leaflet-pane { z-index: 10 !important; }
+    .leaflet-top, .leaflet-bottom { z-index: 11 !important; }
+    .custom-map-pin { background: none; border: none; }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex justify-center items-center py-6 px-4">
@@ -81,7 +87,7 @@
       <div class="bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3 shadow-sm space-y-2">
         <div class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-xl px-3 py-2 text-xs">
           <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
-          <input type="text" id="destinationInput" placeholder="Search destinations..." class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400">
+          <input type="text" id="destinationInput" oninput="handleDestinationSearch()" placeholder="Search destinations..." class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400">
         </div>
         <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-gray-400 font-semibold px-1">
           <span id="dateRangeText" class="cursor-pointer hover:text-brand transition"><i class="fa-regular fa-calendar mr-1 text-brand"></i> Sep 1 - Sep 4</span>
@@ -92,11 +98,16 @@
             <i class="fa-solid fa-sliders"></i>
             <span>Filters</span>
           </button>
-          <button class="flex-1 py-1.5 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-1.5">
-            <i class="fa-solid fa-map"></i>
-            <span>Map View</span>
+          <button id="mapToggleBtn" onclick="toggleMapView()" class="flex-1 py-1.5 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-1.5">
+            <i id="mapToggleIcon" class="fa-solid fa-map"></i>
+            <span id="mapToggleText">Map View</span>
           </button>
         </div>
+      </div>
+
+      <!-- INTERACTIVE MAP CONTAINER -->
+      <div id="mapViewContainer" class="hidden h-[540px] w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-darkborder shadow-inner relative z-0">
+        <div id="consumerMap" class="w-full h-full"></div>
       </div>
 
       <!-- FEED CONTAINER (Hotels or Resorts) -->
@@ -256,6 +267,14 @@
     let activeRoom = null;
     let activeGuideModal = null;
 
+    // Interactive Map & Search State
+    let isMapView = false;
+    let leafletMap = null;
+    let mapMarkersGroup = null;
+    let currentHotels = [];
+    let currentResorts = [];
+    let searchDebounce = null;
+
     async function initConsumerApp() {
       switchJourney('resort');
       setTimeout(() => {
@@ -300,6 +319,126 @@
       }
     }
 
+    function handleDestinationSearch() {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        const q = document.getElementById('destinationInput').value.trim();
+        if (currentJourney === 'hotel') {
+          loadHotels(q);
+        } else {
+          loadResorts(q);
+        }
+      }, 300);
+    }
+
+    function toggleMapView() {
+      isMapView = !isMapView;
+      const feed = document.getElementById('resultsFeed');
+      const mapContainer = document.getElementById('mapViewContainer');
+      const btn = document.getElementById('mapToggleBtn');
+      const icon = document.getElementById('mapToggleIcon');
+      const text = document.getElementById('mapToggleText');
+
+      if (isMapView) {
+        feed.classList.add('hidden');
+        mapContainer.classList.remove('hidden');
+        icon.className = 'fa-solid fa-list';
+        text.innerText = 'List View';
+        btn.classList.add('border-brand', 'text-brand');
+
+        if (!leafletMap) {
+          initLeafletMap();
+        } else {
+          setTimeout(() => {
+            leafletMap.invalidateSize();
+          }, 150);
+        }
+        const items = currentJourney === 'hotel' ? currentHotels : currentResorts;
+        renderMapMarkers(items, currentJourney);
+      } else {
+        mapContainer.classList.add('hidden');
+        feed.classList.remove('hidden');
+        icon.className = 'fa-solid fa-map';
+        text.innerText = 'Map View';
+        btn.classList.remove('border-brand', 'text-brand');
+      }
+    }
+
+    function initLeafletMap() {
+      leafletMap = L.map('consumerMap', {
+        zoomControl: false
+      }).setView([37.7749, -122.4194], 12);
+
+      L.control.zoom({ position: 'bottomright' }).addTo(leafletMap);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO',
+        maxZoom: 19,
+        subdomains: 'abcd'
+      }).addTo(leafletMap);
+
+      mapMarkersGroup = L.featureGroup().addTo(leafletMap);
+      setTimeout(() => {
+        leafletMap.invalidateSize();
+      }, 200);
+    }
+
+    function renderMapMarkers(items, type) {
+      if (!leafletMap || !mapMarkersGroup) return;
+      mapMarkersGroup.clearLayers();
+
+      if (!items || items.length === 0) return;
+
+      const isResort = type === 'resort';
+
+      items.forEach(item => {
+        if (!item.latitude || !item.longitude) return;
+
+        const price = isResort
+          ? `From $${item.starting_price_per_night}`
+          : `$${item.min_price_per_night}`;
+        
+        const badgeBg = isResort ? '#0d9488' : '#4f46e5';
+
+        const customIcon = L.divIcon({
+          className: 'custom-map-pin',
+          html: `
+            <div style="background-color: ${badgeBg};" class="text-white font-extrabold text-[11px] px-2.5 py-1 rounded-full shadow-lg border-2 border-white flex items-center justify-center cursor-pointer hover:scale-110 transition whitespace-nowrap transform -translate-x-1/2 -translate-y-1/2">
+              ${price}
+            </div>
+          `,
+          iconSize: [60, 24],
+          iconAnchor: [0, 0]
+        });
+
+        const marker = L.marker([item.latitude, item.longitude], { icon: customIcon });
+
+        const popupHtml = `
+          <div style="min-width: 170px;" class="p-1 font-sans">
+            <img src="${item.cover_image_url}" style="height: 85px; width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: 6px;">
+            <div style="font-weight: 700; font-size: 12px; line-height: 1.2; margin-bottom: 2px;">${item.name}</div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">⭐ ${item.review_score} • ${item.city}</div>
+            <div style="font-weight: 800; font-size: 12px; color: ${badgeBg}; margin-bottom: 6px;">${price} / nt</div>
+            <button onclick="${isResort ? `openResortDetail('${item.id}')` : `openHotelDetail('${item.id}')`}" style="width: 100%; background-color: #0f172a; color: #ffffff; padding: 5px 0; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; border: none;">
+              View Details
+            </button>
+          </div>
+        `;
+
+        marker.bindPopup(popupHtml, { maxWidth: 220, closeButton: false });
+        mapMarkersGroup.addLayer(marker);
+      });
+
+      try {
+        const bounds = mapMarkersGroup.getBounds();
+        if (bounds.isValid()) {
+          leafletMap.fitBounds(bounds.pad(0.2));
+        }
+      } catch (e) {
+        console.error("fitBounds error", e);
+      }
+    }
+
     function switchJourney(type) {
       currentJourney = type;
       const hotelBtn = document.getElementById('tab-hotel');
@@ -319,9 +458,16 @@
         document.getElementById('destinationInput').placeholder = "Search Resorts & Sanctuaries (e.g. Carmel)...";
         loadResorts();
       }
+
+      if (isMapView) {
+        setTimeout(() => {
+          const items = type === 'hotel' ? currentHotels : currentResorts;
+          renderMapMarkers(items, type);
+        }, 150);
+      }
     }
 
-    async function loadHotels() {
+    async function loadHotels(city = '') {
       const feed = document.getElementById('resultsFeed');
       feed.innerHTML = `
         <div class="animate-pulse space-y-4">
@@ -345,9 +491,18 @@
           </div>
         </div>`;
       try {
-        const res = await fetch(`${API_BASE}/hotels`);
+        const url = city ? `${API_BASE}/hotels?city=${encodeURIComponent(city)}` : `${API_BASE}/hotels`;
+        const res = await fetch(url);
         const json = await res.json();
         const hotels = json.data || [];
+        currentHotels = hotels;
+        if (isMapView) renderMapMarkers(currentHotels, 'hotel');
+
+        if (hotels.length === 0) {
+          feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-500">No hotels found matching "${city}"</div>`;
+          return;
+        }
+
         feed.innerHTML = hotels.map(h => `
           <div onclick="openHotelDetail('${h.id}')" class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer">
             <div class="relative h-36">
@@ -372,7 +527,7 @@
       }
     }
 
-    async function loadResorts() {
+    async function loadResorts(destination = '') {
       const feed = document.getElementById('resultsFeed');
       feed.innerHTML = `
         <div class="animate-pulse space-y-4">
@@ -386,9 +541,18 @@
           </div>
         </div>`;
       try {
-        const res = await fetch(`${API_BASE}/resorts`);
+        const url = destination ? `${API_BASE}/resorts?destination=${encodeURIComponent(destination)}` : `${API_BASE}/resorts`;
+        const res = await fetch(url);
         const json = await res.json();
         const resorts = json.data || [];
+        currentResorts = resorts;
+        if (isMapView) renderMapMarkers(currentResorts, 'resort');
+
+        if (resorts.length === 0) {
+          feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-500">No resorts found matching "${destination}"</div>`;
+          return;
+        }
+
         feed.innerHTML = resorts.map(r => `
           <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
             <div onclick="openResortDetail('${r.id}')" class="relative h-44 cursor-pointer">

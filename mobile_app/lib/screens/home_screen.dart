@@ -64,9 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
           preferredSize: const Size.fromHeight(64),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppTheme.getCardColor(context),
-              border: Border(bottom: BorderSide(color: AppTheme.getDividerColor(context))),
             ),
             child: _buildDualJourneySegmentedControl(state),
           ),

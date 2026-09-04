@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # ============================================================================
 # Stage 2: Minimal Distroless / Hardened Runtime
@@ -27,9 +27,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy installed wheels from builder stage
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
+# Copy installed packages from builder stage
+COPY --from=builder /usr/local /usr/local
 ENV PYTHONPATH=/app
 
 # Copy application source code

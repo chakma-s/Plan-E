@@ -73,14 +73,14 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        side: const BorderSide(color: AppTheme.getDividerColor(context)),
+                        side: BorderSide(color: AppTheme.getDividerColor(context)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () => _selectDateRange(context, state),
                       icon: const Icon(Icons.calendar_month, size: 14, color: AppTheme.resortAccent),
                       label: Text(
                         state.displayDateRange,
-                        style: const TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -201,12 +201,12 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
         children: [
           const Icon(Icons.beach_access_outlined, size: 64, color: AppTheme.textMuted),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             "No resorts found for your filters.",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.getTextColor(context)),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             "Try toggling off 'Bundled Guides' or changing destinations.",
             style: TextStyle(fontSize: 13, color: AppTheme.getSecondaryTextColor(context)),
           ),
