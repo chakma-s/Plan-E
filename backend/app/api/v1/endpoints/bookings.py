@@ -51,6 +51,7 @@ async def create_reservation(
 
 
 @router.get("/my-reservations", response_model=APIResponse[List[ReservationResponse]])
+@router.get("/my-trips", response_model=APIResponse[List[ReservationResponse]])
 async def get_my_reservations(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),

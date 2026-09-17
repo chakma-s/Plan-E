@@ -41,28 +41,33 @@ class GuideCreate(BaseModel):
     headline: str
     bio: str
     profile_photo_url: str
-    languages: list[str]
-    years_of_experience: int
-    hourly_rate: float
-    daily_rate: float
-    specialties: list[str]
+    languages: list[str] = ["English"]
+    years_of_experience: int = 2
+    hourly_rate: float = 35.0
+    daily_rate: float = 200.0
+    specialties: list[str] = ["Cultural Tours"]
+    resort_id: uuid.UUID | None = None
+    is_verified: bool = True
 
 class GuideUpdate(BaseModel):
+    full_name: str | None = None
     headline: str | None = None
     bio: str | None = None
     profile_photo_url: str | None = None
     languages: list[str] | None = None
+    years_of_experience: int | None = None
     hourly_rate: float | None = None
     daily_rate: float | None = None
     specialties: list[str] | None = None
     is_active: bool | None = None
+    resort_id: uuid.UUID | None = None
 
-from datetime import date
+from datetime import date, timedelta
 class GuideAvailabilityCreate(BaseModel):
     availability_date: date
     is_available: bool = True
     
-from app.models.guide import LocalGuide, GuideAvailability
+from app.models.guide import LocalGuide, GuideAvailability, ResortGuideAssociation
 
 @router.post("", response_model=APIResponse[dict])
 async def create_guide(
@@ -80,13 +85,38 @@ async def create_guide(
         hourly_rate=guide_in.hourly_rate,
         daily_rate=guide_in.daily_rate,
         specialties=guide_in.specialties,
-        is_verified=False,
+        is_verified=guide_in.is_verified,
         is_active=True
     )
     db.add(guide)
     await db.commit()
     await db.refresh(guide)
-    return APIResponse(message="Guide created successfully.", data={"id": guide.id})
+
+    # Seed 90 days of open availability calendar so guide can be immediately bundled
+    today = date.today()
+    for d in range(90):
+        avail = GuideAvailability(
+            guide_id=guide.id,
+            availability_date=today + timedelta(days=d),
+            is_available=True,
+            is_booked=False
+        )
+        db.add(avail)
+
+    # Automatically link to resort if specified
+    if guide_in.resort_id:
+        assoc = ResortGuideAssociation(
+            resort_id=guide_in.resort_id,
+            guide_id=guide.id,
+            is_primary=True
+        )
+        db.add(assoc)
+
+    await db.commit()
+    return APIResponse(
+        message="Guide registered and activated with 90-day calendar.",
+        data={"id": str(guide.id), "full_name": guide.full_name, "is_verified": guide.is_verified}
+    )
 
 @router.patch("/{guide_id}", response_model=APIResponse[dict])
 async def update_guide(
@@ -105,11 +135,44 @@ async def update_guide(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Guide not found.")
         
     update_data = guide_in.model_dump(exclude_unset=True)
+    if "resort_id" in update_data:
+        resort_id = update_data.pop("resort_id")
+        from sqlalchemy import delete as sql_delete
+        await db.execute(sql_delete(ResortGuideAssociation).where(ResortGuideAssociation.guide_id == guide_id))
+        if resort_id:
+            assoc = ResortGuideAssociation(
+                resort_id=resort_id,
+                guide_id=guide_id,
+                is_primary=True,
+            )
+            db.add(assoc)
+
     for field, value in update_data.items():
         setattr(guide, field, value)
         
     await db.commit()
-    return APIResponse(message="Guide updated successfully.", data={"id": guide.id})
+    return APIResponse(message="Guide updated successfully.", data={"id": str(guide.id)})
+
+@router.delete("/{guide_id}", response_model=APIResponse[dict])
+async def delete_guide(
+    guide_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from sqlalchemy import select, delete as sql_delete
+    stmt = select(LocalGuide).where(LocalGuide.id == guide_id)
+    res = await db.execute(stmt)
+    guide = res.scalar_one_or_none()
+    if not guide:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Guide not found.")
+
+    # Delete related records first
+    await db.execute(sql_delete(GuideAvailability).where(GuideAvailability.guide_id == guide_id))
+    await db.execute(sql_delete(ResortGuideAssociation).where(ResortGuideAssociation.guide_id == guide_id))
+    await db.delete(guide)
+    await db.commit()
+    return APIResponse(message="Guide deleted successfully.", data={"id": str(guide_id)})
 
 @router.post("/{guide_id}/availabilities", response_model=APIResponse[dict])
 async def set_guide_availability(

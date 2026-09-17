@@ -1,3 +1,21 @@
+double _toDouble(dynamic value, [double defaultValue = 0.0]) {
+  if (value == null) return defaultValue;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString()) ?? defaultValue;
+}
+
+double? _toOptionalDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
+}
+
+int _toInt(dynamic value, [int defaultValue = 0]) {
+  if (value == null) return defaultValue;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString()) ?? defaultValue;
+}
+
 class UserModel {
   final String id;
   final String email;
@@ -36,6 +54,7 @@ class HotelCardModel {
   final double reviewScore;
   final int reviewCount;
   final String coverImageUrl;
+  final List<String> galleryImages;
   final List<String> amenities;
   final double minPricePerNight;
   final bool isAvailable;
@@ -52,6 +71,7 @@ class HotelCardModel {
     required this.reviewScore,
     required this.reviewCount,
     required this.coverImageUrl,
+    this.galleryImages = const [],
     required this.amenities,
     required this.minPricePerNight,
     required this.isAvailable,
@@ -64,15 +84,15 @@ class HotelCardModel {
       slug: json['slug'] ?? '',
       city: json['city'] ?? '',
       address: json['address'] ?? '',
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-      starRating: (json['star_rating'] as num?)?.toDouble() ?? 4.0,
-      reviewScore: (json['review_score'] as num?)?.toDouble() ?? 0.0,
-      reviewCount: json['review_count'] ?? 0,
+      latitude: _toDouble(json['latitude']),
+      longitude: _toDouble(json['longitude']),
+      starRating: _toDouble(json['star_rating'], 4.0),
+      reviewScore: _toDouble(json['review_score']),
+      reviewCount: _toInt(json['review_count']),
       coverImageUrl: json['cover_image_url'] ?? '',
+      galleryImages: List<String>.from(json['gallery_images'] ?? []),
       amenities: List<String>.from(json['amenities'] ?? []),
-      minPricePerNight: (json['min_price_per_night'] as num?)?.toDouble() ??
-          (double.tryParse(json['min_price_per_night']?.toString() ?? '') ?? 0.0),
+      minPricePerNight: _toDouble(json['min_price_per_night']),
       isAvailable: json['is_available'] ?? true,
     );
   }
@@ -116,16 +136,14 @@ class LocalGuideModel {
       headline: json['headline'] ?? '',
       profilePhotoUrl: json['profile_photo_url'] ?? '',
       languages: List<String>.from(json['languages'] ?? []),
-      dailyRate: (json['daily_rate'] as num?)?.toDouble() ??
-          (double.tryParse(json['daily_rate']?.toString() ?? '') ?? 200.0),
-      hourlyRate: (json['hourly_rate'] as num?)?.toDouble() ??
-          (double.tryParse(json['hourly_rate']?.toString() ?? '') ?? 35.0),
-      rating: (json['rating'] as num?)?.toDouble() ?? 5.0,
-      reviewCount: json['review_count'] ?? 0,
+      dailyRate: _toDouble(json['daily_rate'], 200.0),
+      hourlyRate: _toDouble(json['hourly_rate'], 35.0),
+      rating: _toDouble(json['rating'], 5.0),
+      reviewCount: _toInt(json['review_count']),
       specialties: List<String>.from(json['specialties'] ?? []),
       isVerified: json['is_verified'] ?? false,
       bio: json['bio'],
-      yearsOfExperience: json['years_of_experience'] ?? 1,
+      yearsOfExperience: _toInt(json['years_of_experience'], 1),
     );
   }
 }
@@ -178,17 +196,16 @@ class ResortCardModel {
       tagline: json['tagline'],
       city: json['city'] ?? '',
       country: json['country'] ?? '',
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-      starRating: (json['star_rating'] as num?)?.toDouble() ?? 5.0,
-      reviewScore: (json['review_score'] as num?)?.toDouble() ?? 0.0,
-      reviewCount: json['review_count'] ?? 0,
+      latitude: _toDouble(json['latitude']),
+      longitude: _toDouble(json['longitude']),
+      starRating: _toDouble(json['star_rating'], 5.0),
+      reviewScore: _toDouble(json['review_score']),
+      reviewCount: _toInt(json['review_count']),
       coverImageUrl: json['cover_image_url'] ?? '',
       galleryImages: List<String>.from(json['gallery_images'] ?? []),
       amenities: List<String>.from(json['amenities'] ?? []),
-      startingPricePerNight: (json['starting_price_per_night'] as num?)?.toDouble() ??
-          (double.tryParse(json['starting_price_per_night']?.toString() ?? '') ?? 0.0),
-      availableGuidesCount: json['available_guides_count'] ?? 0,
+      startingPricePerNight: _toDouble(json['starting_price_per_night']),
+      availableGuidesCount: _toInt(json['available_guides_count']),
       featuredGuides: guidesJson.map((g) => LocalGuideModel.fromJson(g)).toList(),
     );
   }
@@ -227,15 +244,13 @@ class RoomTypeModel {
       propertyId: json['property_id'] ?? '',
       name: json['name'] ?? '',
       description: json['description'],
-      maxOccupancy: json['max_occupancy'] ?? 2,
+      maxOccupancy: _toInt(json['max_occupancy'], 2),
       bedConfiguration: json['bed_configuration'] ?? '1 King Bed',
-      basePricePerNight: (json['base_price_per_night'] as num?)?.toDouble() ??
-          (double.tryParse(json['base_price_per_night']?.toString() ?? '') ?? 0.0),
+      basePricePerNight: _toDouble(json['base_price_per_night']),
       amenities: List<String>.from(json['amenities'] ?? []),
       images: List<String>.from(json['images'] ?? []),
-      availableRooms: json['available_rooms'],
-      currentPricePerNight: (json['current_price_per_night'] as num?)?.toDouble() ??
-          (double.tryParse(json['current_price_per_night']?.toString() ?? '')),
+      availableRooms: json['available_rooms'] != null ? _toInt(json['available_rooms']) : null,
+      currentPricePerNight: _toOptionalDouble(json['current_price_per_night']),
     );
   }
 }
@@ -298,11 +313,11 @@ class PropertyDetailModel {
       address: json['address'] ?? '',
       city: json['city'] ?? '',
       country: json['country'] ?? '',
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-      starRating: (json['star_rating'] as num?)?.toDouble() ?? 4.0,
-      reviewScore: (json['review_score'] as num?)?.toDouble() ?? 0.0,
-      reviewCount: json['review_count'] ?? 0,
+      latitude: _toDouble(json['latitude']),
+      longitude: _toDouble(json['longitude']),
+      starRating: _toDouble(json['star_rating'], 4.0),
+      reviewScore: _toDouble(json['review_score']),
+      reviewCount: _toInt(json['review_count']),
       coverImageUrl: json['cover_image_url'] ?? '',
       galleryImages: List<String>.from(json['gallery_images'] ?? []),
       amenities: List<String>.from(json['amenities'] ?? []),
@@ -338,17 +353,12 @@ class PriceQuoteModel {
 
   factory PriceQuoteModel.fromJson(Map<String, dynamic> json) {
     return PriceQuoteModel(
-      totalNights: json['total_nights'] ?? 1,
-      roomSubtotal: (json['room_subtotal'] as num?)?.toDouble() ??
-          (double.tryParse(json['room_subtotal']?.toString() ?? '') ?? 0.0),
-      guideSubtotal: (json['guide_subtotal'] as num?)?.toDouble() ??
-          (double.tryParse(json['guide_subtotal']?.toString() ?? '') ?? 0.0),
-      platformFee: (json['platform_fee'] as num?)?.toDouble() ??
-          (double.tryParse(json['platform_fee']?.toString() ?? '') ?? 0.0),
-      taxAmount: (json['tax_amount'] as num?)?.toDouble() ??
-          (double.tryParse(json['tax_amount']?.toString() ?? '') ?? 0.0),
-      totalAmount: (json['total_amount'] as num?)?.toDouble() ??
-          (double.tryParse(json['total_amount']?.toString() ?? '') ?? 0.0),
+      totalNights: _toInt(json['total_nights'], 1),
+      roomSubtotal: _toDouble(json['room_subtotal']),
+      guideSubtotal: _toDouble(json['guide_subtotal']),
+      platformFee: _toDouble(json['platform_fee']),
+      taxAmount: _toDouble(json['tax_amount']),
+      totalAmount: _toDouble(json['total_amount']),
       currency: json['currency'] ?? 'USD',
       isAvailable: json['is_available'] ?? true,
       unavailabilityReason: json['unavailability_reason'],
@@ -413,18 +423,13 @@ class ReservationModel {
       paymentStatus: json['payment_status'] ?? 'PAID',
       checkInDate: json['check_in_date'] ?? '',
       checkOutDate: json['check_out_date'] ?? '',
-      totalNights: json['total_nights'] ?? 1,
-      guestCount: json['guest_count'] ?? 1,
-      roomSubtotal: (json['room_subtotal'] as num?)?.toDouble() ??
-          (double.tryParse(json['room_subtotal']?.toString() ?? '') ?? 0.0),
-      guideSubtotal: (json['guide_subtotal'] as num?)?.toDouble() ??
-          (double.tryParse(json['guide_subtotal']?.toString() ?? '') ?? 0.0),
-      platformFee: (json['platform_fee'] as num?)?.toDouble() ??
-          (double.tryParse(json['platform_fee']?.toString() ?? '') ?? 0.0),
-      taxAmount: (json['tax_amount'] as num?)?.toDouble() ??
-          (double.tryParse(json['tax_amount']?.toString() ?? '') ?? 0.0),
-      totalAmount: (json['total_amount'] as num?)?.toDouble() ??
-          (double.tryParse(json['total_amount']?.toString() ?? '') ?? 0.0),
+      totalNights: _toInt(json['total_nights'], 1),
+      guestCount: _toInt(json['guest_count'], 1),
+      roomSubtotal: _toDouble(json['room_subtotal']),
+      guideSubtotal: _toDouble(json['guide_subtotal']),
+      platformFee: _toDouble(json['platform_fee']),
+      taxAmount: _toDouble(json['tax_amount']),
+      totalAmount: _toDouble(json['total_amount']),
       currency: json['currency'] ?? 'USD',
       specialRequests: json['special_requests'],
       guideName: guideItem != null ? guideItem['guide_name'] : null,

@@ -30,6 +30,10 @@ from app.schemas.booking import (
     RoomBookingItemResponse,
     GuideBookingItemResponse,
 )
+from app.core.regional_policy import RegionalPolicyManager
+from app.services.notification_service import NotificationService
+from app.services.payment_gateway import PaymentGatewayFactory
+
 
 
 def generate_reservation_code() -> str:
@@ -92,23 +96,22 @@ class BookingService:
                 target_d = quote_req.check_in_date + timedelta(days=day_idx)
                 alloc = alloc_map.get(target_d)
 
-                if not alloc:
-                    is_available = False
-                    unavailability_reason = f"No room allocation found for {room_type.name} on {target_d}."
-                    break
-
-                free_rooms = alloc.total_allocated - alloc.booked_count
-                if free_rooms < room_item.rooms_count:
-                    is_available = False
-                    unavailability_reason = (
-                        f"Only {free_rooms} rooms available for {room_type.name} on {target_d}, "
-                        f"requested {room_item.rooms_count}."
-                    )
-                    break
+                if alloc:
+                    free_rooms = alloc.total_allocated - alloc.booked_count
+                    if free_rooms < room_item.rooms_count:
+                        is_available = False
+                        unavailability_reason = (
+                            f"Only {free_rooms} rooms available for {room_type.name} on {target_d}, "
+                            f"requested {room_item.rooms_count}."
+                        )
+                        break
+                    rate_mult = alloc.rate_multiplier
+                else:
+                    rate_mult = Decimal("1.00")
 
                 daily_cost = (
                     room_type.base_price_per_night
-                    * alloc.rate_multiplier
+                    * rate_mult
                     * Decimal(room_item.rooms_count)
                 )
                 item_room_cost += daily_cost
@@ -134,23 +137,19 @@ class BookingService:
                 for day_idx in range(guide_req.duration_days):
                     target_d = guide_req.service_date + timedelta(days=day_idx)
                     av = guide_avail_map.get(target_d)
-                    if not av or not av.is_available or av.is_booked:
+                    if av and (not av.is_available or av.is_booked):
                         is_available = False
                         unavailability_reason = f"Local guide {guide.full_name} is unavailable on {target_d}."
                         break
 
                 guide_subtotal = guide.daily_rate * Decimal(guide_req.duration_days)
 
-        # 3. Calculate Platform Fees and Taxes
-        platform_fee = (
-            (room_subtotal + guide_subtotal) * Decimal(str(settings.PLATFORM_FEE_PERCENTAGE / 100))
-        ).quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
-
-        tax_amount = (
-            (room_subtotal + guide_subtotal) * Decimal(str(settings.DEFAULT_TAX_PERCENTAGE / 100))
-        ).quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
-
-        total_amount = room_subtotal + guide_subtotal + platform_fee + tax_amount
+        # 3. Calculate Platform Fees and Taxes per Regional Policy
+        policy = RegionalPolicyManager.get_policy()
+        totals = RegionalPolicyManager.calculate_totals(room_subtotal, guide_subtotal)
+        platform_fee = totals["platform_fee"]
+        tax_amount = totals["tax_amount"]
+        total_amount = totals["total_amount"]
 
         return PriceQuoteResponse(
             total_nights=stay_nights,
@@ -159,7 +158,7 @@ class BookingService:
             platform_fee=platform_fee,
             tax_amount=tax_amount,
             total_amount=total_amount.quantize(Decimal(".01")),
-            currency="USD",
+            currency=policy.currency,
             is_available=is_available,
             unavailability_reason=unavailability_reason,
         )
@@ -236,10 +235,17 @@ class BookingService:
                 alloc = alloc_result.scalar_one_or_none()
 
                 if not alloc:
-                    raise HTTPException(
-                        status_code=status.HTTP_409_CONFLICT,
-                        detail=f"No room allocation open for {room_type.name} on {target_d}."
+                    # Dynamically initialize standard allocation for unconfigured date
+                    alloc = RoomAllocation(
+                        room_type_id=room_type.id,
+                        allocation_date=target_d,
+                        total_allocated=10,
+                        booked_count=0,
+                        rate_multiplier=Decimal("1.00"),
+                        is_closed=False,
                     )
+                    db.add(alloc)
+                    await db.flush()
 
                 if (alloc.total_allocated - alloc.booked_count) < room_item.rooms_count:
                     raise HTTPException(
@@ -295,7 +301,17 @@ class BookingService:
                 g_res = await db.execute(g_stmt)
                 guide_avail = g_res.scalar_one_or_none()
 
-                if not guide_avail or not guide_avail.is_available or guide_avail.is_booked:
+                if not guide_avail:
+                    guide_avail = GuideAvailability(
+                        guide_id=guide.id,
+                        availability_date=target_d,
+                        is_available=True,
+                        is_booked=False,
+                    )
+                    db.add(guide_avail)
+                    await db.flush()
+
+                if not guide_avail.is_available or guide_avail.is_booked:
                     raise HTTPException(
                         status_code=status.HTTP_409_CONFLICT,
                         detail=f"Guide {guide.full_name} is already booked or unavailable on {target_d}."
@@ -317,17 +333,13 @@ class BookingService:
             )
 
         # ---------------------------------------------------------------------
-        # 3. Financial Calculation & Master Reservation Creation
+        # 3. Financial Calculation & Master Reservation Creation per Regional Policy
         # ---------------------------------------------------------------------
-        platform_fee = (
-            (room_subtotal + guide_subtotal) * Decimal(str(settings.PLATFORM_FEE_PERCENTAGE / 100))
-        ).quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
-
-        tax_amount = (
-            (room_subtotal + guide_subtotal) * Decimal(str(settings.DEFAULT_TAX_PERCENTAGE / 100))
-        ).quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
-
-        total_amount = room_subtotal + guide_subtotal + platform_fee + tax_amount
+        policy = RegionalPolicyManager.get_policy()
+        totals = RegionalPolicyManager.calculate_totals(room_subtotal, guide_subtotal)
+        platform_fee = totals["platform_fee"]
+        tax_amount = totals["tax_amount"]
+        total_amount = totals["total_amount"]
 
         reservation_code = generate_reservation_code()
 
@@ -348,7 +360,7 @@ class BookingService:
             platform_fee=platform_fee,
             tax_amount=tax_amount,
             total_amount=total_amount.quantize(Decimal(".01")),
-            currency="USD",
+            currency=policy.currency,
             special_requests=req.special_requests,
         )
         db.add(reservation)
@@ -363,6 +375,55 @@ class BookingService:
             db.add(guide_item_to_create)
 
         await db.commit()
+
+        # Step 4: Dispatch Transactional Communications (Resilient)
+        try:
+            user_stmt = select(User).where(User.id == user_id)
+            user_res = await db.execute(user_stmt)
+            buyer = user_res.scalar_one_or_none()
+            buyer_email = buyer.email if buyer else "traveler@example.com"
+            buyer_name = buyer.full_name if buyer else "Traveler"
+            guide_name = None
+            if guide_item_to_create:
+                g_stmt = (
+                    select(LocalGuide)
+                    .options(selectinload(LocalGuide.user))
+                    .where(LocalGuide.id == guide_item_to_create.guide_id)
+                )
+                g_res = await db.execute(g_stmt)
+                g_obj = g_res.scalar_one_or_none()
+                if g_obj:
+                    guide_name = g_obj.full_name
+                    guide_email = (
+                        g_obj.user.email
+                        if g_obj.user and g_obj.user.email
+                        else f"guide-{g_obj.id}@plan-e.example.com"
+                    )
+                    await NotificationService.dispatch_guide_alert(
+                        guide_email=guide_email,
+                        guide_name=g_obj.full_name,
+                        reservation_code=reservation_code,
+                        service_date=str(req.check_in_date),
+                        duration_days=stay_nights,
+                        property_name=property_obj.name,
+                    )
+
+            await NotificationService.dispatch_booking_confirmation(
+                reservation_code=reservation_code,
+                traveler_email=buyer_email,
+                traveler_name=buyer_name,
+                property_name=property_obj.name,
+                check_in_date=str(req.check_in_date),
+                check_out_date=str(req.check_out_date),
+                total_nights=stay_nights,
+                total_amount=float(total_amount),
+                currency=policy.currency,
+                guide_name=guide_name,
+            )
+        except Exception as notif_err:
+            import logging
+            logging.getLogger("plane.booking").warning(f"Notification dispatch error: {notif_err}")
+
         return await cls.get_reservation_by_id(db, reservation.id)
 
 
@@ -422,10 +483,39 @@ class BookingService:
                 guide_avail = g_res.scalar_one_or_none()
                 if guide_avail:
                     guide_avail.is_booked = False
-                    
         res.status = BookingStatus.CANCELLED
         res.payment_status = PaymentStatus.REFUNDED
         await db.commit()
+
+        # Step 3: Trigger pluggable regional refund hook & dispatch notification
+        try:
+            gateway = PaymentGatewayFactory.get_active_gateway()
+            await gateway.process_refund(
+                transaction_id=str(res.id),
+                amount=res.total_amount,
+                currency=res.currency,
+                reason="Customer cancellation within statutory policy",
+            )
+
+            user_stmt = select(User).where(User.id == res.user_id)
+            user_res = await db.execute(user_stmt)
+            buyer = user_res.scalar_one_or_none()
+            buyer_email = buyer.email if buyer else "traveler@example.com"
+            buyer_name = buyer.full_name if buyer else "Traveler"
+
+            prop_name = res.property.name if (hasattr(res, 'property') and res.property) else "Booked Property"
+            await NotificationService.dispatch_cancellation_confirmation(
+                reservation_code=res.reservation_code,
+                traveler_email=buyer_email,
+                traveler_name=buyer_name,
+                property_name=prop_name,
+                refund_amount=float(res.total_amount),
+                currency=res.currency,
+            )
+        except Exception as refund_err:
+            import logging
+            logging.getLogger("plane.booking").warning(f"Post-cancellation trigger error: {refund_err}")
+
         return res
 
     @classmethod

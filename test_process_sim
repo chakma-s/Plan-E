@@ -1,0 +1,90 @@
+### Recommended Architecture for E2E Simulation
+
+    ┌────────────────────────────────────────────────────────────────────────┐
+    │                        Your Linux Workstation                          │
+    │                                                                        │
+    │  ┌───────────────────────┐             ┌────────────────────────────┐  │
+    │  │     Docker Stack      │             │      Browser Windows       │  │
+    │  │  (~350 MB RAM total)  │             │   (Side-by-Side Testing)   │  │
+    │  │                       │             │                            │  │
+    │  │ • PostgreSQL (DB)     │◄────────────┼─► [Admin Portal]           │  │
+    │  │ • FastAPI (API Engine)│             │   http://localhost/admin/  │  │
+    │  │ • Nginx (Proxy/Web)   │◄────────────┼─► [Vendor Portal]          │  │
+    │  └───────────────────────┘             │   http://localhost/vendor/ │  │
+    │              ▲                         │                            │  │
+    │              │                         └────────────────────────────┘  │
+    │              │                                                         │
+    │              │ (REST / API v1)                                         │
+    │              │                                                         │
+    │  ┌───────────┴─────────────────────────┐                               │
+    │  │          Mobile App Client          │                               │
+    │  │                                     │                               │
+    │  │ Option A: Flutter Web (Chrome)      │ (Inspect mobile viewport)     │
+    │  │ Option B: Physical Phone + scrcpy   │ (Real device, 0% PC load)     │
+    └────────────────────────────────────────────────────────────────────────┘
+  ──────
+  ### 1. The Backend & Portals Backbone: Local Docker Compose
+
+  Use your existing docker-compose.yml:
+
+  • Services running:
+      • PostgreSQL (15-Alpine): Pre-loaded with your schema.sql and seed.sql.
+      • FastAPI Backend: Exposing API endpoints at http://localhost:8000.
+      • Nginx Reverse Proxy: Exposing port 80 to route both APIs and web portals.
+  • Why it’s the best:
+      • Uses less than 350 MB RAM for the entire backend stack.
+      • Replicates exact production network topologies (Nginx proxy rules, headers,
+      CORS).
+      • Instant Reset: If test data gets messy, one command (docker compose down -v &&
+      docker compose up -d) resets everything to clean seed state in 5 seconds.
+
+  ──────
+  ### 2. Testing Portals: Multi-Role Browser Session
+
+  Open your standard browser (Chrome or Firefox) in split-screen:
+
+  • Window 1 (Admin Portal): http://localhost/admin/ — Monitor platform metrics, audit
+  logs, and approval queues.
+  • Window 2 (Vendor Portal): http://localhost/vendor/ — Manage inventory, add
+  hotels/guides/tours, and confirm bookings.
+  • Window 3 (Consumer Web): http://localhost/consumer/ — Test public customer booking
+  flows.
+  ──────
+  ### 3. Simulating the Mobile App: Flutter Web or USB Phone
+
+  For the mobile application (mobile_app), avoid Android Studio and choose one of two
+  paths:
+
+  #### Option A: Flutter Web with Chrome DevTools Device Mode (Fastest)
+
+  • How it works: Run flutter run -d chrome.
+  • In Chrome, press F12 followed by Ctrl + Shift + M to switch into mobile viewport
+  mode (e.g., Pixel 7 / iPhone 14 layout).
+  • Why it's great:
+      • Your ApiService is already coded to route to http://127.0.0.1:8000/api/v1 when
+      running on web.
+      • Uses only ~250 MB of RAM.
+      • You can place all three views (Admin, Vendor, Mobile) on one screen
+      simultaneously.
+
+
+  #### Option B: Physical Phone + scrcpy (Closest to Real Production)
+
+  • How it works: Plug in your Android phone via USB, run scrcpy on Linux to view the
+  phone screen on your monitor, and run flutter run.
+  • Forward the API port so the phone can reach your local Docker container:
+    adb reverse tcp:8000 tcp:8000
+
+  • Why it's great: Zero emulation overhead on your computer, but tests actual touch
+  feel, mobile networking, and native performance.
+  ──────
+  ### Why this is the Best Workflow for End-to-End Simulation:
+
+  1. Total System Footprint: ~1.0 to 1.2 GB RAM across the entire stack (compared to 8+
+  GB with Android Studio + Emulator).
+  2. True Closed-Loop Verification:
+      • Step 1: Create/modify a travel package in the Vendor Portal.
+      • Step 2: Inspect approval/status in the Admin Portal.
+      • Step 3: Open the Mobile App, find the package, and book it.
+      • Step 4: Watch the booking update live across both the Vendor dashboard and
+      Admin metrics.

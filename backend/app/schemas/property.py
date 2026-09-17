@@ -53,7 +53,7 @@ class PropertyUpdate(BaseModel):
 
 class PropertyCreate(PropertyBase):
     property_type: PropertyType
-    vendor_id: uuid.UUID
+    vendor_id: Optional[uuid.UUID] = None
 
 
 # -----------------------------------------------------------------------------
@@ -72,6 +72,8 @@ class HotelSearchParams(BaseModel):
     max_price: Optional[Decimal] = None
     min_rating: Optional[Decimal] = None
     sort_by: str = "recommended"  # price_asc, price_desc, rating_desc, distance
+    page: int = 1
+    page_size: int = 20
 
 
 class HotelCardResponse(BaseModel):
@@ -88,6 +90,7 @@ class HotelCardResponse(BaseModel):
     review_score: Decimal
     review_count: int
     cover_image_url: str
+    gallery_images: List[str] = Field(default_factory=list)
     amenities: List[str]
     min_price_per_night: Decimal
     is_available: bool = True
@@ -110,6 +113,9 @@ class ResortSearchParams(BaseModel):
     max_lon: Optional[Decimal] = None
     with_guides_only: bool = False
     sort_by: str = "featured"  # featured, price_asc, rating_desc
+    page: int = 1
+    page_size: int = 20
+
 
 
 class ResortCardResponse(BaseModel):

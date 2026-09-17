@@ -5,7 +5,7 @@ from httpx import AsyncClient
 
 async def get_auth_token(client: AsyncClient) -> str:
     login_payload = {
-        "email": "traveler.alex@example.com",
+        "email": "john.doe@example.com",
         "password": "Password123!",
     }
     res = await client.post("/api/v1/auth/login", json=login_payload)
@@ -16,11 +16,13 @@ async def get_auth_token(client: AsyncClient) -> str:
 async def test_price_quote_with_guide_bundle(client: AsyncClient):
     # Fetch Resort & Room Types
     resort_res = await client.get("/api/v1/resorts")
-    resort_id = resort_res.json()["data"][0]["id"]
+    resort_item = next(r for r in resort_res.json()["data"] if r["name"] == "Azure Bay Oceanfront Resort & Sanctuary")
+    resort_id = resort_item["id"]
 
     detail_res = await client.get(f"/api/v1/resorts/{resort_id}")
     room_type_id = detail_res.json()["data"]["room_types"][0]["id"]
-    guide_id = detail_res.json()["data"]["associated_guides"][0]["id"]
+    guide = next(g for g in detail_res.json()["data"]["associated_guides"] if g["full_name"] == "Captain Kai Tanaka")
+    guide_id = guide["id"]
 
     today = date.today()
     check_in = (today + timedelta(days=5)).isoformat()
@@ -58,11 +60,13 @@ async def test_create_bundled_resort_reservation(client: AsyncClient):
 
     # Fetch Resort, Room Type, and Guide
     resort_res = await client.get("/api/v1/resorts")
-    resort_id = resort_res.json()["data"][0]["id"]
+    resort_item = next(r for r in resort_res.json()["data"] if r["name"] == "Azure Bay Oceanfront Resort & Sanctuary")
+    resort_id = resort_item["id"]
 
     detail_res = await client.get(f"/api/v1/resorts/{resort_id}")
     room_type_id = detail_res.json()["data"]["room_types"][0]["id"]
-    guide_id = detail_res.json()["data"]["associated_guides"][0]["id"]
+    guide = next(g for g in detail_res.json()["data"]["associated_guides"] if g["full_name"] == "Captain Kai Tanaka")
+    guide_id = guide["id"]
 
     today = date.today()
     check_in = (today + timedelta(days=10)).isoformat()

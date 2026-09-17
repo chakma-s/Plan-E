@@ -25,6 +25,21 @@ class AppState extends ChangeNotifier {
   // Dual-Journey Tab State
   JourneyType activeJourney = JourneyType.hotel;
 
+  // Hotel Screen Map/List View Persistence
+  bool isHotelMapView = false;
+
+  void toggleHotelMapView() {
+    isHotelMapView = !isHotelMapView;
+    notifyListeners();
+  }
+
+  void setHotelMapView(bool value) {
+    if (isHotelMapView != value) {
+      isHotelMapView = value;
+      notifyListeners();
+    }
+  }
+
   // Date Selection Defaults (Check-in tomorrow, Check-out 3 days later)
   DateTime checkInDate = DateTime.now().add(const Duration(days: 1));
   DateTime checkOutDate = DateTime.now().add(const Duration(days: 4));
@@ -77,7 +92,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> loginAsBetaUser() async {
     try {
-      final res = await api.login('traveler.alex@example.com', 'Password123!');
+      final res = await api.login('john.doe@example.com', 'Password123!');
       currentUser = UserModel.fromJson(res['user']);
       isAuthenticated = true;
       notifyListeners();

@@ -6,12 +6,18 @@ import '../theme/app_theme.dart';
 class MapboxMapView extends StatefulWidget {
   final List<dynamic> properties; // List<HotelCardModel> or List<ResortCardModel>
   final Function(dynamic property) onPropertySelected;
+  final Function(dynamic property)? onPropertyTap;
+  final String? selectedPropertyId;
+  final bool showBottomMiniCard;
   final Function(double minLat, double maxLat, double minLon, double maxLon)? onBoundsChanged;
 
   const MapboxMapView({
     super.key,
     required this.properties,
     required this.onPropertySelected,
+    this.onPropertyTap,
+    this.selectedPropertyId,
+    this.showBottomMiniCard = true,
     this.onBoundsChanged,
   });
 
@@ -30,17 +36,52 @@ class _MapboxMapViewState extends State<MapboxMapView> {
   @override
   void didUpdateWidget(covariant MapboxMapView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (isStyleLoaded && oldWidget.properties != widget.properties) {
-      _addPropertyMarkers();
+    if (isStyleLoaded) {
+      if (oldWidget.properties != widget.properties ||
+          oldWidget.selectedPropertyId != widget.selectedPropertyId) {
+        _addPropertyMarkers();
+      }
+      if (widget.selectedPropertyId != null &&
+          widget.selectedPropertyId != oldWidget.selectedPropertyId) {
+        final prop = widget.properties.firstWhere(
+          (p) => p.id == widget.selectedPropertyId,
+          orElse: () => null,
+        );
+        if (prop != null) {
+          setState(() {
+            selectedProperty = prop;
+          });
+          mapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(
+              LatLng(prop.latitude, prop.longitude),
+              13.5,
+            ),
+          );
+        }
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Default initial location: San Francisco / Carmel Bay area
-    final initialTarget = widget.properties.isNotEmpty
-        ? LatLng(widget.properties.first.latitude, widget.properties.first.longitude)
-        : const LatLng(37.7749, -122.4194);
+    // Default initial location: Bangalore, India
+    final bangaloreProp = widget.properties.cast<dynamic>().firstWhere(
+      (p) {
+        try {
+          final city = (p.city as String?)?.toLowerCase() ?? '';
+          return city.contains('bangalore') || city.contains('bengaluru');
+        } catch (_) {
+          return false;
+        }
+      },
+      orElse: () => null,
+    );
+
+    final initialTarget = bangaloreProp != null
+        ? LatLng(bangaloreProp.latitude, bangaloreProp.longitude)
+        : (widget.properties.isNotEmpty
+            ? LatLng(widget.properties.first.latitude, widget.properties.first.longitude)
+            : const LatLng(12.9716, 77.5946));
 
     return Stack(
       children: [
@@ -98,7 +139,7 @@ class _MapboxMapViewState extends State<MapboxMapView> {
           ),
 
         // Floating Selection Card at bottom of map
-        if (selectedProperty != null)
+        if (widget.showBottomMiniCard && selectedProperty != null)
           Positioned(
             bottom: 20,
             left: 16,
@@ -115,8 +156,11 @@ class _MapboxMapViewState extends State<MapboxMapView> {
       await mapController!.clearSymbols();
       await mapController!.clearCircles();
 
+      final activeId = widget.selectedPropertyId ?? selectedProperty?.id;
+
       for (final prop in widget.properties) {
         final isResort = prop is ResortCardModel;
+        final isSelected = prop.id == activeId;
         final price = isResort
             ? "\$${prop.startingPricePerNight.toStringAsFixed(0)}"
             : "\$${prop.minPricePerNight.toStringAsFixed(0)}";
@@ -125,10 +169,12 @@ class _MapboxMapViewState extends State<MapboxMapView> {
         await mapController!.addCircle(
           CircleOptions(
             geometry: LatLng(prop.latitude, prop.longitude),
-            circleRadius: 15.0,
-            circleColor: isResort ? "#0D9488" : "#4F46E5",
-            circleStrokeWidth: 2.0,
-            circleStrokeColor: "#FFFFFF",
+            circleRadius: isSelected ? 20.0 : 15.0,
+            circleColor: isSelected
+                ? "#0F172A"
+                : (isResort ? "#0D9488" : "#4F46E5"),
+            circleStrokeWidth: isSelected ? 3.5 : 2.0,
+            circleStrokeColor: isSelected ? "#7DE720" : "#FFFFFF",
           ),
           {'id': prop.id},
         );
@@ -138,8 +184,8 @@ class _MapboxMapViewState extends State<MapboxMapView> {
           SymbolOptions(
             geometry: LatLng(prop.latitude, prop.longitude),
             textField: price,
-            textSize: 10.0,
-            textColor: "#FFFFFF",
+            textSize: isSelected ? 12.0 : 10.0,
+            textColor: isSelected ? "#7DE720" : "#FFFFFF",
             textAnchor: "center",
           ),
           {'id': prop.id},
@@ -168,7 +214,16 @@ class _MapboxMapViewState extends State<MapboxMapView> {
       setState(() {
         selectedProperty = match;
       });
-      widget.onPropertySelected(match);
+      mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(match.latitude, match.longitude),
+          13.5,
+        ),
+      );
+      _addPropertyMarkers();
+      if (widget.onPropertyTap != null) {
+        widget.onPropertyTap!(match);
+      }
     }
   }
 

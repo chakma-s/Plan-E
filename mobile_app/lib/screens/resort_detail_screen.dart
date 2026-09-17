@@ -4,11 +4,26 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/app_state.dart';
 import '../models/models.dart';
 import '../widgets/guide_bundle_sheet.dart';
+import '../widgets/photo_gallery_dialog.dart';
 import '../theme/app_theme.dart';
 import 'checkout_screen.dart';
 
-class ResortDetailScreen extends StatelessWidget {
+class ResortDetailScreen extends StatefulWidget {
   const ResortDetailScreen({super.key});
+
+  @override
+  State<ResortDetailScreen> createState() => _ResortDetailScreenState();
+}
+
+class _ResortDetailScreenState extends State<ResortDetailScreen> {
+  final PageController _imagePageController = PageController();
+  int _currentImageIndex = 0;
+
+  @override
+  void dispose() {
+    _imagePageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,18 +34,144 @@ class ResortDetailScreen extends StatelessWidget {
       return const Scaffold(body: Center(child: Text("No resort selected")));
     }
 
+    final allImages = [
+      resort.coverImageUrl,
+      ...resort.galleryImages,
+    ];
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // Luxury Hero Visual Header
+          // Luxury Hero Visual Header with Interactive Photo Carousel
           SliverAppBar(
-            expandedHeight: 280,
+            expandedHeight: 290,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: CachedNetworkImage(
-                imageUrl: resort.coverImageUrl,
-                fit: BoxFit.cover,
-                placeholder: (_, __) => Container(color: Colors.grey.shade200),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  PageView.builder(
+                    controller: _imagePageController,
+                    itemCount: allImages.length,
+                    onPageChanged: (idx) {
+                      setState(() => _currentImageIndex = idx);
+                    },
+                    itemBuilder: (context, idx) {
+                      return GestureDetector(
+                        onTap: () => showPhotoGallery(
+                          context,
+                          allImages,
+                          initialIndex: _currentImageIndex,
+                          title: resort.name,
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: allImages[idx],
+                          fit: BoxFit.cover,
+                          placeholder: (_, __) => Container(color: Colors.grey.shade300),
+                          errorWidget: (_, __, ___) => Container(
+                            color: Colors.grey.shade300,
+                            child: const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Gradient Scrim
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.4),
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.65),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Top Sanctuary Pill
+                  Positioned(
+                    top: 48,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.spa, color: AppTheme.resortAccent, size: 14),
+                          SizedBox(width: 4),
+                          Text("Sanctuary", style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Bottom Controls
+                  Positioned(
+                    bottom: 12,
+                    left: 16,
+                    right: 16,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.65),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.photo_library, color: Colors.white, size: 14),
+                              const SizedBox(width: 5),
+                              Text(
+                                "${_currentImageIndex + 1} / ${allImages.length} Photos",
+                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => showPhotoGallery(
+                            context,
+                            allImages,
+                            initialIndex: _currentImageIndex,
+                            title: resort.name,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppTheme.resortAccent,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4),
+                              ],
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.fullscreen, color: Colors.white, size: 16),
+                                SizedBox(width: 4),
+                                Text(
+                                  "View Gallery",
+                                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -89,7 +230,54 @@ class ResortDetailScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "${resort.address}, ${resort.city}",
+                    style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                  ),
                   const SizedBox(height: 16),
+
+                  // Extra Images Horizontal Preview Ribbon
+                  if (allImages.length > 1) ...[
+                    SizedBox(
+                      height: 52,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: allImages.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, idx) {
+                          final isSelected = idx == _currentImageIndex;
+                          return GestureDetector(
+                            onTap: () {
+                              _imagePageController.animateToPage(
+                                idx,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: Container(
+                              width: 52,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelected ? AppTheme.resortAccent : AppTheme.divider,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: CachedNetworkImage(
+                                  imageUrl: allImages[idx],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                  ],
 
                   // Dates Indicator Card
                   Container(
@@ -141,7 +329,16 @@ class ResortDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Room & Villa Selection
-                  const Text("Select Villa or Suite", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Select Villa or Suite", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                      Text(
+                        "${resort.roomTypes.length} Available",
+                        style: const TextStyle(fontSize: 12, color: AppTheme.resortAccent, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 12),
                   ...resort.roomTypes.map((room) => _buildVillaCard(context, state, room)),
                   const SizedBox(height: 28),
@@ -212,18 +409,9 @@ class ResortDetailScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Text("ESTIMATED TOTAL", style: TextStyle(fontSize: 10, color: AppTheme.textMuted)),
-                    if (state.selectedGuideBundle != null) ...[
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: AppTheme.guideLight, borderRadius: BorderRadius.circular(4)),
-                        child: const Text("GUIDE BUNDLED", style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AppTheme.guideGold)),
-                      ),
-                    ],
-                  ],
+                Text(
+                  state.selectedGuideBundle != null ? "BUNDLED ESTIMATE" : "TOTAL ESTIMATE",
+                  style: const TextStyle(fontSize: 10, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
                 ),
                 Text(
                   state.currentPriceQuote != null
@@ -241,7 +429,7 @@ class ResortDetailScreen extends StatelessWidget {
                   Navigator.push(context, MaterialPageRoute(builder: (ctx) => const CheckoutScreen()));
                 },
                 child: Text(
-                  state.selectedGuideBundle != null ? "Book Bundled Stay" : "Reserve Stay",
+                  state.selectedGuideBundle != null ? "Book Bundled Stay" : "Reserve Selected Room",
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -254,46 +442,151 @@ class ResortDetailScreen extends StatelessWidget {
 
   Widget _buildVillaCard(BuildContext context, AppState state, RoomTypeModel room) {
     final isSelected = state.selectedRoom?.id == room.id;
+    final roomImage = room.images.isNotEmpty ? room.images.first : null;
+
     return GestureDetector(
       onTap: () => state.selectRoom(room),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.resortLight : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppTheme.resortAccent : AppTheme.divider,
             width: isSelected ? 2 : 1,
           ),
-        ),
-        child: Row(
-          children: [
-            Radio<String>(
-              value: room.id,
-              groupValue: state.selectedRoom?.id,
-              activeColor: AppTheme.resortAccent,
-              onChanged: (_) => state.selectRoom(room),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    room.name,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppTheme.textPrimary),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "${room.bedConfiguration} • Max ${room.maxOccupancy} Guests",
-                    style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                  ),
-                ],
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: AppTheme.resortAccent.withOpacity(0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Room Image Thumbnail with Photo Count & Lightbox Trigger
+                if (roomImage != null)
+                  GestureDetector(
+                    onTap: () {
+                      if (room.images.isNotEmpty) {
+                        showPhotoGallery(context, room.images, title: room.name);
+                      }
+                    },
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: CachedNetworkImage(
+                            imageUrl: roomImage,
+                            width: 88,
+                            height: 72,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Container(width: 88, height: 72, color: Colors.grey.shade200),
+                          ),
+                        ),
+                        if (room.images.length > 1)
+                          Positioned(
+                            bottom: 4,
+                            right: 4,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.75),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.camera_alt, color: Colors.white, size: 9),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    "${room.images.length}",
+                                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                const SizedBox(width: 12),
+
+                // Room Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        room.name,
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.textPrimary),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        "${room.bedConfiguration} • Max ${room.maxOccupancy} Guests",
+                        style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                      ),
+                      if (room.description != null && room.description!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          room.description!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, height: 1.3),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                // Selection Radio
+                Radio<String>(
+                  value: room.id,
+                  groupValue: state.selectedRoom?.id,
+                  activeColor: AppTheme.resortAccent,
+                  onChanged: (_) => state.selectRoom(room),
+                ),
+              ],
             ),
-            Text(
-              "\$${(room.currentPricePerNight ?? room.basePricePerNight).toStringAsFixed(0)} / night",
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.resortAccent),
+
+            const SizedBox(height: 10),
+
+            // Amenities row & Price row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (room.amenities.isNotEmpty)
+                  Expanded(
+                    child: Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: room.amenities.take(3).map((a) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(a, style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
+                        );
+                      }).toList(),
+                    ),
+                  )
+                else
+                  const Spacer(),
+                Text(
+                  "\$${(room.currentPricePerNight ?? room.basePricePerNight).toStringAsFixed(0)} / night",
+                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppTheme.resortAccent),
+                ),
+              ],
             ),
           ],
         ),
@@ -340,41 +633,47 @@ class ResortDetailScreen extends StatelessWidget {
                       children: [
                         Text(
                           guide.fullName,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.textPrimary),
                         ),
-                        if (guide.isVerified) ...[
-                          const SizedBox(width: 4),
-                          const Icon(Icons.verified, size: 14, color: Colors.blueAccent),
-                        ],
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified, color: AppTheme.resortAccent, size: 14),
                       ],
                     ),
                     Text(
                       guide.headline,
-                      style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      "⭐ ${guide.rating.toStringAsFixed(1)} • \$${guide.dailyRate.toStringAsFixed(0)} / day",
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.guideGold),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 12),
+                        const SizedBox(width: 2),
+                        Text(
+                          "${guide.rating.toStringAsFixed(1)} (${guide.reviewCount})",
+                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "+ \$${guide.dailyRate.toStringAsFixed(0)} / day",
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppTheme.guideGold),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              Checkbox(
-                value: isBundled,
-                activeColor: AppTheme.guideGold,
-                onChanged: (_) => state.toggleGuideBundle(guide),
-              ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextButton.icon(
-                style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 onPressed: () {
                   GuideBundleSheet.show(
                     context,
@@ -383,15 +682,22 @@ class ResortDetailScreen extends StatelessWidget {
                     onToggleBundle: () => state.toggleGuideBundle(guide),
                   );
                 },
-                icon: const Icon(Icons.info_outline, size: 14, color: AppTheme.guideGold),
-                label: const Text("View Credentials & Bio", style: TextStyle(fontSize: 11, color: AppTheme.guideGold)),
+                child: const Text("View Profile", style: TextStyle(fontSize: 11, color: AppTheme.guideGold, fontWeight: FontWeight.w600)),
               ),
-              Text(
-                isBundled ? "BUNDLED WITH STAY" : "TAP CHECKBOX TO BUNDLE",
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: isBundled ? AppTheme.success : AppTheme.textMuted,
+              const Spacer(),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isBundled ? Colors.red.shade400 : AppTheme.guideGold,
+                  foregroundColor: isBundled ? Colors.white : Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () => state.toggleGuideBundle(guide),
+                icon: Icon(isBundled ? Icons.remove_circle_outline : Icons.add_circle_outline, size: 14),
+                label: Text(
+                  isBundled ? "Remove Bundle" : "Bundle Guide",
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                 ),
               ),
             ],

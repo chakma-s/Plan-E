@@ -31,6 +31,8 @@ async def search_hotels(
     max_price: Optional[Decimal] = Query(None, description="Maximum price filter"),
     min_rating: Optional[Decimal] = Query(None, description="Minimum star rating"),
     sort_by: str = Query("recommended", description="Sorting: recommended, price_asc, price_desc, rating_desc"),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Page size"),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -50,6 +52,8 @@ async def search_hotels(
         max_price=max_price,
         min_rating=min_rating,
         sort_by=sort_by,
+        page=page,
+        page_size=page_size,
     )
     hotels = await HotelService.search_hotels(db, params)
     return APIResponse(data=hotels)

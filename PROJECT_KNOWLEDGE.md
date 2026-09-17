@@ -114,6 +114,23 @@ flowchart TD
 * **Status:** Accepted
 * **Decision:** Containerize the ecosystem into dedicated, decoupled services: `db` (PostgreSQL 15 with healthcheck and automatic schema/seed bootstrapping), `api` (multi-stage non-root FastAPI image), and `web` (Nginx reverse proxy and static portal web server).
 
+### ADR-013: Target Testing Strategy & Device Emulation
+* **Status:** Accepted
+* **Decision:**
+  1. **Mobile Application (`mobile_app`):** To avoid the heavy CPU/RAM virtualization overhead of Android Studio's standard QEMU AVD emulator on the host machine, the primary simulation strategies are:
+     * **Strategy A (Fastest & Resource-Lightest):** Run as **Flutter Web** in Google Chrome (`flutter run -d chrome`) with Chrome DevTools Device Mode (`Ctrl+Shift+M`) set to mobile viewport dimensions (e.g., Pixel 7 / iPhone). Consumes ~250 MB RAM, provides instant hot reload, and natively talks to `http://127.0.0.1:8000/api/v1`.
+     * **Strategy B (Real Hardware / Production Fidelity):** Connect a **Physical Android Device over USB with `scrcpy`** (`adb reverse tcp:8000 tcp:8000`). App runs directly on the phone processor with 0% emulation strain on the PC.
+  2. **Web Portals (`web_portal` - Vendor, Admin, Consumer):** Tested side-by-side using **Standard Web Browsers (Chrome / Firefox)** connected to the local Docker Nginx reverse proxy on port 80.
+  3. **Backend Stack:** Tested via the containerized Docker Compose environment (`postgres` + `api` + `web`), maintaining a minimal ~350 MB RAM footprint with instant rollback/seed capabilities.
+
+### ADR-014: Multi-Jurisdiction Compliance & Dynamic Regional Taxation
+* **Status:** Accepted
+* **Decision:** Implement a localized regional policy engine (`app.core.regional_policy.RegionalPolicyManager`) supporting dynamic currencies, adaptive tax mechanisms ('inclusive' VAT for EU/UK/Australia vs. 'exclusive' sales tax for US/Canada), statutory cooling-off cancellation windows, and GDPR/CCPA/DPDP endpoints for data portability and right-to-erasure.
+
+### ADR-015: Pluggable Regional Payment Gateway Strategy
+* **Status:** Accepted
+* **Decision:** Fully decouple the reservation engine from single-vendor payment solutions. Establish an abstract `PaymentGatewayInterface` and factory (`PaymentGatewayFactory`) allowing plug-and-play regional payment providers (bKash, Razorpay, Adyen, Pix, M-Pesa, etc.) without altering core transactional booking or room allocation logic.
+
 ---
 
 ## 5. Complete Milestone Checklist & Verification
@@ -123,11 +140,13 @@ flowchart TD
 - [x] **Phase 2:** Asynchronous FastAPI backend engine, separated Hotel/Resort search pipelines, Guide Bundling engine, row-level allocation locking, and 100% passing Pytest suite (10/10 tests).
 - [x] **Phase 3:** Flutter mobile app (Dual-path search, Mapbox integration, Guide Bundling sheet, Composite checkout), Vendor Allocation portal, and Admin Operations dashboard.
 - [x] **Phase 4:** Multi-stage `Dockerfile`, Nginx reverse proxy config, `docker-compose.yml`, `.env.example`, and one-click `deploy.sh` script verified.
-- [ ] **Phase 5.1:** **Financial Engine:** Integrate Stripe Payment Intents for real billing and refund processing.
-- [ ] **Phase 5.2:** **Consumer Portal:** Wire up the "My Trips" dashboard to fetch live user reservations.
-- [ ] **Phase 5.3:** **Automated Communications:** Implement Transactional Emails/SMS for booking confirmations (SendGrid/AWS SES).
-- [ ] **Phase 5.4:** **Security Lockdown:** Remove hardcoded JWT secrets, restrict CORS to known domains, and implement API rate limiting.
-- [ ] **Phase 5.5:** **Database Scalability:** Integrate Alembic for schema migrations, add Foreign Key indexes, and add pagination (limit/offset) to all list endpoints.
+- [ ] **Phase 5.1:** **Financial Engine & Gateway:** Reserved for custom payment provider per user architectural design. Pluggable `PaymentGatewayInterface` and automated refund hooks established.
+- [x] **Phase 5.2:** **Consumer Portal ("My Trips"):** Live reservation dashboard wired up with booking vouchers, bundled guide cards, and instant cancellation & auto-refund actions.
+- [x] **Phase 5.3:** **Automated Communications:** Pluggable notification service dispatching booking confirmations, cancellations, host alerts, and guide alerts.
+- [x] **Phase 5.4:** **Security Lockdown:** Sliding-window IP rate limiting, production secret auditing, CORS whitelisting, and strict security HTTP headers (`X-Frame-Options`, `nosniff`, `Referrer-Policy`).
+- [x] **Phase 5.5:** **Database Scalability:** Alembic async migration suite (`alembic.ini`, `env.py`, baseline revision), composite high-velocity indexes on reservations and allocations, and standardized query pagination (`page` and `page_size`).
+- [x] **Phase 5.6:** **Global Compliance Engine:** Multi-region compliance engine with dynamic VAT/GST calculation, statutory cooling-off windows, and GDPR/CCPA data export/anonymization.
+
 
 
 ---
@@ -161,3 +180,39 @@ flutter run
 * 🛡️ **Internal Admin Operations Dashboard:** `http://localhost:8000/admin`
 * 📖 **Interactive Swagger / OpenAPI Specs:** `http://localhost:8000/api/v1/docs`
 * 📱 **Native Flutter Mobile App:** `cd mobile_app && flutter run`
+
+### D. Testing & Device Emulation Workflow (Low-Resource E2E Strategy)
+* **Backbone Stack:**
+  * Start backend + DB + Nginx: `docker compose up -d`
+  * Reset clean seed state: `docker compose down -v && docker compose up -d`
+* **Mobile App Verification:**
+  * *Option A (Recommended, Fastest):* `cd mobile_app && flutter run -d chrome`. Open Chrome DevTools (`F12`), press `Ctrl+Shift+M` to emulate mobile screen dimensions.
+  * *Option B (Native Hardware):* Connect Android phone via USB, run `adb reverse tcp:8000 tcp:8000`, run `scrcpy`, then `cd mobile_app && flutter run`.
+  * *Note:* Avoid Android Studio AVD emulator on low/mid-spec hosts to prevent system freezing.
+* **Portals Verification:**
+  * Admin Portal: `http://localhost/admin/` (or `http://localhost:8000/admin`)
+  * Vendor Portal: `http://localhost/vendor/` (or `http://localhost:8000/vendor`)
+  * Consumer Web: `http://localhost/consumer/` (or `http://localhost:8000/consumer`)
+  * Open side-by-side with the mobile app for live multi-role closed-loop testing.
+
+---
+
+## 7. Pending Business Decisions & Governance
+
+Per the Master Specification, the following operational decisions are tracked for stakeholder alignment before multi-market scaling:
+
+1. **Payment Gateway Provider & Escrow Holds:**
+   * *Issue:* Direct immediate settlement vs. platform escrow hold.
+   * *Status:* The abstract `PaymentGatewayInterface` is implemented with mock provider. Final choice between Stripe, Razorpay, or bKash pending merchant account registration.
+   * *Working Policy:* Funds authorized upon booking; captured on check-in date.
+2. **Guide Emergency Substitution & Force Majeure:**
+   * *Issue:* Policy when a bundled certified tour guide cannot attend due to emergency.
+   * *Working Policy:* Host vendor may assign a qualified replacement from their certified roster; if no replacement is accepted by the traveler, `guide_subtotal` is 100% refunded while preserving the resort room booking.
+3. **Vendor Payout Settlement Schedule:**
+   * *Issue:* Rolling Net-7 vs. Net-14 post-checkout disbursements.
+4. **Platform Take-Rate Economics:**
+   * *Current MVP Default:* 5.0% platform processing fee, 8.5% lodging tax.
+   * *Target Production Model:* 10% commission on room booking subtotal; 10% service commission on guide fees.
+
+
+

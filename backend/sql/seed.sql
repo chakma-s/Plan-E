@@ -5,18 +5,21 @@
 -- 1. USERS
 -- Password hash corresponds to: "Password123!" using bcrypt
 INSERT INTO users (id, email, password_hash, full_name, phone_number, role, is_active, is_verified) VALUES
-('a0000000-0000-0000-0000-000000000001', 'admin@plane-travel.com', '$2b$12$K1rY7VdG0JgIuMhBqVpA.uVpA1B2C3D4E5F6G7H8I9J0K1L2M3N4O', 'System Administrator', '+1-555-0100', 'ADMIN', TRUE, TRUE),
-('a0000000-0000-0000-0000-000000000002', 'host@grandmetropolis.com', '$2b$12$K1rY7VdG0JgIuMhBqVpA.uVpA1B2C3D4E5F6G7H8I9J0K1L2M3N4O', 'Marcus Vance (Metropolis Hospitality)', '+1-555-0101', 'VENDOR', TRUE, TRUE),
-('a0000000-0000-0000-0000-000000000003', 'host@azurebayresort.com', '$2b$12$K1rY7VdG0JgIuMhBqVpA.uVpA1B2C3D4E5F6G7H8I9J0K1L2M3N4O', 'Elena Rostova (Azure Coast Resorts)', '+1-555-0102', 'VENDOR', TRUE, TRUE),
-('a0000000-0000-0000-0000-000000000004', 'guide.kai@travelguides.com', '$2b$12$K1rY7VdG0JgIuMhBqVpA.uVpA1B2C3D4E5F6G7H8I9J0K1L2M3N4O', 'Captain Kai Tanaka', '+1-555-0103', 'GUIDE', TRUE, TRUE),
-('a0000000-0000-0000-0000-000000000005', 'guide.maya@travelguides.com', '$2b$12$K1rY7VdG0JgIuMhBqVpA.uVpA1B2C3D4E5F6G7H8I9J0K1L2M3N4O', 'Dr. Maya Lin', '+1-555-0104', 'GUIDE', TRUE, TRUE),
-('a0000000-0000-0000-0000-000000000006', 'traveler.alex@example.com', '$2b$12$K1rY7VdG0JgIuMhBqVpA.uVpA1B2C3D4E5F6G7H8I9J0K1L2M3N4O', 'Alex Rivera', '+1-555-0105', 'CUSTOMER', TRUE, TRUE)
+('a0000000-0000-0000-0000-000000000001', 'admin@plane-travel.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'System Administrator', '+1-555-0100', 'ADMIN', TRUE, TRUE),
+('a0000000-0000-0000-0000-000000000002', 'host@grandmetropolis.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'Marcus Vance (Metropolis Hospitality)', '+1-555-0101', 'VENDOR', TRUE, TRUE),
+('a0000000-0000-0000-0000-000000000003', 'host@azurebayresort.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'Elena Rostova (Azure Coast Resorts)', '+1-555-0102', 'VENDOR', TRUE, TRUE),
+('a0000000-0000-0000-0000-000000000004', 'guide.kai@travelguides.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'Captain Kai Tanaka', '+1-555-0103', 'GUIDE', TRUE, TRUE),
+('a0000000-0000-0000-0000-000000000005', 'guide.maya@travelguides.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'Dr. Maya Lin', '+1-555-0104', 'GUIDE', TRUE, TRUE),
+('a0000000-0000-0000-0000-000000000006', 'john.doe@example.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'John Doe', '+1-555-0105', 'CUSTOMER', TRUE, TRUE),
+('a0000000-0000-0000-0000-000000000010', 'vendor.bangalore@leelapalace.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'Devraj Sharma (Leela Hospitality)', '+91-80-2521-1234', 'VENDOR', TRUE, TRUE),
+('a0000000-0000-0000-0000-000000000015', 'guide.arjun@travelguides.com', '$2b$12$iuDgLM.dEaPCbSGRkBzk0.IHWdAQ0h0SVYhSCVtBjQwrmyQJBoFVK', 'Arjun Rao', '+91-98-4501-2345', 'GUIDE', TRUE, TRUE)
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. VENDOR PROFILES
 INSERT INTO vendor_profiles (id, user_id, business_name, tax_id, contact_email, contact_phone, is_verified) VALUES
 ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000002', 'Metropolis Hotel Group LLC', 'US-TAX-9823411', 'operations@grandmetropolis.com', '+1-555-0101', TRUE),
-('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000003', 'Azure Luxury Hospitality Group', 'US-TAX-4523190', 'concierge@azurebayresort.com', '+1-555-0102', TRUE)
+('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000003', 'Azure Luxury Hospitality Group', 'US-TAX-4523190', 'concierge@azurebayresort.com', '+1-555-0102', TRUE),
+('b0000000-0000-0000-0000-000000000010', 'a0000000-0000-0000-0000-000000000010', 'Royal Heritage Hospitality India Pvt Ltd', 'IN-GST-29AABCU9603R1ZM', 'concierge@leelapalace.com', '+91-80-2521-1234', TRUE)
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. PROPERTIES (Hotels vs Resorts)
@@ -70,6 +73,52 @@ INSERT INTO properties (
     'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
     '["https://images.unsplash.com/photo-1571896349842-33c89424de2d", "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4"]'::jsonb,
     '["Private Beach Access", "Infinity Pool", "Full-Service Spa", "Local Guide Concierge", "Michelin Dining", "Water Sports", "Yoga Pavilion"]'::jsonb
+),
+-- Bangalore Luxury Heritage Hotel
+(
+    'c0000000-0000-0000-0000-000000000011',
+    'b0000000-0000-0000-0000-000000000010',
+    'HOTEL',
+    'The Leela Palace Bengaluru',
+    'the-leela-palace-bengaluru',
+    'Nestled in the lush greenery of the Garden City, The Leela Palace Bengaluru stands as a tribute to the grandeur of the Vijayanagara Empire. Offering state-of-the-art business amenities, award-winning dining, and tranquil gardens.',
+    'Palatial Splendor & Modern Opulence in the Garden City',
+    '23 HAL Old Airport Rd, Kodihalli',
+    'Bangalore',
+    'Karnataka',
+    'India',
+    '560008',
+    12.9606000,
+    77.6484000,
+    5.0,
+    4.91,
+    524,
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1582719478250-c89cae4dc85b", "https://images.unsplash.com/photo-1590490360182-c33d57733427"]'::jsonb,
+    '["Fast Fiber WiFi", "24/7 Check-in", "Royal Club Lounge", "Luxury Spa", "Outdoor Pool", "Airport Limousine"]'::jsonb
+),
+-- Bangalore Hill Resort & Ayurvedic Retreat
+(
+    'c0000000-0000-0000-0000-000000000012',
+    'b0000000-0000-0000-0000-000000000010',
+    'RESORT',
+    'Nandi Hills Heritage Sanctuary & Ayurvedic Retreat',
+    'nandi-hills-heritage-retreat',
+    'Perched amidst the serene clouds and rolling mist of Nandi Hills, this Ayurvedic sanctuary blends historic heritage with holistic wellness. Complete with panoramic cliffside sunrise views and curated Western Ghats expeditions.',
+    'Misty Valley Vistas, Ancient Ruins & Ayurvedic Healing',
+    'Nandi Foothills Sanctuary Road',
+    'Bangalore',
+    'Karnataka',
+    'India',
+    '562101',
+    13.3702000,
+    77.6835000,
+    4.8,
+    4.88,
+    219,
+    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
+    '["https://images.unsplash.com/photo-1571896349842-33c89424de2d", "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4"]'::jsonb,
+    '["Ayurvedic Spa & Panchakarma", "Heritage Trail Excursions", "Sunrise Yoga Pavilion", "Infinity Mountain Pool", "Resident Naturalist Guides", "Organic Farm-to-Table Dining"]'::jsonb
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -122,6 +171,52 @@ INSERT INTO room_types (
     520.00,
     '["Private Garden", "Outdoor Stone Shower", "Direct Beach Walkway", "Espresso Bar"]'::jsonb,
     '["https://images.unsplash.com/photo-1590490360182-c33d57733427"]'::jsonb
+),
+-- Bangalore Hotel Room Types
+(
+    'd0000000-0000-0000-0000-000000000011',
+    'c0000000-0000-0000-0000-000000000011',
+    'Royal Premiere Heritage Room',
+    'Inspired by Mysore royal motifs, featuring Italian marble bathroom, high-speed fiber internet, and private balcony.',
+    2,
+    '1 King Bed',
+    180.00,
+    '["Smart TV", "Ergonomic Desk", "Italian Marble Bath", "High-speed WiFi", "Minibar"]'::jsonb,
+    '["https://images.unsplash.com/photo-1618773928121-c32242e63f39"]'::jsonb
+),
+(
+    'd0000000-0000-0000-0000-000000000012',
+    'c0000000-0000-0000-0000-000000000011',
+    'Maharaja Executive Suite',
+    'Lavish duplex suite with panoramic view of the gardens, butler service, and dedicated dining lounge.',
+    3,
+    '1 King Bed + 1 Daybed',
+    340.00,
+    '["Garden View", "Jacuzzi Bathtub", "Butler Service", "Complimentary High Tea", "Executive Lounge Access"]'::jsonb,
+    '["https://images.unsplash.com/photo-1591088398332-8a7791972843"]'::jsonb
+),
+-- Bangalore Resort Room Types
+(
+    'd0000000-0000-0000-0000-000000000013',
+    'c0000000-0000-0000-0000-000000000012',
+    'Valley View Heritage Chalet',
+    'Overlooking the misty valley gorge with handcrafted teakwood furniture and private Ayurvedic soaking tub.',
+    2,
+    '1 King Bed',
+    290.00,
+    '["Misty Valley View", "Stone Soaking Tub", "Ayurvedic Herbal Bar", "Fireplace", "Yoga Mat & Props"]'::jsonb,
+    '["https://images.unsplash.com/photo-1582719478250-c89cae4dc85b"]'::jsonb
+),
+(
+    'd0000000-0000-0000-0000-000000000014',
+    'c0000000-0000-0000-0000-000000000012',
+    'Misty Cliff Plantation Villa',
+    'Sprawling two-bedroom villa nestled amongst aromatic coffee and eucalyptus trees with private infinity deck.',
+    4,
+    '2 King Beds',
+    480.00,
+    '["Private Infinity Deck", "Eucalyptus Garden View", "Dedicated Yoga Master", "Outdoor Shower", "Dining Gazebo"]'::jsonb,
+    '["https://images.unsplash.com/photo-1590490360182-c33d57733427"]'::jsonb
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -165,23 +260,43 @@ INSERT INTO local_guides (
     4.95,
     64,
     TRUE
+),
+-- Bangalore Local Guide
+(
+    'e0000000-0000-0000-0000-000000000011',
+    'a0000000-0000-0000-0000-000000000015',
+    'b0000000-0000-0000-0000-000000000010',
+    'Arjun Rao',
+    'Karnataka Heritage Historian & Western Ghats Naturalist',
+    'Passionate naturalist and cultural custodian with 10+ years exploring Bangalore heritage sites, Tipu Sultan fortresses, and Nandi valley birding trails.',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    '["English", "Kannada", "Hindi"]'::jsonb,
+    10,
+    'KA-TOUR-44091',
+    25.00,
+    140.00,
+    '["Nandi Sunrise Trekking", "Chola Architecture Walks", "Western Ghats Birding", "Botanical & Spice Walks"]'::jsonb,
+    4.97,
+    112,
+    TRUE
 )
 ON CONFLICT (id) DO NOTHING;
 
 -- 6. RESORT-GUIDE ASSOCIATIONS
 INSERT INTO resort_guide_associations (id, resort_id, guide_id, is_primary) VALUES
 ('f0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000001', TRUE),
-('f0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', FALSE)
+('f0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000002', FALSE),
+('f0000000-0000-0000-0000-000000000011', 'c0000000-0000-0000-0000-000000000012', 'e0000000-0000-0000-0000-000000000011', TRUE)
 ON CONFLICT (resort_id, guide_id) DO NOTHING;
 
--- 7. GENERATE 30-DAY INVENTORY ALLOCATIONS & GUIDE AVAILABILITIES
+-- 7. GENERATE 365-DAY INVENTORY ALLOCATIONS & GUIDE AVAILABILITIES
 DO $$
 DECLARE
     curr_date DATE := CURRENT_DATE;
     d INT;
     target_d DATE;
 BEGIN
-    FOR d IN 0..30 LOOP
+    FOR d IN 0..365 LOOP
         target_d := curr_date + d;
 
         -- Room Allocations for Hotel Room 1 (Urban Executive King: 10 rooms allocated)
@@ -204,6 +319,26 @@ BEGIN
         VALUES ('d0000000-0000-0000-0000-000000000004', target_d, 6, 0, 1.00)
         ON CONFLICT (room_type_id, allocation_date) DO NOTHING;
 
+        -- Bangalore Hotel Room 1 (Royal Premiere: 12 rooms)
+        INSERT INTO room_allocations (room_type_id, allocation_date, total_allocated, booked_count, rate_multiplier)
+        VALUES ('d0000000-0000-0000-0000-000000000011', target_d, 12, 0, 1.00)
+        ON CONFLICT (room_type_id, allocation_date) DO NOTHING;
+
+        -- Bangalore Hotel Room 2 (Maharaja Suite: 6 rooms)
+        INSERT INTO room_allocations (room_type_id, allocation_date, total_allocated, booked_count, rate_multiplier)
+        VALUES ('d0000000-0000-0000-0000-000000000012', target_d, 6, 0, 1.00)
+        ON CONFLICT (room_type_id, allocation_date) DO NOTHING;
+
+        -- Bangalore Resort Room 1 (Valley View Chalet: 8 rooms)
+        INSERT INTO room_allocations (room_type_id, allocation_date, total_allocated, booked_count, rate_multiplier)
+        VALUES ('d0000000-0000-0000-0000-000000000013', target_d, 8, 0, 1.00)
+        ON CONFLICT (room_type_id, allocation_date) DO NOTHING;
+
+        -- Bangalore Resort Room 2 (Plantation Villa: 4 rooms)
+        INSERT INTO room_allocations (room_type_id, allocation_date, total_allocated, booked_count, rate_multiplier)
+        VALUES ('d0000000-0000-0000-0000-000000000014', target_d, 4, 0, 1.00)
+        ON CONFLICT (room_type_id, allocation_date) DO NOTHING;
+
         -- Guide Availability: Captain Kai
         INSERT INTO guide_availabilities (guide_id, availability_date, is_available, is_booked)
         VALUES ('e0000000-0000-0000-0000-000000000001', target_d, TRUE, FALSE)
@@ -212,6 +347,11 @@ BEGIN
         -- Guide Availability: Dr. Maya Lin
         INSERT INTO guide_availabilities (guide_id, availability_date, is_available, is_booked)
         VALUES ('e0000000-0000-0000-0000-000000000002', target_d, TRUE, FALSE)
+        ON CONFLICT (guide_id, availability_date) DO NOTHING;
+
+        -- Guide Availability: Arjun Rao
+        INSERT INTO guide_availabilities (guide_id, availability_date, is_available, is_booked)
+        VALUES ('e0000000-0000-0000-0000-000000000011', target_d, TRUE, FALSE)
         ON CONFLICT (guide_id, availability_date) DO NOTHING;
 
     END LOOP;

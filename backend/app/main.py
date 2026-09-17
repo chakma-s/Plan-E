@@ -60,14 +60,30 @@ app = FastAPI(
     """,
 )
 
-# CORS Configuration (Allows any origin for local dev/preview)
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.BACKEND_CORS_ORIGINS if settings.ENVIRONMENT == "production" else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Global Anti-Scraping & Rate Limiting Middleware
+from app.core.rate_limit import RateLimitMiddleware
+app.add_middleware(RateLimitMiddleware, requests_per_minute=settings.RATE_LIMIT_PER_MINUTE)
+
+
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    """Inject production hardening security headers into every response."""
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
 
 # Include API Router
 app.include_router(api_router, prefix=settings.API_V1_STR)

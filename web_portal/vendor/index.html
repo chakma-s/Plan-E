@@ -5,13 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plan-E — Vendor Management Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: '#7de720',
+            darkbg: '#000000',
+            darkcard: '#121212',
+            darkborder: '#2a2a2a'
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
   </style>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('plane_theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Navigation Bar -->
   <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
@@ -25,12 +50,36 @@
           <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-teal-900 text-teal-300 border border-teal-700">Vendor Portal</span>
         </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <div id="vendorAuthStatus" class="flex items-center space-x-3">
-          <span class="text-xs text-slate-400">Authenticated: <strong class="text-slate-200" id="vendorName">Metropolis Group</strong></span>
-          <button onclick="switchVendor('resort')" class="text-xs bg-teal-700 hover:bg-teal-600 px-3 py-1.5 rounded-lg text-white font-medium transition">Switch to Resort Host</button>
-          <button onclick="switchVendor('hotel')" class="text-xs bg-indigo-700 hover:bg-indigo-600 px-3 py-1.5 rounded-lg text-white font-medium transition">Switch to Hotel Host</button>
+      <div class="flex items-center space-x-3">
+        <div id="vendorAuthStatus" class="flex items-center space-x-2">
+          <!-- State A: Logged In Host -->
+          <div id="vendorLoggedInSection" class="flex items-center space-x-2">
+            <div class="hidden sm:flex flex-col text-right mr-1">
+              <span class="text-xs text-white font-bold leading-tight" id="vendorName">Marcus Vance</span>
+              <span class="text-[10px] text-teal-400 font-mono leading-tight" id="vendorEmail">host@grandmetropolis.com</span>
+            </div>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[10px] font-extrabold border border-teal-500/30">
+              Active Host
+            </span>
+            <button onclick="openVendorAuthModal()" title="Switch to another Host account" class="flex items-center space-x-1.5 text-xs bg-teal-700 hover:bg-teal-600 px-3 py-1.5 rounded-xl text-white font-bold transition shadow-sm border border-teal-600">
+              <i class="fa-solid fa-arrows-rotate text-xs"></i>
+              <span>Switch Host</span>
+            </button>
+            <button onclick="handleVendorLogout()" title="Sign Out Host" class="flex items-center space-x-1 text-xs border border-rose-400/40 hover:bg-rose-950/30 text-rose-400 px-2.5 py-1.5 rounded-xl font-bold transition shadow-sm">
+              <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+              <span class="hidden sm:inline">Sign Out</span>
+            </button>
+          </div>
+          <!-- State B: Logged Out -->
+          <button id="vendorLoggedOutBtn" onclick="openVendorAuthModal()" class="hidden flex items-center space-x-1.5 text-xs bg-teal-600 hover:bg-teal-500 px-3.5 py-1.5 rounded-xl text-white font-bold transition shadow-sm border border-teal-500">
+            <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+            <span>Sign In Host</span>
+          </button>
         </div>
+        <!-- Dark/Light Theme Switcher -->
+        <button onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Light/Dark Theme" class="w-9 h-9 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-brand hover:border-brand flex items-center justify-center transition shadow-sm">
+          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+        </button>
       </div>
     </div>
   </header>
@@ -40,26 +89,46 @@
     
     <!-- Sidebar Navigation -->
     <aside class="lg:col-span-1 space-y-4">
-      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
         <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Operations Console</div>
         <nav class="space-y-2">
-          <button onclick="showSection('allocations')" id="nav-allocations" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold bg-teal-50 text-teal-800 border border-teal-200">
-            <i class="fa-solid fa-calendar-days text-teal-600"></i>
+          <button onclick="showSection('allocations')" id="nav-allocations" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+            <i class="fa-solid fa-calendar-days text-teal-600 dark:text-teal-400"></i>
             <span>Allocation Engine</span>
           </button>
-          <button onclick="showSection('properties')" id="nav-properties" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
-            <i class="fa-solid fa-hotel text-slate-500"></i>
+          <button onclick="showSection('properties')" id="nav-properties" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <i class="fa-solid fa-hotel text-slate-500 dark:text-slate-400"></i>
             <span>My Properties</span>
           </button>
-          <button onclick="showSection('guides')" id="nav-guides" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+          <button onclick="showSection('guides')" id="nav-guides" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
             <i class="fa-solid fa-compass text-amber-500"></i>
             <span>Guide Roster Linker</span>
           </button>
         </nav>
+
+        <!-- Fast Provisioning Quick Actions -->
+        <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider flex items-center justify-between">
+            <span>Fast Provisioning</span>
+            <span class="text-teal-500"><i class="fa-solid fa-bolt text-xs"></i> Easy Add</span>
+          </div>
+          <button onclick="openCreatePropertyWithPreset('HOTEL')" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition border border-indigo-200 dark:border-indigo-800 shadow-sm">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-hotel text-indigo-600"></i> + Add Hotel</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-200 dark:bg-indigo-800 font-bold uppercase tracking-wider">Fast</span>
+          </button>
+          <button onclick="openCreatePropertyWithPreset('RESORT')" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition border border-teal-200 dark:border-teal-800 shadow-sm">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-umbrella-beach text-teal-600"></i> + Add Resort</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-200 dark:bg-teal-800 font-bold uppercase tracking-wider">Fast</span>
+          </button>
+          <button onclick="openCreateGuideModal()" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition border border-amber-200 dark:border-amber-800 shadow-sm">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-compass text-amber-600"></i> + Register Guide</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-800 font-bold uppercase tracking-wider">Fast</span>
+          </button>
+        </div>
       </div>
 
       <!-- Quick Allocation Summary -->
-      <div class="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 shadow-sm">
+      <div class="bg-slate-900 dark:bg-slate-900/80 text-white rounded-2xl p-5 border border-slate-800 shadow-sm">
         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Allocation Safety</h4>
         <p class="text-xs text-slate-300 leading-relaxed">
           The MVP Allocation Model guarantees <strong>zero overbooking</strong>. Rooms allocated to Plan-E are locked transactionally during checkout.
@@ -71,11 +140,11 @@
     <section class="lg:col-span-3 space-y-6">
 
       <!-- SECTION 1: ALLOCATION ENGINE (Core MVP Feature) -->
-      <div id="section-allocations" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div id="section-allocations" class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div>
-            <h2 class="text-xl font-bold text-slate-900">Room Allocation & Inventory Matrix</h2>
-            <p class="text-xs text-slate-500">Allocate daily room quotas and dynamic pricing multipliers to the Plan-E database.</p>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Room Allocation & Inventory Matrix</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Allocate daily room quotas and dynamic pricing multipliers to the Plan-E database.</p>
           </div>
           <button onclick="openAllocationModal()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center space-x-2">
             <i class="fa-solid fa-plus"></i>
@@ -84,9 +153,9 @@
         </div>
 
         <!-- Allocation Matrix Table -->
-        <div class="overflow-x-auto rounded-xl border border-slate-200">
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
           <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-bold border-b border-slate-200">
+            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs uppercase font-bold border-b border-slate-200 dark:border-slate-800">
               <tr>
                 <th class="px-4 py-3">Date</th>
                 <th class="px-4 py-3">Room Type</th>
@@ -97,7 +166,7 @@
                 <th class="px-4 py-3">Status</th>
               </tr>
             </thead>
-            <tbody id="allocationTableBody" class="divide-y divide-slate-200">
+            <tbody id="allocationTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
               <!-- Dynamically populated via JS -->
             </tbody>
           </table>
@@ -105,12 +174,16 @@
       </div>
 
       <!-- SECTION 2: MY PROPERTIES -->
-      <div id="section-properties" class="hidden bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div id="section-properties" class="hidden bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
           <div>
-            <h2 class="text-xl font-bold text-slate-900">Managed Properties & Room Types</h2>
-            <p class="text-xs text-slate-500">Overview of active listings under your vendor account.</p>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Managed Properties & Room Types</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Create, edit, and manage live hotel/resort listings and inventory.</p>
           </div>
+          <button onclick="openCreatePropertyModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center space-x-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add New Property</span>
+          </button>
         </div>
         <div id="vendorPropertiesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Dynamically populated -->
@@ -118,10 +191,16 @@
       </div>
 
       <!-- SECTION 3: GUIDE ROSTER LINKER -->
-      <div id="section-guides" class="hidden bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
-        <div class="border-b border-slate-100 pb-4">
-          <h2 class="text-xl font-bold text-slate-900">Resort Local Guide Roster</h2>
-          <p class="text-xs text-slate-500">Associate certified local tour guides to your resort for the Local Guide Bundling feature.</p>
+      <div id="section-guides" class="hidden bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">Resort Local Guide Roster</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Associate certified local tour guides to your resort for the Local Guide Bundling feature.</p>
+          </div>
+          <button onclick="openCreateGuideModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-4 py-2.5 rounded-xl shadow transition flex items-center space-x-2">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Register New Guide</span>
+          </button>
         </div>
         <div id="guideRosterList" class="space-y-4">
           <!-- Dynamically populated -->
@@ -131,33 +210,513 @@
     </section>
   </main>
 
+  <!-- MODAL: CREATE / EDIT PROPERTY -->
+  <div id="propertyModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full p-6 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div>
+          <h3 id="propertyModalTitle" class="text-lg font-bold text-slate-900 dark:text-white">Add New Property</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Configure listing identity, location coordinates, and pricing.</p>
+        </div>
+        <button onclick="closePropertyModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- 1-Click Fast Fill Templates Bar -->
+      <div class="bg-gradient-to-r from-indigo-50 to-teal-50 dark:from-indigo-950/40 dark:to-teal-950/40 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/60 space-y-2">
+        <div class="text-[10px] font-black uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+          <span>1-Click Fast Fill Presets (Click to autofill all fields below)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button type="button" onclick="applyPropertyPreset('CITY_HOTEL')" class="p-2 bg-white dark:bg-slate-800 hover:border-indigo-500 border border-slate-200 dark:border-slate-700 rounded-xl text-left transition shadow-sm hover:scale-[1.02]">
+            <div class="font-bold text-indigo-600 dark:text-indigo-400 text-[11px] flex items-center gap-1"><i class="fa-solid fa-city"></i> City Hotel</div>
+            <div class="text-[10px] text-slate-600 dark:text-slate-400 font-semibold truncate">ITC Gardenia</div>
+            <div class="text-[9px] text-slate-400">BLR CBD • $195/n</div>
+          </button>
+          <button type="button" onclick="applyPropertyPreset('BEACH_RESORT')" class="p-2 bg-white dark:bg-slate-800 hover:border-teal-500 border border-slate-200 dark:border-slate-700 rounded-xl text-left transition shadow-sm hover:scale-[1.02]">
+            <div class="font-bold text-teal-600 dark:text-teal-400 text-[11px] flex items-center gap-1"><i class="fa-solid fa-water"></i> Beach Resort</div>
+            <div class="text-[10px] text-slate-600 dark:text-slate-400 font-semibold truncate">Azure Coral Bay</div>
+            <div class="text-[9px] text-slate-400">Goa Coast • $320/n</div>
+          </button>
+          <button type="button" onclick="applyPropertyPreset('MOUNTAIN_RESORT')" class="p-2 bg-white dark:bg-slate-800 hover:border-emerald-500 border border-slate-200 dark:border-slate-700 rounded-xl text-left transition shadow-sm hover:scale-[1.02]">
+            <div class="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] flex items-center gap-1"><i class="fa-solid fa-mountain-sun"></i> Eco Sanctuary</div>
+            <div class="text-[10px] text-slate-600 dark:text-slate-400 font-semibold truncate">Cloud Mist Resort</div>
+            <div class="text-[9px] text-slate-400">Nandi Hills • $260/n</div>
+          </button>
+          <button type="button" onclick="applyPropertyPreset('HERITAGE_HOTEL')" class="p-2 bg-white dark:bg-slate-800 hover:border-amber-500 border border-slate-200 dark:border-slate-700 rounded-xl text-left transition shadow-sm hover:scale-[1.02]">
+            <div class="font-bold text-amber-600 dark:text-amber-400 text-[11px] flex items-center gap-1"><i class="fa-solid fa-landmark"></i> Grand Heritage</div>
+            <div class="text-[10px] text-slate-600 dark:text-slate-400 font-semibold truncate">The Leela Palace</div>
+            <div class="text-[9px] text-slate-400">Royal BLR • $380/n</div>
+          </button>
+        </div>
+      </div>
+
+      <form id="propertyForm" onsubmit="handlePropertySubmit(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="propEditId" value="">
+
+        <!-- Property Type & Name -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Property Type</label>
+            <select id="propType" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-indigo-500">
+              <option value="HOTEL">🏢 Hotel (Transit & Speed)</option>
+              <option value="RESORT">🏝️ Resort (Sanctuary & Guides)</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Property Name *</label>
+            <input type="text" id="propName" required placeholder="e.g. ITC Gardenia Luxury Hotel" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- Tagline -->
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Tagline</label>
+          <input type="text" id="propTagline" placeholder="e.g. An Eco-Luxury Sanctuary in the Heart of Bengaluru" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Description *</label>
+          <textarea id="propDescription" rows="3" required placeholder="Describe highlights, amenities, dining, and experience..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <!-- Location: City, Address, Country -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">City *</label>
+            <input type="text" id="propCity" required placeholder="e.g. Bangalore" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">State</label>
+            <input type="text" id="propState" placeholder="e.g. Karnataka" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Country *</label>
+            <input type="text" id="propCountry" required placeholder="e.g. India" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Street Address *</label>
+          <input type="text" id="propAddress" required placeholder="e.g. 1 Residency Road, Ashok Nagar" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <!-- Coordinates (Accurate Map Location) -->
+        <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-map-pin text-red-500"></i> Accurate GPS Coordinates *</span>
+            <span class="text-[10px] text-slate-400">Used for exact Google Map marker rendering</span>
+          </div>
+          <div class="flex flex-wrap gap-1.5 mb-1">
+            <button type="button" onclick="setCoordinates(12.9716, 77.5946, 'Bangalore', 'Karnataka', 'India')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:border-indigo-500">📍 Bangalore CBD</button>
+            <button type="button" onclick="setCoordinates(12.9606, 77.6484, 'Bangalore', 'Karnataka', 'India')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:border-indigo-500">📍 Old Airport Rd</button>
+            <button type="button" onclick="setCoordinates(13.3702, 77.6835, 'Bangalore', 'Karnataka', 'India')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:border-indigo-500">📍 Nandi Hills</button>
+            <button type="button" onclick="setCoordinates(37.7915, -122.4010, 'San Francisco', 'California', 'United States')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:border-indigo-500">📍 San Francisco</button>
+            <button type="button" onclick="setCoordinates(36.5552, -121.9233, 'Carmel-by-the-Sea', 'California', 'United States')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-[10px] font-semibold text-slate-700 dark:text-slate-200 hover:border-indigo-500">📍 Carmel Coast</button>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1 text-[11px]">Latitude</label>
+              <input type="number" step="any" id="propLat" required placeholder="e.g. 12.9716" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1 text-[11px]">Longitude</label>
+              <input type="number" step="any" id="propLon" required placeholder="e.g. 77.5946" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Rating & Image -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Star Rating</label>
+            <input type="number" step="0.1" min="1" max="5" id="propRating" value="4.8" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-indigo-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Cover Image URL *</label>
+            <input type="url" id="propImage" required placeholder="https://images.unsplash.com/photo-..." value="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <!-- Amenities -->
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Amenities (comma-separated)</label>
+          <input type="text" id="propAmenities" placeholder="Fast Fiber WiFi, 24/7 Check-in, Luxury Spa, Outdoor Pool, Airport Limousine" value="Fast Fiber WiFi, 24/7 Check-in, Luxury Spa, Outdoor Pool" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <!-- Extra Gallery Images -->
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Extra Gallery Images (comma-separated URLs)</label>
+          <input type="text" id="propGalleryImages" placeholder="https://images.unsplash.com/photo-1..., https://images.unsplash.com/photo-2..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <!-- Default Room Creation (Only on Create) -->
+        <div id="createRoomFields" class="bg-emerald-50 dark:bg-emerald-950/40 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800 space-y-2">
+          <div class="font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5"><i class="fa-solid fa-bed"></i> Initial Room Type & Daily Rate</div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-semibold text-emerald-800 dark:text-emerald-400 mb-1 text-[11px]">Room Name *</label>
+              <input type="text" id="defaultRoomName" placeholder="e.g. Deluxe Heritage Suite" value="Deluxe King Room" class="w-full bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 rounded-lg px-3 py-2 text-slate-800 dark:text-slate-200">
+            </div>
+            <div>
+              <label class="block font-semibold text-emerald-800 dark:text-emerald-400 mb-1 text-[11px]">Base Price / Night ($) *</label>
+              <input type="number" step="0.01" min="1" id="defaultRoomPrice" placeholder="e.g. 195.00" value="195.00" class="w-full bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 rounded-lg px-3 py-2 text-slate-800 dark:text-slate-200">
+            </div>
+            <div>
+              <label class="block font-semibold text-emerald-800 dark:text-emerald-400 mb-1 text-[11px]">Max Guests</label>
+              <input type="number" min="1" max="10" id="defaultRoomGuests" value="2" class="w-full bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 rounded-lg px-3 py-2 text-slate-800 dark:text-slate-200">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closePropertyModal()" class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition">Cancel</button>
+          <button type="submit" id="propertySubmitBtn" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow transition flex items-center space-x-2">
+            <i class="fa-solid fa-check"></i>
+            <span id="propertySubmitText">Save Property</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD ROOM TYPE -->
+  <div id="roomModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">Add Room Type</h3>
+          <p id="roomModalSubtitle" class="text-xs text-slate-500 dark:text-slate-400">For property</p>
+        </div>
+        <button onclick="closeRoomModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="roomForm" onsubmit="handleRoomSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="roomPropId" value="">
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Room Name *</label>
+          <input type="text" id="addRoomName" required placeholder="e.g. Executive Club Room" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Base Price / Night ($) *</label>
+            <input type="number" step="0.01" min="1" id="addRoomPrice" required placeholder="e.g. 240.00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Max Occupancy</label>
+            <input type="number" min="1" max="10" id="addRoomGuests" value="2" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Bed Configuration</label>
+          <input type="text" id="addRoomBed" value="1 King Bed" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Room Images (comma-separated URLs)</label>
+          <input type="text" id="addRoomImages" placeholder="https://images.unsplash.com/photo-1..., https://images.unsplash.com/photo-2..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200">
+        </div>
+        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeRoomModal()" class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow transition flex items-center space-x-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Room</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTER LOCAL GUIDE -->
+  <div id="guideModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-black shadow-sm">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+          <div>
+            <h3 id="guideModalTitle" class="text-base font-bold text-slate-900 dark:text-white">Register Certified Local Guide</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Add local guides to your network and link them to resorts.</p>
+          </div>
+        </div>
+        <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Quick Guide Presets -->
+      <div class="bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200 dark:border-amber-800/60 space-y-2">
+        <div class="text-[10px] font-black uppercase tracking-wider text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+          <span>1-Click Guide Presets (Click to autofill profile)</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button type="button" onclick="applyGuidePreset('HERITAGE')" class="p-2 bg-white dark:bg-slate-800 hover:border-amber-500 border border-slate-200 dark:border-slate-700 rounded-xl text-left transition shadow-sm hover:scale-[1.02]">
+            <div class="font-bold text-slate-800 dark:text-white text-[11px]">🏛️ Heritage & Culture</div>
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">Vikram Joshi • $120/d</div>
+          </button>
+          <button type="button" onclick="applyGuidePreset('SCUBA')" class="p-2 bg-white dark:bg-slate-800 hover:border-amber-500 border border-slate-200 dark:border-slate-700 rounded-xl text-left transition shadow-sm hover:scale-[1.02]">
+            <div class="font-bold text-slate-800 dark:text-white text-[11px]">🌊 Marine & Scuba</div>
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">Ananya Nair • $180/d</div>
+          </button>
+          <button type="button" onclick="applyGuidePreset('TREKKING')" class="p-2 bg-white dark:bg-slate-800 hover:border-amber-500 border border-slate-200 dark:border-slate-700 rounded-xl text-left transition shadow-sm hover:scale-[1.02]">
+            <div class="font-bold text-slate-800 dark:text-white text-[11px]">🌿 Trek & Wildlife</div>
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate">Rohan Deshmukh • $140/d</div>
+          </button>
+        </div>
+      </div>
+
+      <form id="guideForm" onsubmit="handleGuideSubmit(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="guideEditId" value="">
+        <!-- Full Name & Headline -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name *</label>
+            <input type="text" id="guideFullName" required placeholder="e.g. Vikram Joshi" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Headline / Specialty *</label>
+            <input type="text" id="guideHeadline" required placeholder="e.g. Heritage Architect & Storyteller" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+
+        <!-- Bio -->
+        <div>
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Bio / Background *</label>
+          <textarea id="guideBio" rows="2" required placeholder="Experience, local history expertise, storytelling style..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500"></textarea>
+        </div>
+
+        <!-- Rates & Experience -->
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Daily Rate ($) *</label>
+            <input type="number" step="0.01" min="1" id="guideDailyRate" required value="120.00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Hourly Rate ($) *</label>
+            <input type="number" step="0.01" min="1" id="guideHourlyRate" required value="25.00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Experience (Yrs)</label>
+            <input type="number" min="0" id="guideExperience" value="6" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+
+        <!-- Languages & Specialties -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Languages (comma-separated)</label>
+            <input type="text" id="guideLanguages" placeholder="English, Hindi, Kannada" value="English, Hindi, Kannada" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Specialties (comma-separated)</label>
+            <input type="text" id="guideSpecialties" placeholder="Architecture, Old City, Food Walks" value="Architecture, Heritage Walks, Food Tours" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+
+        <!-- Profile Photo URL with Quick Avatar Switcher -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="font-bold text-slate-700 dark:text-slate-300">Profile Photo URL *</label>
+            <div class="text-[10px] text-slate-400">Quick Avatars:
+              <button type="button" onclick="setGuideAvatar('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80')" class="text-amber-600 dark:text-amber-400 hover:underline font-semibold ml-1">Photo 1</button>
+              <button type="button" onclick="setGuideAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80')" class="text-amber-600 dark:text-amber-400 hover:underline font-semibold ml-1">Photo 2</button>
+              <button type="button" onclick="setGuideAvatar('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80')" class="text-amber-600 dark:text-amber-400 hover:underline font-semibold ml-1">Photo 3</button>
+              <button type="button" onclick="setGuideAvatar('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80')" class="text-amber-600 dark:text-amber-400 hover:underline font-semibold ml-1">Photo 4</button>
+            </div>
+          </div>
+          <input type="url" id="guidePhotoUrl" required placeholder="https://images.unsplash.com/photo-..." value="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500">
+        </div>
+
+        <!-- Link to Resort -->
+        <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+          <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-umbrella-beach text-teal-500"></i>
+            <span>Link Guide to Resort (For Local Guide Bundling)</span>
+          </label>
+          <select id="guideResortSelect" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:border-amber-500">
+            <option value="">Independent (No specific resort)</option>
+          </select>
+          <p class="text-[10px] text-slate-400 mt-1">When linked, this guide is bookable alongside the resort's luxury room reservations.</p>
+        </div>
+
+        <!-- Verified Badge -->
+        <div class="flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/40">
+          <input type="checkbox" id="guideVerified" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300 dark:border-slate-700 cursor-pointer">
+          <label for="guideVerified" class="text-emerald-900 dark:text-emerald-300 font-bold text-xs cursor-pointer flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+            <span>Auto-Verify Guide (Active & Certified Immediately)</span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeGuideModal()" class="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold transition">Cancel</button>
+          <button type="submit" id="guideSubmitBtn" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black shadow transition flex items-center space-x-2">
+            <i class="fa-solid fa-user-check"></i>
+            <span id="guideSubmitText">Register & Activate Guide</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    const API_BASE = "http://127.0.0.1:8000/api/v1";
+    const API_BASE = (window.location.port === "80" || window.location.port === "")
+      ? "/api/v1"
+      : (window.location.port === "8000" ? "/api/v1" : `http://${window.location.hostname || "127.0.0.1"}:8000/api/v1`);
     let currentToken = "";
     let currentVendorType = "hotel"; // 'hotel' or 'resort'
 
-    async function initVendorPortal() {
-      await switchVendor('hotel');
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      if (htmlEl.classList.contains('dark')) {
+        htmlEl.classList.remove('dark');
+        localStorage.setItem('plane_theme', 'light');
+        if (icon) {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+        }
+      } else {
+        htmlEl.classList.add('dark');
+        localStorage.setItem('plane_theme', 'dark');
+        if (icon) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        }
+      }
     }
 
-    async function switchVendor(type) {
-      currentVendorType = type;
-      const email = type === 'hotel' ? 'host@grandmetropolis.com' : 'host@azurebayresort.com';
+    // Sync icon on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon = document.getElementById('themeIcon');
+      if (icon) {
+        if (document.documentElement.classList.contains('dark')) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        } else {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+        }
+      }
+    });
+
+    function openVendorAuthModal() {
+      const errEl = document.getElementById('vendorLoginError');
+      if (errEl) errEl.classList.add('hidden');
+      document.getElementById('vendorAuthModal').classList.remove('hidden');
+    }
+
+    function closeVendorAuthModal() {
+      document.getElementById('vendorAuthModal').classList.add('hidden');
+    }
+
+    async function loginAsVendor(email, password) {
+      const errEl = document.getElementById('vendorLoginError');
+      if (errEl) errEl.classList.add('hidden');
       try {
         const res = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, password: 'Password123!' })
+          body: JSON.stringify({ email: email.trim(), password: password })
         });
         const data = await res.json();
+        if (!res.ok || !data.data) {
+          throw new Error(data.detail || "Authentication failed. Check credentials.");
+        }
+        if (data.data.user.role !== 'VENDOR' && data.data.user.role !== 'ADMIN') {
+          throw new Error("Access Denied: This account is not registered as a property host / vendor.");
+        }
         currentToken = data.data.access_token;
-        document.getElementById('vendorName').innerText = data.data.user.full_name;
+        currentVendorUser = data.data.user;
+        localStorage.setItem('plane_vendor_token', currentToken);
+        localStorage.setItem('plane_vendor_user', JSON.stringify(currentVendorUser));
+
+        updateVendorUI();
+        closeVendorAuthModal();
+
         loadAllocations();
         loadProperties();
         loadGuideRoster();
+        return true;
       } catch (err) {
         console.error("Vendor auth error:", err);
+        if (errEl) {
+          errEl.innerText = err.message || "Failed to authenticate host.";
+          errEl.classList.remove('hidden');
+        }
+        return false;
       }
+    }
+
+    function updateVendorUI() {
+      const loggedInSection = document.getElementById('vendorLoggedInSection');
+      const loggedOutBtn = document.getElementById('vendorLoggedOutBtn');
+      const nameEl = document.getElementById('vendorName');
+      const emailEl = document.getElementById('vendorEmail');
+
+      if (currentToken && currentVendorUser) {
+        if (loggedInSection) loggedInSection.classList.remove('hidden');
+        if (loggedOutBtn) loggedOutBtn.classList.add('hidden');
+        if (nameEl) nameEl.innerText = currentVendorUser.full_name;
+        if (emailEl) emailEl.innerText = currentVendorUser.email;
+      } else {
+        if (loggedInSection) loggedInSection.classList.add('hidden');
+        if (loggedOutBtn) loggedOutBtn.classList.remove('hidden');
+      }
+    }
+
+    function handleVendorLogout() {
+      currentToken = null;
+      currentVendorUser = null;
+      localStorage.removeItem('plane_vendor_token');
+      localStorage.removeItem('plane_vendor_user');
+      updateVendorUI();
+      document.getElementById('allocationTableBody').innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-400 font-semibold"><i class="fa-solid fa-lock text-slate-500 text-xl mb-2 block"></i>Signed out. Click "Sign In Host" above to authenticate.</td></tr>`;
+      document.getElementById('propertyCardsList').innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 font-semibold">Signed out.</div>`;
+      document.getElementById('guideRosterContainer').innerHTML = `<div class="py-8 text-center text-slate-400 font-semibold">Signed out.</div>`;
+    }
+
+    async function handleVendorCustomLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('vendorLoginEmail').value;
+      const password = document.getElementById('vendorLoginPassword').value;
+      const btn = document.getElementById('vendorLoginSubmitBtn');
+      const orig = btn.innerText;
+      btn.innerText = "Authenticating...";
+      btn.disabled = true;
+      try {
+        await loginAsVendor(email, password);
+      } finally {
+        btn.innerText = orig;
+        btn.disabled = false;
+      }
+    }
+
+    async function initVendorPortal() {
+      const savedToken = localStorage.getItem('plane_vendor_token');
+      const savedUser = localStorage.getItem('plane_vendor_user');
+      if (savedToken && savedUser) {
+        try {
+          currentToken = savedToken;
+          currentVendorUser = JSON.parse(savedUser);
+          updateVendorUI();
+          loadAllocations();
+          loadProperties();
+          loadGuideRoster();
+          return;
+        } catch (e) {
+          localStorage.removeItem('plane_vendor_token');
+          localStorage.removeItem('plane_vendor_user');
+        }
+      }
+      // Default initial login as Hotel Host
+      await loginAsVendor('host@grandmetropolis.com', 'Password123!');
     }
 
     async function loadAllocations() {
@@ -172,7 +731,7 @@
         const propData = await propRes.json();
         
         if (!propData.data || propData.data.length === 0) {
-           tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-500">No properties configured yet.</td></tr>`;
+           tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">No properties configured yet.</td></tr>`;
            return;
         }
 
@@ -185,75 +744,732 @@
 
         let rowsHtml = '';
 
-        for (const prop of propData.data) {
-           // For each room type in property
-           for (const room of prop.room_types) {
+        for (const prop of (propData.data || [])) {
+           const rooms = prop.room_types || [];
+           for (const room of rooms) {
               // 2. Fetch real allocations for this room type
-              const url = new URL(`${API_BASE}/vendor/allocations`);
-              url.searchParams.append('room_type_id', room.id);
-              url.searchParams.append('start_date', startStr);
-              url.searchParams.append('end_date', endStr);
+              const url = `${API_BASE}/vendor/allocations?room_type_id=${encodeURIComponent(room.id)}&start_date=${encodeURIComponent(startStr)}&end_date=${encodeURIComponent(endStr)}`;
               
-              const allocRes = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${currentToken}` }
-              });
-              
-              if (allocRes.ok) {
-                 const allocData = await allocRes.json();
-                 
-                 // Render real rows
-                 allocData.data.forEach(alloc => {
-                    const statusHtml = alloc.is_closed 
-                        ? `<span class="px-2.5 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800">CLOSED</span>`
-                        : `<span class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800">OPEN</span>`;
-                        
-                    rowsHtml += `
-                      <tr class="hover:bg-slate-50 transition">
-                        <td class="px-4 py-3 font-semibold text-slate-800">${alloc.allocation_date}</td>
-                        <td class="px-4 py-3 text-slate-700 font-medium">${room.name}</td>
-                        <td class="px-4 py-3 font-bold text-slate-900">${alloc.total_allocated}</td>
-                        <td class="px-4 py-3 font-semibold text-indigo-600">${alloc.booked_count}</td>
-                        <td class="px-4 py-3 font-bold text-emerald-600">${alloc.available_count} available</td>
-                        <td class="px-4 py-3 text-slate-600">${parseFloat(alloc.rate_multiplier).toFixed(2)}x ($${parseFloat(alloc.effective_price).toFixed(2)})</td>
-                        <td class="px-4 py-3">${statusHtml}</td>
-                      </tr>
-                    `;
-                 });
+              try {
+                const allocRes = await fetch(url, {
+                  headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                if (allocRes.ok) {
+                   const allocData = await allocRes.json();
+                   
+                   (allocData.data || []).forEach(alloc => {
+                      const statusHtml = alloc.is_closed 
+                          ? `<span class="px-2.5 py-1 text-xs font-bold rounded-full bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800">CLOSED</span>`
+                          : `<span class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">OPEN</span>`;
+                          
+                      rowsHtml += `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                          <td class="px-4 py-3 font-semibold text-slate-800 dark:text-slate-200">${alloc.allocation_date}</td>
+                          <td class="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">${prop.name} — ${room.name}</td>
+                          <td class="px-4 py-3 font-bold text-slate-900 dark:text-white">${alloc.total_allocated}</td>
+                          <td class="px-4 py-3 font-semibold text-indigo-600 dark:text-indigo-400">${alloc.booked_count}</td>
+                          <td class="px-4 py-3 font-bold text-emerald-600 dark:text-emerald-400">${alloc.available_count} available</td>
+                          <td class="px-4 py-3 text-slate-600 dark:text-slate-400">${parseFloat(alloc.rate_multiplier).toFixed(2)}x ($${parseFloat(alloc.effective_price).toFixed(2)})</td>
+                          <td class="px-4 py-3">${statusHtml}</td>
+                        </tr>
+                      `;
+                   });
+                }
+              } catch (err) {
+                console.warn("Failed fetching room allocations for", room.id, err);
               }
            }
         }
         
         if (rowsHtml === '') {
-           tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-500">No allocations set for the next 7 days.</td></tr>`;
+           tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">No allocations set for the next 7 days.</td></tr>`;
         } else {
            tbody.innerHTML = rowsHtml;
         }
 
       } catch (e) {
         console.error("Error loading allocations", e);
-        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">Failed to load live allocations</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-red-500">Failed to load live allocations: ${e.message}</td></tr>`;
       }
     }
 
+    let cachedProperties = [];
+
     async function loadProperties() {
       const container = document.getElementById('vendorPropertiesList');
+      container.innerHTML = '<div class="col-span-full py-8 text-center text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading properties...</div>';
       try {
         const res = await fetch(`${API_BASE}/vendor/properties`, {
           headers: { 'Authorization': `Bearer ${currentToken}` }
         });
         const json = await res.json();
-        container.innerHTML = (json.data || []).map(p => `
-          <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
-            <div class="flex justify-between items-start">
-              <span class="text-xs font-extrabold px-2 py-0.5 rounded ${p.property_type === 'RESORT' ? 'bg-teal-100 text-teal-800' : 'bg-indigo-100 text-indigo-800'}">${p.property_type}</span>
-              <span class="text-xs text-slate-400">★ ${p.star_rating}</span>
+        cachedProperties = json.data || [];
+
+        if (cachedProperties.length === 0) {
+          container.innerHTML = `
+            <div class="col-span-full py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-6">
+              <i class="fa-solid fa-hotel text-4xl text-slate-300 dark:text-slate-700 mb-3"></i>
+              <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">No properties listed yet</h3>
+              <p class="text-xs text-slate-400 mt-1 mb-4">Add your first hotel or resort to start receiving live bookings on Plan-E.</p>
+              <button onclick="openCreatePropertyModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow transition">
+                <i class="fa-solid fa-plus mr-1"></i> Add New Property
+              </button>
             </div>
-            <h3 class="text-base font-bold text-slate-900 mt-2">${p.name}</h3>
-            <p class="text-xs text-slate-500 mt-1">${p.city} • ${p.room_types_count} Room Types Configured</p>
-          </div>
-        `).join('');
+          `;
+          return;
+        }
+
+        container.innerHTML = cachedProperties.map(p => {
+          const isResort = p.property_type === 'RESORT';
+          const typeBadge = isResort
+            ? `<span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800">🏝️ RESORT</span>`
+            : `<span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">🏢 HOTEL</span>`;
+
+          const roomsList = (p.room_types || []).map(r => `
+            <div class="flex items-center justify-between text-xs py-1.5 px-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+              <span class="font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">${r.name} (${r.max_occupancy} guests)</span>
+              <div class="flex items-center space-x-2 shrink-0">
+                <span class="font-extrabold text-emerald-600 dark:text-emerald-400">$${parseFloat(r.base_price_per_night).toFixed(0)}/nt</span>
+                <button onclick="deleteRoom('${r.id}', '${r.name.replace(/'/g, "\\'")}')" title="Delete Room Type" class="text-slate-400 hover:text-red-500 text-xs transition">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+          `).join('');
+
+          return `
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+              <div class="relative h-44 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <img src="${p.cover_image_url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'}" class="w-full h-full object-cover">
+                <div class="absolute top-3 left-3 flex gap-1.5">
+                  ${typeBadge}
+                  ${p.is_published ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/90 text-white shadow">Live</span>' : '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-500 text-white shadow">Unpublished</span>'}
+                </div>
+                <div class="absolute bottom-3 right-3 bg-black/80 text-white px-2.5 py-1 rounded-lg text-xs font-extrabold shadow backdrop-blur-xs">
+                  ★ ${p.star_rating || '4.8'}
+                </div>
+              </div>
+              
+              <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div class="space-y-2">
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white leading-tight">${p.name}</h3>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">${p.tagline || p.address}</p>
+                  <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <span class="font-medium"><i class="fa-solid fa-location-dot text-red-500 mr-1"></i>${p.city}, ${p.country}</span>
+                    <span class="font-mono text-[10px] bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded text-slate-500">📍 ${parseFloat(p.latitude).toFixed(4)}, ${parseFloat(p.longitude).toFixed(4)}</span>
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                  <div class="flex justify-between items-center text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <span>Room Types (${(p.room_types || []).length})</span>
+                    <button onclick="openAddRoomModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="text-indigo-600 dark:text-indigo-400 hover:underline text-[11px] flex items-center gap-1 font-semibold">
+                      <i class="fa-solid fa-plus text-[10px]"></i> Add Room
+                    </button>
+                  </div>
+                  <div class="space-y-1.5 max-h-36 overflow-y-auto">
+                    ${roomsList || '<p class="text-xs text-slate-400 italic py-1">No rooms added yet. Click Add Room to configure inventory.</p>'}
+                  </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <button onclick="openEditPropertyModal('${p.id}')" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-indigo-500 hover:text-indigo-600 text-xs font-bold transition flex items-center gap-1.5">
+                      <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </button>
+                    <button onclick="deleteProperty('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900/50 text-red-600 hover:bg-red-50 dark:hover:bg-red-950 text-xs font-bold transition flex items-center gap-1.5">
+                      <i class="fa-solid fa-trash-can"></i> Delete
+                    </button>
+                  </div>
+                  <a href="/consumer/?journey=${isResort ? 'resort' : 'hotel'}" target="_blank" class="text-xs text-slate-500 dark:text-slate-400 hover:text-brand font-semibold flex items-center gap-1">
+                    <span>View on Map</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
       } catch (e) {
-        container.innerHTML = '<p class="text-xs text-slate-400">Error loading properties.</p>';
+        container.innerHTML = '<p class="text-xs text-red-500 py-6 text-center">Error loading properties: ' + e.message + '</p>';
+      }
+    }
+
+    function setCoordinates(lat, lon, city, state, country) {
+      document.getElementById('propLat').value = lat;
+      document.getElementById('propLon').value = lon;
+      if (city) document.getElementById('propCity').value = city;
+      if (state) document.getElementById('propState').value = state;
+      if (country) document.getElementById('propCountry').value = country;
+    }
+
+    const PROPERTY_PRESETS = {
+      CITY_HOTEL: {
+        property_type: "HOTEL",
+        name: "ITC Gardenia Luxury Hotel",
+        tagline: "Eco-Luxury Living in the Heart of Bengaluru's Central Business District",
+        description: "Inspired by the garden city ethos, ITC Gardenia offers state-of-the-art business lounges, award-winning specialty restaurants (Kebabs & Kurries, Edo Japanese), and an Olympic-size rooftop lap pool.",
+        city: "Bangalore",
+        state: "Karnataka",
+        country: "India",
+        address: "1 Residency Road, Ashok Nagar, Bengaluru 560025",
+        lat: 12.9716,
+        lon: 77.5946,
+        rating: 4.9,
+        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+        gallery_images: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80",
+        amenities: "Fast Fiber WiFi, 24/7 Butler Service, Rooftop Pool, Spa & Wellness, Fine Dining",
+        room_name: "Towers Executive King Room",
+        room_price: 195.00,
+        room_guests: 2
+      },
+      BEACH_RESORT: {
+        property_type: "RESORT",
+        name: "Azure Coral Bay Beach Resort & Spa",
+        tagline: "Private White Sand Shorelines and Coral Reef Marine Adventures",
+        description: "A sanctuary set upon secluded tropical dunes. Features open-air oceanfront cabanas, infinity reef pools, certified scuba diving expeditions, and sunset catamaran dinners.",
+        city: "Goa",
+        state: "Goa",
+        country: "India",
+        address: "Cavelossim Beach Road, South Goa 403731",
+        lat: 15.1746,
+        lon: 73.9452,
+        rating: 4.8,
+        image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+        gallery_images: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
+        amenities: "Private Beach, Oceanfront Infinity Pool, Scuba & Snorkeling, Ayurvedic Spa, Seafood Grill",
+        room_name: "Ocean View Luxury Villa",
+        room_price: 320.00,
+        room_guests: 3
+      },
+      MOUNTAIN_RESORT: {
+        property_type: "RESORT",
+        name: "Cloud Mist Highland Sanctuary & Spa",
+        tagline: "Breathtaking Cloud Cascades & Eco-Trekking Trails",
+        description: "Perched above misty valleys with panoramic viewpoints. Experience guided high-altitude nature walks, organic cedar dining, heated mountain baths, and starlit astronomy sessions.",
+        city: "Nandi Hills",
+        state: "Karnataka",
+        country: "India",
+        address: "Hilltop Sanctuary Ridge, Chikkaballapur District 562101",
+        lat: 13.3702,
+        lon: 77.6835,
+        rating: 4.7,
+        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
+        gallery_images: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1200&q=80",
+        amenities: "Heated Mountain Pool, Guided Nature Treks, Yoga Deck, Organic Farm-to-Table, Fireplace Suites",
+        room_name: "Valley Mist Panorama Suite",
+        room_price: 260.00,
+        room_guests: 2
+      },
+      HERITAGE_HOTEL: {
+        property_type: "HOTEL",
+        name: "The Leela Palace Royal Heritage Hotel",
+        tagline: "Art-Deco Royal Splendor Surrounded by Cascading Waterfalls",
+        description: "Designed in the grand architectural tradition of the Royal Mysore dynasty. Boasting opulent copper domes, hand-woven carpets, private butler service, and Michelin-class dining.",
+        city: "Bangalore",
+        state: "Karnataka",
+        country: "India",
+        address: "23 Old Airport Road, Kodihalli, Bengaluru 560008",
+        lat: 12.9606,
+        lon: 77.6484,
+        rating: 4.9,
+        image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80",
+        gallery_images: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80, https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+        amenities: "Royal Butler Service, Michelin Dining, Heritage Art Gallery, Luxury Limousine, Spa & Salon",
+        room_name: "Royal Heritage Premier Suite",
+        room_price: 380.00,
+        room_guests: 2
+      }
+    };
+
+    function applyPropertyPreset(key) {
+      const p = PROPERTY_PRESETS[key];
+      if (!p) return;
+      document.getElementById('propType').value = p.property_type;
+      document.getElementById('propName').value = p.name;
+      document.getElementById('propTagline').value = p.tagline;
+      document.getElementById('propDescription').value = p.description;
+      document.getElementById('propCity').value = p.city;
+      document.getElementById('propState').value = p.state;
+      document.getElementById('propCountry').value = p.country;
+      document.getElementById('propAddress').value = p.address;
+      document.getElementById('propLat').value = p.lat;
+      document.getElementById('propLon').value = p.lon;
+      document.getElementById('propRating').value = p.rating;
+      document.getElementById('propImage').value = p.image;
+      document.getElementById('propAmenities').value = p.amenities;
+      document.getElementById('propGalleryImages').value = p.gallery_images || '';
+      document.getElementById('defaultRoomName').value = p.room_name;
+      document.getElementById('defaultRoomPrice').value = p.room_price;
+      document.getElementById('defaultRoomGuests').value = p.room_guests;
+    }
+
+    function openCreatePropertyWithPreset(type) {
+      openCreatePropertyModal();
+      if (type === 'RESORT') {
+        applyPropertyPreset('BEACH_RESORT');
+      } else {
+        applyPropertyPreset('CITY_HOTEL');
+      }
+      showSection('properties');
+    }
+
+    function openCreatePropertyModal() {
+      document.getElementById('propertyModalTitle').innerText = "Add New Property";
+      document.getElementById('propertySubmitText').innerText = "Create Property";
+      document.getElementById('propEditId').value = "";
+      document.getElementById('propertyForm').reset();
+      document.getElementById('propGalleryImages').value = "";
+      document.getElementById('createRoomFields').classList.remove('hidden');
+      document.getElementById('propertyModal').classList.remove('hidden');
+    }
+
+    function openEditPropertyModal(propId) {
+      const prop = cachedProperties.find(p => p.id === propId);
+      if (!prop) return;
+
+      document.getElementById('propertyModalTitle').innerText = `Edit: ${prop.name}`;
+      document.getElementById('propertySubmitText').innerText = "Save Changes";
+      document.getElementById('propEditId').value = prop.id;
+      document.getElementById('propType').value = prop.property_type;
+      document.getElementById('propName').value = prop.name || '';
+      document.getElementById('propTagline').value = prop.tagline || '';
+      document.getElementById('propDescription').value = prop.description || '';
+      document.getElementById('propCity').value = prop.city || '';
+      document.getElementById('propState').value = prop.state || '';
+      document.getElementById('propCountry').value = prop.country || '';
+      document.getElementById('propAddress').value = prop.address || '';
+      document.getElementById('propLat').value = prop.latitude || '';
+      document.getElementById('propLon').value = prop.longitude || '';
+      document.getElementById('propRating').value = prop.star_rating || 4.5;
+      document.getElementById('propImage').value = prop.cover_image_url || '';
+      document.getElementById('propAmenities').value = (prop.amenities || []).join(', ');
+      document.getElementById('propGalleryImages').value = (prop.gallery_images || []).join(', ');
+      // Hide initial room field during edit
+      document.getElementById('createRoomFields').classList.add('hidden');
+      document.getElementById('propertyModal').classList.remove('hidden');
+    }
+
+    function closePropertyModal() {
+      document.getElementById('propertyModal').classList.add('hidden');
+    }
+
+    async function handlePropertySubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('propEditId').value;
+      const isEditing = !!editId;
+
+      const amenitiesStr = document.getElementById('propAmenities').value || '';
+      const amenitiesList = amenitiesStr.split(',').map(s => s.trim()).filter(Boolean);
+
+      const galleryStr = document.getElementById('propGalleryImages').value || '';
+      const galleryList = galleryStr.split(',').map(s => s.trim()).filter(Boolean);
+
+      const payload = {
+        property_type: document.getElementById('propType').value,
+        name: document.getElementById('propName').value.trim(),
+        tagline: document.getElementById('propTagline').value.trim(),
+        description: document.getElementById('propDescription').value.trim(),
+        city: document.getElementById('propCity').value.trim(),
+        state: document.getElementById('propState').value.trim() || null,
+        country: document.getElementById('propCountry').value.trim(),
+        address: document.getElementById('propAddress').value.trim(),
+        latitude: parseFloat(document.getElementById('propLat').value),
+        longitude: parseFloat(document.getElementById('propLon').value),
+        star_rating: parseFloat(document.getElementById('propRating').value) || 4.5,
+        cover_image_url: document.getElementById('propImage').value.trim(),
+        gallery_images: galleryList.length > 0 ? galleryList : [document.getElementById('propImage').value.trim()],
+        amenities: amenitiesList,
+        is_published: true,
+      };
+
+      const submitBtn = document.getElementById('propertySubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50');
+
+      try {
+        if (isEditing) {
+          // PATCH Property
+          const res = await fetch(`${API_BASE}/vendor/properties/${editId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Failed to update property");
+          }
+          alert("Property updated successfully!");
+        } else {
+          // POST Property
+          const res = await fetch(`${API_BASE}/vendor/properties`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.detail || "Failed to create property");
+
+          const newPropId = json.data.id;
+
+          // Also create initial room type
+          const roomName = document.getElementById('defaultRoomName').value.trim() || "Standard Room";
+          const roomPrice = parseFloat(document.getElementById('defaultRoomPrice').value) || 180.0;
+          const roomGuests = parseInt(document.getElementById('defaultRoomGuests').value) || 2;
+          const initialRoomImages = galleryList.length > 0 ? [galleryList[0]] : [payload.cover_image_url];
+
+          const roomRes = await fetch(`${API_BASE}/vendor/rooms`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({
+              property_id: newPropId,
+              name: roomName,
+              base_price_per_night: roomPrice,
+              max_occupancy: roomGuests,
+              bed_configuration: "1 King Bed",
+              amenities: ["WiFi", "En-suite Bath"],
+              images: initialRoomImages,
+              is_active: true
+            })
+          });
+          const roomJson = await roomRes.json();
+
+          if (roomRes.ok && roomJson.data && roomJson.data.id) {
+            // Auto-provision 365 days of allocation for this new room
+            const today = new Date();
+            const startStr = today.toISOString().split('T')[0];
+            const end = new Date(today);
+            end.setDate(today.getDate() + 365);
+            const endStr = end.toISOString().split('T')[0];
+
+            await fetch(`${API_BASE}/vendor/allocations/batch`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+              },
+              body: JSON.stringify({
+                room_type_id: roomJson.data.id,
+                start_date: startStr,
+                end_date: endStr,
+                total_allocated: 10,
+                rate_multiplier: 1.0,
+                is_closed: false
+              })
+            }).catch(console.warn);
+          }
+
+          alert(`Property '${payload.name}' created with room and 365-day inventory!`);
+        }
+
+        closePropertyModal();
+        await loadProperties();
+        await loadAllocations();
+      } catch (err) {
+        alert("Error: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50');
+      }
+    }
+
+    async function deleteProperty(propId, propName) {
+      if (!confirm(`Are you sure you want to delete '${propName}'? It will be unpublished from the consumer app and map.`)) {
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/vendor/properties/${propId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Failed to delete property");
+        }
+        alert(`Property '${propName}' successfully deleted.`);
+        await loadProperties();
+        await loadAllocations();
+      } catch (err) {
+        alert("Error deleting property: " + err.message);
+      }
+    }
+
+    function openAddRoomModal(propId, propName) {
+      document.getElementById('roomPropId').value = propId;
+      document.getElementById('roomModalSubtitle').innerText = `Adding room to: ${propName}`;
+      document.getElementById('roomForm').reset();
+      document.getElementById('addRoomImages').value = '';
+      document.getElementById('roomModal').classList.remove('hidden');
+    }
+
+    function closeRoomModal() {
+      document.getElementById('roomModal').classList.add('hidden');
+    }
+
+    async function handleRoomSubmit(e) {
+      e.preventDefault();
+      const propId = document.getElementById('roomPropId').value;
+      const name = document.getElementById('addRoomName').value.trim();
+      const price = parseFloat(document.getElementById('addRoomPrice').value);
+      const guests = parseInt(document.getElementById('addRoomGuests').value) || 2;
+      const bed = document.getElementById('addRoomBed').value.trim() || "1 King Bed";
+      const imagesStr = document.getElementById('addRoomImages').value || '';
+      const imagesList = imagesStr.split(',').map(s => s.trim()).filter(Boolean);
+
+      try {
+        const res = await fetch(`${API_BASE}/vendor/rooms`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify({
+            property_id: propId,
+            name: name,
+            base_price_per_night: price,
+            max_occupancy: guests,
+            bed_configuration: bed,
+            amenities: ["Air Conditioning", "WiFi", "En-suite Bath"],
+            images: imagesList,
+            is_active: true
+          })
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.detail || "Failed to add room type");
+
+        // Seed 365 days of allocation
+        const today = new Date();
+        const startStr = today.toISOString().split('T')[0];
+        const end = new Date(today);
+        end.setDate(today.getDate() + 365);
+        const endStr = end.toISOString().split('T')[0];
+
+        await fetch(`${API_BASE}/vendor/allocations/batch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify({
+            room_type_id: json.data.id,
+            start_date: startStr,
+            end_date: endStr,
+            total_allocated: 8,
+            rate_multiplier: 1.0,
+            is_closed: false
+          })
+        }).catch(console.warn);
+
+        alert(`Room type '${name}' added with 365-day inventory!`);
+        closeRoomModal();
+        await loadProperties();
+        await loadAllocations();
+      } catch (err) {
+        alert("Error adding room: " + err.message);
+      }
+    }
+
+    async function deleteRoom(roomId, roomName) {
+      if (!confirm(`Are you sure you want to delete room '${roomName}'?`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/vendor/rooms/${roomId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!res.ok) throw new Error("Failed to delete room");
+        alert(`Room '${roomName}' deleted.`);
+        await loadProperties();
+        await loadAllocations();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    const GUIDE_PRESETS = {
+      HERITAGE: {
+        full_name: "Vikram Joshi",
+        headline: "Heritage Architect & Old City Storyteller",
+        bio: "Specializing in 16th-century fortress architecture, hidden stepwells, and royal palace histories. Over 10 years guiding historians, authors, and curious travelers.",
+        daily_rate: 120.00,
+        hourly_rate: 25.00,
+        years_of_experience: 8,
+        languages: "English, Hindi, Kannada",
+        specialties: "Heritage Architecture, Photography Walks, Secret Alleyways",
+        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"
+      },
+      SCUBA: {
+        full_name: "Ananya Nair",
+        headline: "PADI Divemaster & Marine Biologist Naturalist",
+        bio: "Passionate coastal guide with 500+ logged dives. Specializes in coral reef ecology, shipwreck exploration, night bioluminescence dives, and ocean conservation tours.",
+        daily_rate: 180.00,
+        hourly_rate: 40.00,
+        years_of_experience: 6,
+        languages: "English, Hindi, Malayalam",
+        specialties: "Scuba Diving, Coral Reef Conservation, Underwater Photography",
+        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+      },
+      TREKKING: {
+        full_name: "Rohan Deshmukh",
+        headline: "Western Ghats Wilderness & Birding Naturalist",
+        bio: "Certified wilderness mountaineer leading offbeat rainforest treks, endemic bird-watching expeditions, and sunrise peak ascents across southern ghats.",
+        daily_rate: 140.00,
+        hourly_rate: 30.00,
+        years_of_experience: 7,
+        languages: "English, Hindi, Marathi",
+        specialties: "High-Altitude Trekking, Wildlife & Birding, Survival Camping",
+        photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
+      }
+    };
+
+    function setGuideAvatar(url) {
+      document.getElementById('guidePhotoUrl').value = url;
+    }
+
+    function applyGuidePreset(key) {
+      const g = GUIDE_PRESETS[key];
+      if (!g) return;
+      document.getElementById('guideFullName').value = g.full_name;
+      document.getElementById('guideHeadline').value = g.headline;
+      document.getElementById('guideBio').value = g.bio;
+      document.getElementById('guideDailyRate').value = g.daily_rate;
+      document.getElementById('guideHourlyRate').value = g.hourly_rate;
+      document.getElementById('guideExperience').value = g.years_of_experience;
+      document.getElementById('guideLanguages').value = g.languages;
+      document.getElementById('guideSpecialties').value = g.specialties;
+      document.getElementById('guidePhotoUrl').value = g.photo;
+    }
+
+    async function openCreateGuideModal() {
+      // Reset form & apply default preset
+      document.getElementById('guideForm').reset();
+      document.getElementById('guideEditId').value = '';
+      document.getElementById('guideModalTitle').innerText = 'Register Certified Local Guide';
+      document.getElementById('guideSubmitText').innerText = 'Register & Activate Guide';
+      applyGuidePreset('HERITAGE');
+
+      // Populate resort dropdown
+      const select = document.getElementById('guideResortSelect');
+      select.innerHTML = '<option value="">Independent (No specific resort)</option>';
+      
+      // Look for resorts in cached properties
+      const resorts = cachedProperties.filter(p => p.property_type === 'RESORT');
+      if (resorts.length > 0) {
+        resorts.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.id;
+          opt.innerText = `🏝️ ${r.name} (${r.city})`;
+          select.appendChild(opt);
+        });
+      } else {
+        try {
+          const res = await fetch(`${API_BASE}/resorts`);
+          const json = await res.json();
+          if (json.data && json.data.length > 0) {
+            json.data.forEach(r => {
+              const opt = document.createElement('option');
+              opt.value = r.id;
+              opt.innerText = `🏝️ ${r.name} (${r.city})`;
+              select.appendChild(opt);
+            });
+          }
+        } catch(e) {
+          console.warn("Could not fetch resorts for dropdown:", e);
+        }
+      }
+
+      document.getElementById('guideModal').classList.remove('hidden');
+    }
+
+    function closeGuideModal() {
+      document.getElementById('guideModal').classList.add('hidden');
+    }
+
+    async function handleGuideSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('guideSubmitBtn');
+      const submitText = document.getElementById('guideSubmitText');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50');
+
+      const editId = document.getElementById('guideEditId').value;
+      const isEditing = !!editId;
+      submitText.innerText = isEditing ? 'Saving...' : 'Registering...';
+
+      const resortIdVal = document.getElementById('guideResortSelect').value;
+      const languagesStr = document.getElementById('guideLanguages').value || 'English';
+      const specialtiesStr = document.getElementById('guideSpecialties').value || 'Tours';
+
+      try {
+        if (isEditing) {
+          // PATCH existing guide
+          const payload = {
+            full_name: document.getElementById('guideFullName').value.trim(),
+            headline: document.getElementById('guideHeadline').value.trim(),
+            bio: document.getElementById('guideBio').value.trim(),
+            daily_rate: parseFloat(document.getElementById('guideDailyRate').value) || 120.0,
+            hourly_rate: parseFloat(document.getElementById('guideHourlyRate').value) || 25.0,
+            years_of_experience: parseInt(document.getElementById('guideExperience').value) || 3,
+            languages: languagesStr.split(',').map(s => s.trim()).filter(Boolean),
+            specialties: specialtiesStr.split(',').map(s => s.trim()).filter(Boolean),
+            profile_photo_url: document.getElementById('guidePhotoUrl').value.trim(),
+            resort_id: resortIdVal ? resortIdVal : null
+          };
+          const res = await fetch(`${API_BASE}/guides/${editId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.detail || 'Failed to update guide');
+          alert(`✅ Guide updated successfully!`);
+        } else {
+          // POST new guide
+          const payload = {
+            full_name: document.getElementById('guideFullName').value.trim(),
+            headline: document.getElementById('guideHeadline').value.trim(),
+            bio: document.getElementById('guideBio').value.trim(),
+            daily_rate: parseFloat(document.getElementById('guideDailyRate').value) || 120.0,
+            hourly_rate: parseFloat(document.getElementById('guideHourlyRate').value) || 25.0,
+            years_of_experience: parseInt(document.getElementById('guideExperience').value) || 3,
+            languages: languagesStr.split(',').map(s => s.trim()).filter(Boolean),
+            specialties: specialtiesStr.split(',').map(s => s.trim()).filter(Boolean),
+            profile_photo_url: document.getElementById('guidePhotoUrl').value.trim(),
+            is_verified: document.getElementById('guideVerified').checked,
+            resort_id: resortIdVal ? resortIdVal : null
+          };
+          const res = await fetch(`${API_BASE}/guides`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.detail || 'Failed to register guide');
+          alert(`✅ Guide '${payload.full_name}' registered successfully!\nStatus: Certified with 90-day open calendar.`);
+        }
+        closeGuideModal();
+        showSection('guides');
+        await loadGuideRoster();
+      } catch(err) {
+        alert('Error: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50');
+        submitText.innerText = 'Register & Activate Guide';
       }
     }
 
@@ -262,36 +1478,146 @@
       try {
         const res = await fetch(`${API_BASE}/guides`);
         const json = await res.json();
-        container.innerHTML = (json.data || []).map(g => `
-          <div class="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-300 transition">
-            <div class="flex items-center space-x-4">
-              <img src="${g.profile_photo_url}" class="w-12 h-12 rounded-full object-cover border border-slate-200">
-              <div>
-                <div class="flex items-center space-x-2">
-                  <h4 class="text-sm font-bold text-slate-900">${g.full_name}</h4>
-                  ${g.is_verified ? '<span class="text-blue-500 text-xs"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+        const guides = json.data || [];
+        cachedGuides = guides;
+
+        if (guides.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 space-y-3">
+              <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-compass"></i>
+              </div>
+              <h4 class="font-bold text-slate-800 dark:text-white text-base">No Local Guides Registered Yet</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">Register certified local guides to unlock Local Guide Bundling with your resort bookings.</p>
+              <button onclick="openCreateGuideModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow transition">
+                + Register First Guide
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = guides.map(g => `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/40 hover:border-amber-400/50 transition gap-4 shadow-sm">
+            <div class="flex items-start sm:items-center space-x-3.5">
+              <img src="${g.profile_photo_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80'}" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm flex-shrink-0">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <h4 class="text-sm font-bold text-slate-900 dark:text-white">${g.full_name}</h4>
+                  ${g.is_verified ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-shield-check"></i> Certified</span>' : '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20">Pending</span>'}
                 </div>
-                <p class="text-xs text-slate-500">${g.headline}</p>
-                <p class="text-xs text-amber-600 font-bold mt-0.5">$${g.daily_rate} / day • ${g.specialties.slice(0, 2).join(', ')}</p>
+                <p class="text-xs text-slate-600 dark:text-slate-300 font-medium line-clamp-1">${g.headline}</p>
+                <div class="flex flex-wrap items-center gap-2 text-[11px] pt-0.5">
+                  <span class="font-extrabold text-amber-600 dark:text-amber-400">$${g.daily_rate} / day</span>
+                  <span class="text-slate-400">•</span>
+                  <span class="text-slate-500 dark:text-slate-400 font-mono">🗣️ ${(g.languages || []).join(', ')}</span>
+                  <span class="text-slate-400">•</span>
+                  <span class="text-slate-500 dark:text-slate-400">★ ${g.rating || '5.0'} (${g.review_count || 0} reviews)</span>
+                </div>
+                <div class="flex flex-wrap gap-1 pt-1">
+                  ${(g.specialties || []).map(s => `<span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border border-slate-200/50 dark:border-slate-700 font-medium">${s}</span>`).join('')}
+                </div>
               </div>
             </div>
-            <button class="text-xs font-bold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-300">
-              Linked to Resort
-            </button>
+            <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+              <button onclick="openEditGuideModal('${g.id}')" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-amber-500 hover:text-amber-600 text-xs font-bold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+              </button>
+              <button onclick="deleteGuide('${g.id}', '${g.full_name.replace(/'/g, "\\\\'")}')" class="px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900/50 text-red-600 hover:bg-red-50 dark:hover:bg-red-950 text-xs font-bold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-trash-can"></i> Delete
+              </button>
+              <span class="text-[11px] font-bold px-3 py-1.5 rounded-xl ${g.is_verified ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'}">
+                ${g.is_verified ? '<i class="fa-solid fa-shield-check text-xs mr-1"></i> Certified' : '<i class="fa-solid fa-clock text-xs mr-1"></i> Pending'}
+              </span>
+            </div>
           </div>
         `).join('');
       } catch (e) {
-        container.innerHTML = '<p class="text-xs text-slate-400">Error loading guides.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400">Error loading guides: ' + e.message + '</p>';
+      }
+    }
+
+    let cachedGuides = [];
+
+    async function openEditGuideModal(guideId) {
+      const guide = cachedGuides.find(g => g.id === guideId);
+      if (!guide) {
+        alert('Guide not found in cache. Please refresh the page.');
+        return;
+      }
+      document.getElementById('guideForm').reset();
+      document.getElementById('guideEditId').value = guide.id;
+      document.getElementById('guideModalTitle').innerText = `Edit: ${guide.full_name}`;
+      document.getElementById('guideSubmitText').innerText = 'Save Changes';
+      document.getElementById('guideFullName').value = guide.full_name || '';
+      document.getElementById('guideHeadline').value = guide.headline || '';
+      document.getElementById('guideBio').value = guide.bio || '';
+      document.getElementById('guideDailyRate').value = guide.daily_rate || 120;
+      document.getElementById('guideHourlyRate').value = guide.hourly_rate || 25;
+      document.getElementById('guideExperience').value = guide.years_of_experience || 3;
+      document.getElementById('guideLanguages').value = (guide.languages || []).join(', ');
+      document.getElementById('guideSpecialties').value = (guide.specialties || []).join(', ');
+      document.getElementById('guidePhotoUrl').value = guide.profile_photo_url || '';
+
+      // Populate resort dropdown
+      const select = document.getElementById('guideResortSelect');
+      select.innerHTML = '<option value="">Independent (No specific resort)</option>';
+      const resorts = cachedProperties.filter(p => p.property_type === 'RESORT');
+      if (resorts.length > 0) {
+        resorts.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.id;
+          opt.innerText = `🏝️ ${r.name} (${r.city})`;
+          select.appendChild(opt);
+        });
+      } else {
+        try {
+          const res = await fetch(`${API_BASE}/resorts`);
+          const json = await res.json();
+          if (json.data && json.data.length > 0) {
+            json.data.forEach(r => {
+              const opt = document.createElement('option');
+              opt.value = r.id;
+              opt.innerText = `🏝️ ${r.name} (${r.city})`;
+              select.appendChild(opt);
+            });
+          }
+        } catch(e) { console.warn(e); }
+      }
+
+      // Pre-select linked resort if known
+      if (guide.associated_resort_ids && guide.associated_resort_ids.length > 0) {
+        select.value = guide.associated_resort_ids[0];
+      }
+
+      document.getElementById('guideModal').classList.remove('hidden');
+    }
+
+    async function deleteGuide(guideId, guideName) {
+      if (!confirm(`Are you sure you want to remove guide '${guideName}'?\nThis will unlink them from all resorts and delete their availability calendar.`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/guides/${guideId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Failed to delete guide');
+        }
+        alert(`Guide '${guideName}' removed successfully.`);
+        await loadGuideRoster();
+      } catch (err) {
+        alert('Error deleting guide: ' + err.message);
       }
     }
 
     function showSection(section) {
       ['allocations', 'properties', 'guides'].forEach(s => {
         document.getElementById(`section-${s}`).classList.add('hidden');
-        document.getElementById(`nav-${s}`).className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition";
+        document.getElementById(`nav-${s}`).className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition";
       });
       document.getElementById(`section-${section}`).classList.remove('hidden');
-      document.getElementById(`nav-${section}`).className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold bg-teal-50 text-teal-800 border border-teal-200";
+      document.getElementById(`nav-${section}`).className = "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-semibold bg-teal-50 dark:bg-teal-950 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800";
     }
 
     async function openAllocationModal() {
@@ -352,5 +1678,74 @@
 
     window.onload = initVendorPortal;
   </script>
+
+  <!-- VENDOR AUTHENTICATION MODAL -->
+  <div id="vendorAuthModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-slide-up">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center text-white text-sm shadow-md">
+            <i class="fa-solid fa-hotel"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-base text-slate-900 dark:text-white">Host Authentication</h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Manage room quotas, rates & local guides</p>
+          </div>
+        </div>
+        <button onclick="closeVendorAuthModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- Quick 1-Click Role Logins -->
+      <div class="space-y-2">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Quick Host Accounts (1-Click)</div>
+        <div class="grid grid-cols-1 gap-2">
+          <button onclick="loginAsVendor('host@grandmetropolis.com', 'Password123!')" class="w-full text-left p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 hover:border-indigo-400 dark:hover:border-indigo-600 transition flex items-center justify-between group">
+            <div>
+              <div class="font-black text-xs text-indigo-900 dark:text-indigo-200">🏨 Hotel Host — Marcus Vance</div>
+              <div class="text-[11px] text-indigo-600 dark:text-indigo-400 font-mono mt-0.5">host@grandmetropolis.com</div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-indigo-500 text-xs group-hover:translate-x-1 transition"></i>
+          </button>
+
+          <button onclick="loginAsVendor('host@azurebayresort.com', 'Password123!')" class="w-full text-left p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 hover:border-teal-400 dark:hover:border-teal-600 transition flex items-center justify-between group">
+            <div>
+              <div class="font-black text-xs text-teal-900 dark:text-teal-200">🌴 Resort Host — Elena Rostova</div>
+              <div class="text-[11px] text-teal-600 dark:text-teal-400 font-mono mt-0.5">host@azurebayresort.com</div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-teal-500 text-xs group-hover:translate-x-1 transition"></i>
+          </button>
+
+          <button onclick="loginAsVendor('vendor.bangalore@leelapalace.com', 'Password123!')" class="w-full text-left p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600 transition flex items-center justify-between group">
+            <div>
+              <div class="font-black text-xs text-amber-900 dark:text-amber-200">🇮🇳 Bangalore Host — Devraj Sharma</div>
+              <div class="text-[11px] text-amber-600 dark:text-amber-400 font-mono mt-0.5">vendor.bangalore@leelapalace.com</div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-amber-500 text-xs group-hover:translate-x-1 transition"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3 my-1">
+        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+        <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Or enter credentials</span>
+        <div class="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+      </div>
+
+      <form onsubmit="handleVendorCustomLogin(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Host Email</label>
+          <input id="vendorLoginEmail" type="email" value="host@grandmetropolis.com" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-teal-500 transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Password</label>
+          <input id="vendorLoginPassword" type="password" value="Password123!" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-teal-500 transition">
+        </div>
+        <div id="vendorLoginError" class="hidden text-rose-500 text-xs font-semibold bg-rose-500/10 border border-rose-500/20 py-2 rounded-xl text-center"></div>
+        <button type="submit" id="vendorLoginSubmitBtn" class="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">
+          Sign In to Vendor Console
+        </button>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

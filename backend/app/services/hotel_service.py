@@ -95,10 +95,14 @@ class HotelService:
                     for day_idx in range(stay_days):
                         target_d = check_in + timedelta(days=day_idx)
                         alloc = allocations_by_date.get(target_d)
-                        if not alloc or (alloc.total_allocated - alloc.booked_count) < 1:
-                            room_available = False
-                            break
-                        daily_price = rt.base_price_per_night * alloc.rate_multiplier
+                        if alloc:
+                            if (alloc.total_allocated - alloc.booked_count) < 1:
+                                room_available = False
+                                break
+                            daily_price = rt.base_price_per_night * alloc.rate_multiplier
+                        else:
+                            # Standard base room capacity fallback for dates without custom vendor overrides
+                            daily_price = rt.base_price_per_night
                         avg_daily_price += daily_price
 
                     if room_available:
@@ -134,6 +138,7 @@ class HotelService:
                     review_score=prop.review_score,
                     review_count=prop.review_count,
                     cover_image_url=prop.cover_image_url,
+                    gallery_images=prop.gallery_images or [],
                     amenities=prop.amenities,
                     min_price_per_night=min_price,
                     is_available=is_available,
@@ -148,7 +153,11 @@ class HotelService:
         elif params.sort_by == "rating_desc":
             cards.sort(key=lambda x: (x.star_rating, x.review_score), reverse=True)
 
-        return cards
+        # Pagination slice (safe boundary checking)
+        page = max(1, params.page)
+        page_size = min(100, max(1, params.page_size))
+        offset = (page - 1) * page_size
+        return cards[offset : offset + page_size]
 
     @staticmethod
     async def get_hotel_detail(

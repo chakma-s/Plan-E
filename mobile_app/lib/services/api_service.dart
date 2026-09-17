@@ -1,9 +1,17 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/models.dart';
 
 class ApiService {
-  static const String baseUrl = "http://127.0.0.1:8000/api/v1";
+  static String get baseUrl {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      // 10.0.2.2 maps to the host machine (FastAPI backend) from inside the Android Emulator
+      return "http://10.0.2.2:8000/api/v1";
+    }
+    return "http://127.0.0.1:8000/api/v1";
+  }
+
   String? _authToken;
 
   void setAuthToken(String? token) {

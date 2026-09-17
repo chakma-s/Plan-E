@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
+    # Multi-Region & Global Compliance
+    DEFAULT_REGION_CODE: str = "GLOBAL"  # e.g. US, EU, GB, IN, BD, AE, GLOBAL
+    DEFAULT_CURRENCY: str = "USD"
+    RATE_LIMIT_PER_MINUTE: int = 120
+
     # Database (Default to local SQLite for instant zero-dependency execution; override via .env for Postgres)
     DATABASE_URL: str = "sqlite+aiosqlite:///./plane.db"
     ASYNC_POOL_SIZE: int = 20
@@ -22,6 +27,7 @@ class Settings(BaseSettings):
     # Pricing & Business Engine
     PLATFORM_FEE_PERCENTAGE: float = 5.0  # 5% platform service fee
     DEFAULT_TAX_PERCENTAGE: float = 8.5   # 8.5% lodging tax
+    TAX_DISPLAY_MODE: str = "exclusive"   # 'exclusive' or 'inclusive'
 
     # Mapbox Config
     MAPBOX_ACCESS_TOKEN: str = "pk.eyJ1IjoicGxhbmUtdHJhdmVsIiwiYSI6ImNsdGVzdHRva2VuIn0.demo"
@@ -39,6 +45,17 @@ class Settings(BaseSettings):
         "*",
     ]
 
+    def validate_production_security(self):
+        """Audit security settings in production environments."""
+        if self.ENVIRONMENT == "production":
+            if "super-secret-jwt-key" in self.SECRET_KEY:
+                import warnings
+                warnings.warn(
+                    "CRITICAL SECURITY ALERT: Running in production with default SECRET_KEY! "
+                    "Set SECRET_KEY environment variable immediately to prevent token forgery.",
+                    UserWarning,
+                )
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -48,3 +65,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+settings.validate_production_security()

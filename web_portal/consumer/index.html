@@ -27,20 +27,29 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] { box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.25); }
-    .hotel-active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] shadow-[0_4px_14px_0_rgba(125,231,32,0.3)] { box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.25); }
+    .active-tab { box-shadow: 0 4px 14px 0 rgba(125, 231, 32, 0.3); }
     .leaflet-pane { z-index: 10 !important; }
     .leaflet-top, .leaflet-bottom { z-index: 11 !important; }
     .custom-map-pin { background: none; border: none; }
   </style>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('plane_theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex justify-center items-center py-6 px-4">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors">
 
-  <!-- Mobile Device Simulation Frame -->
-  <div class="w-full max-w-md bg-white dark:bg-darkbg text-slate-900 dark:text-white rounded-[40px] shadow-2xl overflow-hidden border-[8px] border-slate-800 flex flex-col h-[860px] relative">
+  <!-- Main Application Container (Full Desktop Web by Default, with optional Mobile Frame) -->
+  <div id="appShell" class="w-full min-h-screen flex flex-col relative">
     
-    <!-- Top Status Bar Mock -->
-    <div class="h-6 bg-slate-900 flex items-center justify-between px-6 text-[10px] text-white font-medium">
+    <!-- Top Status Bar Mock (Only active in Mobile Phone Frame Mode) -->
+    <div id="mobileStatusBar" class="hidden h-6 bg-slate-900 flex items-center justify-between px-6 text-[10px] text-white font-medium">
       <span>9:41</span>
       <div class="flex items-center space-x-1.5">
         <i class="fa-solid fa-signal"></i>
@@ -50,79 +59,153 @@
     </div>
 
     <!-- App Header -->
-    <header class="bg-white dark:bg-darkbg border-b border-slate-100 dark:border-darkborder px-5 pt-3 pb-3 sticky top-0 z-20">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center space-x-2">
-          <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white font-black text-sm">
-            <i class="fa-solid fa-plane-departure text-xs"></i>
+    <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5">
+        <div class="flex items-center justify-between gap-3">
+          <!-- Brand -->
+          <div class="flex items-center space-x-2.5 shrink-0">
+            <a href="/" title="Back to Ecosystem Launchpad" class="w-9 h-9 rounded-xl bg-slate-900 dark:bg-brand dark:text-black flex items-center justify-center text-white font-black text-sm shadow-md hover:scale-105 transition shrink-0">
+              <i class="fa-solid fa-plane-departure text-xs"></i>
+            </a>
+            <div class="flex items-center space-x-2">
+              <span class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white">Plan-E</span>
+              <span class="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand border border-brand/30">Traveler Web</span>
+            </div>
           </div>
-          <span class="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">Plan-E</span>
-        </div>
-        <div class="flex items-center space-x-3">
-          <button onclick="toggleTheme()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
-          <button onclick="toggleMyTrips()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i class="fa-regular fa-bookmark"></i></button>
-          <button onclick="openAuthModal()" class="text-slate-700 dark:text-gray-300 dark:text-slate-300 hover:text-brand dark:hover:text-brand text-sm transition-colors"><i id="authProfileIcon" class="fa-regular fa-circle-user"></i></button>
-        </div>
-      </div>
 
-      <!-- DUAL-JOURNEY SEGMENTED SWITCHER (Mandatory Core Architecture) -->
-      <div class="bg-slate-100 dark:bg-darkborder p-1 rounded-2xl flex border border-slate-200 dark:border-darkborder">
-        <!-- Tab 1: City Hotels -->
-        <button id="tab-hotel" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400">
-          <i class="fa-solid fa-hotel text-xs"></i>
-          <span>City Hotels</span>
-        </button>
-        <!-- Tab 2: Resorts & Guides -->
-        <button id="tab-resort" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black text-white active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)]">
-          <i class="fa-solid fa-umbrella-beach text-xs"></i>
-          <span>Resorts & Guides</span>
-        </button>
+          <!-- DUAL-JOURNEY SEGMENTED SWITCHER (Centered on desktop) -->
+          <div id="desktopJourneySwitcher" class="hidden lg:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner w-72 shrink-0">
+            <!-- Tab 1: City Hotels -->
+            <button id="tab-hotel" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400">
+              <i class="fa-solid fa-hotel text-xs"></i>
+              <span>City Hotels</span>
+            </button>
+            <!-- Tab 2: Resorts & Guides -->
+            <button id="tab-resort" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab">
+              <i class="fa-solid fa-umbrella-beach text-xs"></i>
+              <span>Resorts & Guides</span>
+            </button>
+          </div>
+
+          <!-- Right Controls -->
+          <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+            <!-- View Switcher: Desktop Web vs Phone Frame (Simulation Tool) -->
+            <button onclick="toggleDeviceSimulation()" id="deviceToggleBtn" title="Switch between Full Desktop Web and Phone Frame" class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-brand text-slate-700 dark:text-slate-300 transition shadow-xs shrink-0">
+              <i id="deviceToggleIcon" class="fa-solid fa-mobile-screen text-xs text-brand"></i>
+              <span id="deviceToggleText" class="hidden sm:inline">Mobile Frame</span>
+            </button>
+
+            <!-- Theme Toggle -->
+            <button onclick="toggleTheme()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="Toggle Theme">
+              <i id="themeIcon" class="fa-solid fa-moon text-xs"></i>
+            </button>
+
+            <!-- My Trips -->
+            <button onclick="toggleMyTrips()" class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="My Reservations">
+              <i class="fa-regular fa-bookmark text-xs"></i>
+              <span class="hidden md:inline">Trips</span>
+            </button>
+
+            <!-- Sign In / Active Profile -->
+            <button onclick="openAuthModal()" id="authHeaderBtn" class="flex items-center space-x-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-brand dark:text-black dark:hover:bg-[#68c918] transition shadow-sm shrink-0">
+              <i id="authProfileIcon" class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i>
+              <span id="authHeaderLabel">Sign In</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- DUAL-JOURNEY SEGMENTED SWITCHER (Row for Mobile & Tablet & Mobile Phone Frame) -->
+        <div id="mobileJourneySwitcherRow" class="lg:hidden mt-2.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl flex border border-slate-200 dark:border-slate-700 shadow-inner w-full">
+          <button id="tab-hotel-mobile" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400">
+            <i class="fa-solid fa-hotel text-xs"></i>
+            <span>City Hotels</span>
+          </button>
+          <button id="tab-resort-mobile" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab">
+            <i class="fa-solid fa-umbrella-beach text-xs"></i>
+            <span>Resorts & Guides</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- App Scrollable Body -->
-    <main id="appBody" class="flex-1 overflow-y-auto p-4 space-y-4">
+    <!-- App Main Body -->
+    <main id="appBody" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 space-y-6">
 
-      <!-- SEARCH BAR & FILTERS -->
-      <div class="bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3 shadow-sm space-y-2">
-        <div class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-xl px-3 py-2 text-xs">
-          <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
-          <input type="text" id="destinationInput" oninput="handleDestinationSearch()" placeholder="Search destinations..." class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400">
-        </div>
-        <div class="flex items-center justify-between text-[11px] text-slate-600 dark:text-gray-400 font-semibold px-1">
-          <span id="dateRangeText" class="cursor-pointer hover:text-brand transition"><i class="fa-regular fa-calendar mr-1 text-brand"></i> Sep 1 - Sep 4</span>
-          <span class="cursor-pointer hover:text-brand transition"><i class="fa-solid fa-user-group mr-1 text-slate-400"></i> 2 Guests</span>
-        </div>
-        <div class="flex items-center space-x-2 pt-2 border-t border-slate-200 dark:border-darkborder">
-          <button class="flex-1 py-1.5 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-1.5">
-            <i class="fa-solid fa-sliders"></i>
-            <span>Filters</span>
-          </button>
-          <button id="mapToggleBtn" onclick="toggleMapView()" class="flex-1 py-1.5 bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-1.5">
-            <i id="mapToggleIcon" class="fa-solid fa-map"></i>
-            <span id="mapToggleText">Map View</span>
-          </button>
+      <!-- DESKTOP SEARCH & FILTER RIBBON -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 shadow-sm">
+        <div id="searchRibbonGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 items-center">
+          <!-- Search input -->
+          <div class="sm:col-span-2 lg:col-span-5 flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs">
+            <i class="fa-solid fa-magnifying-glass text-slate-400 shrink-0"></i>
+            <input type="text" id="destinationInput" oninput="handleDestinationSearch()" placeholder="Search destinations, cities, or property names..." class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
+          </div>
+
+          <!-- Date / Itinerary Selector -->
+          <div onclick="openItineraryModal()" class="lg:col-span-3 flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-gray-300 font-semibold cursor-pointer hover:border-brand transition min-w-0" title="Click to Pick Itinerary Dates">
+            <i class="fa-regular fa-calendar text-brand shrink-0"></i>
+            <span id="dateRangeText" class="truncate">Sep 1 - Sep 4 (3 Nights)</span>
+          </div>
+
+          <!-- Guests Selector -->
+          <div class="lg:col-span-2 flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-gray-300 font-semibold cursor-pointer hover:border-brand transition shrink-0">
+            <i class="fa-solid fa-user-group text-slate-400 shrink-0"></i>
+            <span>2 Guests</span>
+          </div>
+
+          <!-- Map View Button -->
+          <div class="sm:col-span-2 lg:col-span-2">
+            <button id="mapToggleBtn" onclick="toggleMapView()" class="w-full py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-2 shadow-xs">
+              <i id="mapToggleIcon" class="fa-solid fa-map"></i>
+              <span id="mapToggleText">Map View</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- INTERACTIVE MAP CONTAINER -->
-      <div id="mapViewContainer" class="hidden h-[540px] w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-darkborder shadow-inner relative z-0">
-        <div id="consumerMap" class="w-full h-full"></div>
+      <!-- LOCKED INTERACTIVE MAP SECTION (Locked directly below search bar where itinerary is picked) -->
+      <div id="mapViewContainer" class="hidden w-full rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md relative z-0 transition-all duration-300">
+        <!-- Interactive Map Header Ribbon -->
+        <div class="bg-white dark:bg-slate-900 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+          <div class="flex items-center space-x-2">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-brand/20 text-emerald-800 dark:text-brand">
+              <i class="fa-solid fa-location-dot mr-1 text-[9px]"></i> Map Explorer
+            </span>
+            <span id="mapPropertiesCount" class="text-slate-500 dark:text-gray-400 font-medium text-[11px] hidden sm:inline">Interactive property pins & pricing</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="resetMapBounds()" class="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand text-[11px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1" title="Fit all properties on map">
+              <i class="fa-solid fa-arrows-to-eye text-brand text-[10px]"></i>
+              <span>Fit All</span>
+            </button>
+            <button onclick="toggleMapView()" class="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-rose-400 text-[11px] font-bold text-slate-600 dark:text-gray-300 hover:text-rose-500 transition shadow-xs flex items-center space-x-1" title="Hide Map">
+              <i class="fa-solid fa-eye-slash text-[10px]"></i>
+              <span>Hide Map</span>
+            </button>
+          </div>
+        </div>
+        <div id="consumerMap" class="w-full h-[360px] sm:h-[440px] bg-slate-100 dark:bg-slate-950"></div>
       </div>
 
-      <!-- FEED CONTAINER (Hotels or Resorts) -->
-      <div id="resultsFeed" class="space-y-4">
-        <!-- Dynamically loaded cards -->
+      <!-- EXPLORER RESULTS FEED (Always directly below map or search bar) -->
+      <div id="explorerContainer" class="w-full">
+        <div id="feedWrapper" class="w-full">
+          <div id="resultsFeed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamically loaded cards -->
+          </div>
+        </div>
       </div>
 
     </main>
 
-    <!-- MODAL: LOCAL GUIDE BUNDLING SHEET (First-Class Feature) -->
-    <div id="guideModal" class="hidden absolute inset-0 bg-black/60 z-30 flex flex-col justify-end backdrop-blur-sm transition">
-      <div class="bg-white dark:bg-darkbg rounded-t-3xl p-5 space-y-4 max-h-[85%] overflow-y-auto animate-slide-up">
-        <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-2"></div>
+    <!-- MODAL: LOCAL GUIDE BUNDLING SHEET -->
+    <div id="guideModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">
+          <span class="text-[10px] font-black uppercase tracking-wider text-brand">Resident Local Guide Profile</span>
+          <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+        </div>
         <div class="flex items-center space-x-4">
-          <img id="guideModalPhoto" src="" class="w-16 h-16 rounded-full object-cover border-2 border-amber-400 shadow">
+          <img id="guideModalPhoto" src="" class="w-16 h-16 rounded-2xl object-cover border-2 border-amber-400 shadow">
           <div>
             <div class="flex items-center space-x-1.5">
               <h3 id="guideModalName" class="font-bold text-slate-900 dark:text-white text-base"></h3>
@@ -133,17 +216,17 @@
           </div>
         </div>
 
-        <div class="bg-slate-50 dark:bg-darkcard rounded-xl p-3 border border-slate-200 dark:border-darkborder flex justify-around text-center">
+        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200 dark:border-slate-700 flex justify-around text-center">
           <div>
             <div class="text-[10px] text-slate-400 font-bold">EXPERIENCE</div>
             <div id="guideModalExp" class="text-xs font-bold text-slate-800 dark:text-gray-200"></div>
           </div>
-          <div class="w-[1px] bg-slate-200"></div>
+          <div class="w-[1px] bg-slate-200 dark:bg-slate-700"></div>
           <div>
             <div class="text-[10px] text-slate-400 font-bold">DAILY RATE</div>
             <div id="guideModalRate" class="text-xs font-extrabold text-brand"></div>
           </div>
-          <div class="w-[1px] bg-slate-200"></div>
+          <div class="w-[1px] bg-slate-200 dark:bg-slate-700"></div>
           <div>
             <div class="text-[10px] text-slate-400 font-bold">LANGUAGES</div>
             <div id="guideModalLangs" class="text-xs font-bold text-slate-800 dark:text-gray-200"></div>
@@ -161,98 +244,360 @@
         </div>
 
         <div class="pt-2">
-          <button id="guideBundleBtn" onclick="toggleBundleCurrentGuide()" class="w-full bg-brand text-black hover:bg-[#68c918] text-black text-white font-bold py-3 rounded-xl shadow text-xs transition flex items-center justify-center space-x-2">
+          <button id="guideBundleBtn" onclick="toggleBundleCurrentGuide()" class="w-full bg-brand text-black hover:bg-[#68c918] font-bold py-3 rounded-xl shadow text-xs transition flex items-center justify-center space-x-2">
             <i class="fa-solid fa-plus-circle"></i>
             <span id="guideBundleBtnText">Bundle Guide with Resort (+$300/day)</span>
           </button>
-          <button onclick="closeGuideModal()" class="w-full mt-2 text-slate-400 text-xs font-medium py-1.5">Close</button>
+          <button onclick="closeGuideModal()" class="w-full mt-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-medium py-1.5">Close</button>
         </div>
+      </div>
+    </div>
+
+    <!-- MODAL: DESTINATION & ROOM DETAILS (Hotels & Resorts) -->
+    <div id="propertyDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 sm:p-5 backdrop-blur-md overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col my-6 max-h-[92vh] animate-slide-up relative">
+        <!-- Sticky Modal Header -->
+        <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm sticky top-0 z-20">
+          <div class="flex items-center space-x-2.5 min-w-0">
+            <span id="detailBadge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-brand text-black uppercase tracking-wider shrink-0">Resort Sanctuary</span>
+            <h3 id="detailTitle" class="font-extrabold text-base text-slate-900 dark:text-white truncate">The Grand Metropolis Hotel</h3>
+          </div>
+          <button onclick="closePropertyDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition shrink-0 ml-2">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Scrollable Modal Body -->
+        <div class="overflow-y-auto flex-1 p-5 sm:p-6 space-y-6">
+          <!-- 1. HERO PHOTO GALLERY & EXTRA IMAGES VIEWER -->
+          <div class="space-y-3">
+            <!-- Main Large Photo Display -->
+            <div class="relative h-60 sm:h-84 md:h-96 rounded-2xl overflow-hidden bg-slate-950 group shadow-md select-none">
+              <img id="detailHeroImage" src="" alt="Property" class="w-full h-full object-cover transition-all duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none"></div>
+              
+              <!-- Prev / Next Controls -->
+              <button onclick="prevGalleryImage()" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition backdrop-blur-xs shadow-md z-10" title="Previous image">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+              </button>
+              <button onclick="nextGalleryImage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition backdrop-blur-xs shadow-md z-10" title="Next image">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+              </button>
+
+              <!-- Top-right: Fullscreen Lightbox trigger -->
+              <button onclick="openLightboxFromDetail()" class="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-white text-xs font-semibold px-3 py-1.5 rounded-xl backdrop-blur-xs transition flex items-center space-x-1.5 shadow z-10">
+                <i class="fa-solid fa-expand text-[11px]"></i>
+                <span>View Fullscreen</span>
+              </button>
+
+              <!-- Bottom: Photo Counter & Extra Images Count Pill -->
+              <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white pointer-events-none z-10">
+                <span id="detailPhotoCounter" class="bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-lg text-xs font-bold pointer-events-auto">
+                  Photo 1 of 5
+                </span>
+                <span class="bg-brand text-black text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm pointer-events-auto flex items-center space-x-1.5">
+                  <i class="fa-solid fa-images"></i>
+                  <span id="detailExtraImagesCount">5 Extra Images Provided</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Extra Images Thumbnails Ribbon -->
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-500 dark:text-gray-400 mb-1.5 font-semibold">
+                <span>Extra Images & Photo Roster</span>
+                <span class="text-[11px]">Click thumbnail to preview</span>
+              </div>
+              <div id="detailThumbnailsRow" class="flex space-x-2.5 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin">
+                <!-- Dynamically populated thumbnails -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. DESTINATION DETAILS & HIGHLIGHTS -->
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span id="detailRating" class="text-xs font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 px-2 py-0.5 rounded-md flex items-center space-x-1">
+                    <i class="fa-solid fa-star"></i>
+                    <span id="detailRatingVal">4.9</span>
+                  </span>
+                  <span id="detailReviewsCount" class="text-xs text-slate-500 dark:text-gray-400 font-medium">312 verified guest reviews</span>
+                </div>
+                <p id="detailAddress" class="text-xs text-slate-600 dark:text-gray-300 mt-1.5 flex items-center">
+                  <i class="fa-solid fa-location-dot text-brand mr-1.5 shrink-0"></i>
+                  <span></span>
+                </p>
+              </div>
+
+              <div class="flex items-center space-x-2 shrink-0">
+                <button onclick="locateFromDetail()" class="text-xs font-bold text-brand bg-brand/10 hover:bg-brand/20 border border-brand/30 px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5">
+                  <i class="fa-solid fa-location-crosshairs"></i>
+                  <span>Locate on Map</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Description & Policies -->
+            <div class="space-y-1.5">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">About this Destination</h4>
+              <p id="detailTagline" class="text-xs font-medium text-brand italic hidden"></p>
+              <p id="detailDescription" class="text-xs sm:text-sm text-slate-700 dark:text-gray-300 leading-relaxed"></p>
+            </div>
+
+            <!-- Timing & Policies Row -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Check-In</span>
+                <span id="detailCheckIn" class="font-bold text-slate-800 dark:text-gray-200">3:00 PM</span>
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Check-Out</span>
+                <span id="detailCheckOut" class="font-bold text-slate-800 dark:text-gray-200">11:00 AM</span>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Cancellation</span>
+                <span id="detailPolicy" class="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] truncate block">Free Cancellation 48h</span>
+              </div>
+            </div>
+
+            <!-- Property Amenities -->
+            <div class="space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Property Amenities</h4>
+              <div id="detailAmenitiesList" class="flex flex-wrap gap-1.5">
+                <!-- Amenities badges -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. AVAILABLE ROOMS & SUITES SECTION -->
+          <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="font-extrabold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                  <i class="fa-solid fa-bed text-brand"></i>
+                  <span>Available Rooms & Suites</span>
+                </h4>
+                <p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Explore room specifications, photos, and live stay rates.</p>
+              </div>
+              <span id="detailRoomsCountBadge" class="text-xs font-bold bg-brand/10 text-brand px-2.5 py-1 rounded-xl border border-brand/20">2 Room Types</span>
+            </div>
+
+            <!-- Rooms List -->
+            <div id="detailRoomsList" class="space-y-3.5">
+              <!-- Room cards dynamically populated -->
+            </div>
+          </div>
+
+          <!-- 4. LOCAL GUIDE BUNDLE (Resorts only) -->
+          <div id="detailGuideSection" class="hidden space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <!-- Resort guides showcase -->
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Selection & Reserve Bar -->
+        <div class="p-4 sm:px-6 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky bottom-0 z-20">
+          <div class="min-w-0">
+            <span class="text-[10px] uppercase font-extrabold text-slate-400 block tracking-wider">Selected Room</span>
+            <div class="flex items-center space-x-2">
+              <h4 id="detailSelectedRoomName" class="font-extrabold text-sm text-slate-900 dark:text-white truncate">Select a room</h4>
+              <span id="detailSelectedRoomRate" class="text-xs font-bold text-brand shrink-0"></span>
+            </div>
+            <p id="detailSelectedStaySummary" class="text-[11px] text-slate-500 dark:text-gray-400 truncate"></p>
+          </div>
+
+          <div class="flex items-center space-x-3 shrink-0">
+            <div class="text-right">
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Total Stay</span>
+              <span id="detailTotalEstimate" class="font-extrabold text-lg text-brand leading-none">$0</span>
+            </div>
+            <button id="detailReserveBtn" onclick="proceedToCheckoutFromDetail()" class="bg-brand text-black hover:bg-[#68c918] font-extrabold px-6 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition flex items-center space-x-2">
+              <span>Reserve Selected Room</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: FULLSCREEN LIGHTBOX -->
+    <div id="lightboxModal" class="hidden fixed inset-0 bg-black/95 z-[70] flex flex-col justify-between p-4 backdrop-blur-lg select-none">
+      <div class="flex items-center justify-between text-white p-2">
+        <span id="lightboxCaption" class="text-xs sm:text-sm font-bold text-gray-200 truncate"></span>
+        <div class="flex items-center space-x-3">
+          <span id="lightboxCounter" class="text-xs text-gray-400 font-mono">1 / 5</span>
+          <button onclick="closeLightbox()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 flex items-center justify-center relative min-h-0 py-2">
+        <button onclick="prevLightboxImage()" class="absolute left-2 sm:left-6 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition shadow-lg z-10" title="Previous photo">
+          <i class="fa-solid fa-chevron-left text-sm"></i>
+        </button>
+        <img id="lightboxImage" src="" alt="Fullscreen view" class="max-h-full max-w-full object-contain rounded-xl shadow-2xl transition-all duration-300">
+        <button onclick="nextLightboxImage()" class="absolute right-2 sm:right-6 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition shadow-lg z-10" title="Next photo">
+          <i class="fa-solid fa-chevron-right text-sm"></i>
+        </button>
+      </div>
+
+      <div id="lightboxThumbnails" class="flex justify-center space-x-2 overflow-x-auto py-2">
+        <!-- Lightbox thumbnails -->
       </div>
     </div>
 
     <!-- MODAL: CHECKOUT & RECEIPT -->
-    <div id="checkoutModal" class="hidden absolute inset-0 bg-white dark:bg-darkbg z-40 flex flex-col p-5 space-y-4 overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-darkborder pb-3">
-        <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Confirm Reservation</h3>
-        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-sm"><i class="fa-solid fa-xmark"></i></button>
-      </div>
+    <div id="checkoutModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up flex flex-col relative my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Confirm Reservation</h3>
+          <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+        </div>
 
-      <div id="checkoutSummary" class="space-y-3">
-        <!-- Dynamically rendered checkout details -->
-      </div>
+        <div id="checkoutSummary" class="space-y-3">
+          <!-- Dynamically rendered checkout details -->
+        </div>
 
-      <div class="pt-4 mt-auto">
-        <button id="payBtn" onclick="submitBooking()" class="w-full bg-brand text-black hover:bg-[#68c918] text-white font-extrabold py-3.5 rounded-2xl shadow-lg text-sm transition flex items-center justify-center space-x-2">
-          <i class="fa-solid fa-lock text-xs"></i>
-          <span id="payBtnText">Confirm & Pay</span>
-        </button>
-        <p class="text-[10px] text-center text-slate-400 mt-2">Zero-overbooking guaranteed via database allocation lock.</p>
+        <div class="pt-4 mt-auto">
+          <button id="payBtn" onclick="submitBooking()" class="w-full bg-brand text-black hover:bg-[#68c918] font-extrabold py-3.5 rounded-2xl shadow-lg text-sm transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-lock text-xs"></i>
+            <span id="payBtnText">Confirm & Pay</span>
+          </button>
+          <p class="text-[10px] text-center text-slate-400 mt-2">Zero-overbooking guaranteed via database allocation lock.</p>
+        </div>
       </div>
     </div>
 
     <!-- MODAL: BOOKING CONFIRMATION SUCCESS -->
-    <div id="successModal" class="hidden absolute inset-0 bg-white dark:bg-darkbg z-50 flex flex-col items-center justify-center p-6 text-center space-y-4">
-      <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl shadow-inner">
-        <i class="fa-solid fa-check"></i>
-      </div>
-      <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">Booking Confirmed!</h3>
-      <p class="text-xs text-slate-500 dark:text-gray-400">Your room allocation has been atomically reserved.</p>
-      
-      <div class="w-full bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-4 text-left space-y-2 text-xs">
-        <div class="flex justify-between">
-          <span class="text-slate-400">Reservation Code:</span>
-          <strong id="successResCode" class="text-slate-900 dark:text-white font-mono">OTA-2026-X8B2</strong>
+    <div id="successModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-4 animate-slide-up relative my-8">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shadow-inner mx-auto">
+          <i class="fa-solid fa-check"></i>
         </div>
-        <div class="flex justify-between">
-          <span class="text-slate-400">Property:</span>
-          <strong id="successPropName" class="text-slate-900 dark:text-white">Azure Bay Resort</strong>
+        <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">Booking Confirmed!</h3>
+        <p class="text-xs text-slate-500 dark:text-gray-400">Your room allocation has been atomically reserved.</p>
+        
+        <div class="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left space-y-2 text-xs">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Reservation Code:</span>
+            <strong id="successResCode" class="text-slate-900 dark:text-white font-mono">OTA-2026-X8B2</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Property:</span>
+            <strong id="successPropName" class="text-slate-900 dark:text-white">Azure Bay Resort</strong>
+          </div>
+          <div id="successGuideRow" class="flex justify-between text-brand">
+            <span>Bundled Guide:</span>
+            <strong id="successGuideName">Captain Kai Tanaka</strong>
+          </div>
         </div>
-        <div id="successGuideRow" class="flex justify-between text-brand">
-          <span>Bundled Guide:</span>
-          <strong id="successGuideName">Captain Kai Tanaka</strong>
-        </div>
-      </div>
 
-      <button onclick="dismissSuccess()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs">Return to Explorer</button>
+        <button onclick="dismissSuccess()" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-3 rounded-xl text-xs transition">Return to Explorer</button>
+      </div>
+    </div>
+    <!-- MODAL: ITINERARY / DATE RANGE PICKER -->
+    <div id="itineraryModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div class="flex items-center space-x-2">
+            <i class="fa-regular fa-calendar text-brand text-base"></i>
+            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Select Itinerary Dates</h3>
+          </div>
+          <button onclick="closeItineraryModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form onsubmit="handleItinerarySubmit(event)" class="space-y-4">
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-In Date</label>
+              <input type="date" id="itineraryCheckInInput" onchange="updateItineraryNightsCount()" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-Out Date</label>
+              <input type="date" id="itineraryCheckOutInput" onchange="updateItineraryNightsCount()" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            </div>
+          </div>
+
+          <div id="itineraryNightsSummary" class="text-xs text-center font-bold text-brand bg-brand/10 py-2.5 rounded-xl border border-brand/20">
+            3 Nights Selected
+          </div>
+
+          <div class="flex space-x-2 pt-2">
+            <button type="button" onclick="closeItineraryModal()" class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
+            <button type="submit" class="w-1/2 bg-brand text-black font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#68c918] transition shadow-md">Apply Itinerary</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- MODAL: AUTHENTICATION (Login / Signup) -->
-    <div id="authModal" class="hidden absolute inset-0 bg-white dark:bg-darkbg z-[60] flex flex-col justify-end transition animate-slide-up">
-      <div class="p-6 flex flex-col h-full bg-white dark:bg-darkbg rounded-t-3xl">
-        <div class="flex justify-end pt-2">
+    <div id="authModal" class="hidden fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+        <div class="flex justify-end pb-2">
           <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-lg"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="flex-1 flex flex-col justify-center space-y-6">
-          <div class="text-center space-y-2">
-            <div class="w-14 h-14 rounded-2xl bg-slate-900 mx-auto flex items-center justify-center text-white font-black text-2xl mb-4 shadow-lg shadow-slate-500/20">
+
+        <!-- VIEW 1: LOGGED OUT (Login Form) -->
+        <div id="authLoggedOutView" class="space-y-5">
+          <div class="text-center space-y-1">
+            <div class="w-14 h-14 rounded-2xl bg-slate-900 dark:bg-brand dark:text-black mx-auto flex items-center justify-center text-white font-black text-2xl mb-3 shadow-lg">
               <i class="fa-solid fa-plane-departure text-xl"></i>
             </div>
             <h3 class="font-black text-2xl text-slate-900 dark:text-white">Welcome to Plan-E</h3>
-            <p class="text-sm text-slate-500 dark:text-gray-400">Log in or sign up to unlock frictionless travel.</p>
+            <p class="text-xs text-slate-500 dark:text-gray-400">Log in or sign up to unlock frictionless travel.</p>
           </div>
           
-          <div class="space-y-3 pt-2">
-            <button onclick="handleSocialLogin('Apple')" class="w-full bg-black text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center space-x-2 text-sm shadow-md hover:scale-[1.02] transition">
-              <i class="fa-brands fa-apple text-lg"></i>
+          <div class="space-y-2.5 pt-1">
+            <button onclick="handleDemoQuickLogin()" class="w-full bg-brand text-black font-extrabold py-3 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-md hover:scale-[1.02] transition">
+              <i class="fa-solid fa-bolt text-sm"></i>
+              <span>One-Click Demo Login (John Doe)</span>
+            </button>
+            <button onclick="handleSocialLogin('Apple')" class="w-full bg-black text-white font-semibold py-2.5 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-sm hover:scale-[1.01] transition">
+              <i class="fa-brands fa-apple text-base"></i>
               <span>Continue with Apple</span>
             </button>
-            <button onclick="handleSocialLogin('Google')" class="w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-700 font-semibold py-3.5 rounded-2xl flex items-center justify-center space-x-2 text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-[1.02] transition">
-              <i class="fa-brands fa-google text-blue-500 text-lg"></i>
+            <button onclick="handleSocialLogin('Google')" class="w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-700 font-semibold py-2.5 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+              <i class="fa-brands fa-google text-blue-500 text-sm"></i>
               <span>Continue with Google</span>
             </button>
           </div>
 
-          <div class="flex items-center space-x-4 my-2">
-            <div class="flex-1 h-px bg-slate-200 dark:bg-darkborder"></div>
-            <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">or</span>
-            <div class="flex-1 h-px bg-slate-200 dark:bg-darkborder"></div>
+          <div class="flex items-center space-x-4 my-1">
+            <div class="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">or sign in with credentials</span>
+            <div class="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
           </div>
 
-          <form onsubmit="handleEmailLogin(event)" class="space-y-3">
-            <input type="email" required placeholder="Email address" class="w-full bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-xl px-4 py-3.5 text-sm outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <input type="password" required placeholder="Password" class="w-full bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-xl px-4 py-3.5 text-sm outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <button type="submit" class="w-full bg-brand text-black hover:bg-[#68c918] font-bold py-3.5 rounded-xl shadow-lg text-sm transition mt-2">Continue with Email</button>
+          <form onsubmit="handleEmailLogin(event)" class="space-y-2.5">
+            <input id="loginEmail" type="email" value="john.doe@example.com" required placeholder="Email address" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <input id="loginPassword" type="password" value="Password123!" required placeholder="Password" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <div id="loginError" class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"></div>
+            <button type="submit" id="loginSubmitBtn" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-2.5 rounded-xl shadow-lg text-xs transition mt-1">Sign In</button>
           </form>
+        </div>
+
+        <!-- VIEW 2: LOGGED IN (User Profile & Logout) -->
+        <div id="authLoggedInView" class="hidden space-y-4 text-center py-4">
+          <div class="w-16 h-16 rounded-full bg-brand/15 border-2 border-brand flex items-center justify-center text-brand text-2xl shadow-sm mx-auto">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <div>
+            <h3 id="loggedInUserName" class="font-black text-lg text-slate-900 dark:text-white">John Doe</h3>
+            <p id="loggedInUserEmail" class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">john.doe@example.com</p>
+            <span class="inline-block mt-2 text-[10px] uppercase tracking-wider font-extrabold px-3 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand">Active Traveler</span>
+          </div>
+          <div class="w-full space-y-2 pt-4">
+            <button onclick="closeAuthModal(); toggleMyTrips();" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-gray-200 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-suitcase-rolling text-brand"></i>
+              <span>View My Reservations</span>
+            </button>
+            <button onclick="handleLogout()" class="w-full border border-rose-300 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -260,7 +605,9 @@
   </div>
 
   <script>
-    const API_BASE = "http://127.0.0.1:8000/api/v1";
+    const API_BASE = (window.location.port === "80" || window.location.port === "")
+      ? "/api/v1"
+      : (window.location.port === "8000" ? "/api/v1" : `http://${window.location.hostname || "127.0.0.1"}:8000/api/v1`);
     let currentJourney = "resort"; // 'hotel' or 'resort'
     let selectedGuide = null;
     let activeProperty = null;
@@ -271,18 +618,255 @@
     let isMapView = false;
     let leafletMap = null;
     let mapMarkersGroup = null;
+    let markersById = {};
     let currentHotels = [];
     let currentResorts = [];
     let searchDebounce = null;
 
+    // Itinerary Dates State
+    let itineraryCheckIn = new Date(); itineraryCheckIn.setDate(itineraryCheckIn.getDate() + 2);
+    let itineraryCheckOut = new Date(); itineraryCheckOut.setDate(itineraryCheckOut.getDate() + 5);
+
+    // Destination Details & Gallery Lightbox State
+    let activeDetailProperty = null;
+    let activeDetailPhotos = [];
+    let activeDetailPhotoIndex = 0;
+    let lightboxPhotos = [];
+    let lightboxIndex = 0;
+
+    function formatItineraryLabel(d1, d2) {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const m1 = months[d1.getMonth()];
+      const m2 = months[d2.getMonth()];
+      const day1 = d1.getDate();
+      const day2 = d2.getDate();
+      const diffMs = d2 - d1;
+      const nights = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+      const sameMonth = (d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear());
+      const label = sameMonth
+        ? `${m1} ${day1} - ${day2} (${nights} Night${nights > 1 ? 's' : ''})`
+        : `${m1} ${day1} - ${m2} ${day2} (${nights} Night${nights > 1 ? 's' : ''})`;
+      return { label, nights };
+    }
+
+    function syncItineraryDisplay() {
+      const { label } = formatItineraryLabel(itineraryCheckIn, itineraryCheckOut);
+      const el = document.getElementById('dateRangeText');
+      if (el) el.innerText = label;
+    }
+
+    function openItineraryModal() {
+      const inEl = document.getElementById('itineraryCheckInInput');
+      const outEl = document.getElementById('itineraryCheckOutInput');
+      if (inEl && outEl) {
+        inEl.value = itineraryCheckIn.toISOString().split('T')[0];
+        outEl.value = itineraryCheckOut.toISOString().split('T')[0];
+        inEl.min = new Date().toISOString().split('T')[0];
+        updateItineraryNightsCount();
+      }
+      document.getElementById('itineraryModal').classList.remove('hidden');
+    }
+
+    function closeItineraryModal() {
+      document.getElementById('itineraryModal').classList.add('hidden');
+    }
+
+    function updateItineraryNightsCount() {
+      const inVal = document.getElementById('itineraryCheckInInput').value;
+      const outVal = document.getElementById('itineraryCheckOutInput').value;
+      const summaryEl = document.getElementById('itineraryNightsSummary');
+      if (!inVal || !outVal || !summaryEl) return;
+      const d1 = new Date(inVal);
+      const d2 = new Date(outVal);
+      const diffMs = d2 - d1;
+      const nights = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      if (nights <= 0) {
+        summaryEl.innerText = "Check-out must be after check-in";
+        summaryEl.className = "text-xs text-center font-bold text-rose-500 bg-rose-500/10 py-2.5 rounded-xl border border-rose-500/20";
+      } else {
+        summaryEl.innerText = `${nights} Night${nights > 1 ? 's' : ''} Selected`;
+        summaryEl.className = "text-xs text-center font-bold text-brand bg-brand/10 py-2.5 rounded-xl border border-brand/20";
+      }
+    }
+
+    function handleItinerarySubmit(e) {
+      e.preventDefault();
+      const inVal = document.getElementById('itineraryCheckInInput').value;
+      const outVal = document.getElementById('itineraryCheckOutInput').value;
+      const d1 = new Date(inVal);
+      const d2 = new Date(outVal);
+      if (d2 <= d1) {
+        showToast("Check-out date must be after check-in.");
+        return;
+      }
+      itineraryCheckIn = d1;
+      itineraryCheckOut = d2;
+      syncItineraryDisplay();
+      closeItineraryModal();
+      showToast("Itinerary dates updated!");
+    }
+
+    // Device Simulation State (Desktop Web default, with optional Phone Frame)
+    let isPhoneSimulation = localStorage.getItem('plane_consumer_view_mode') === 'mobile';
+
+    function toggleDeviceSimulation() {
+      isPhoneSimulation = !isPhoneSimulation;
+      localStorage.setItem('plane_consumer_view_mode', isPhoneSimulation ? 'mobile' : 'desktop');
+      applyDeviceLayout();
+      showToast(isPhoneSimulation ? "Switched to Mobile Phone Simulator" : "Switched to Full Desktop Web View");
+    }
+
+    function applyDeviceLayout() {
+      const shell = document.getElementById('appShell');
+      const body = document.body;
+      const statusBar = document.getElementById('mobileStatusBar');
+      const toggleText = document.getElementById('deviceToggleText');
+      const toggleIcon = document.getElementById('deviceToggleIcon');
+      const appBody = document.getElementById('appBody');
+      const deskSwitch = document.getElementById('desktopJourneySwitcher');
+      const mobSwitch = document.getElementById('mobileJourneySwitcherRow');
+      const searchGrid = document.getElementById('searchRibbonGrid');
+      const consumerMap = document.getElementById('consumerMap');
+
+      if (isPhoneSimulation) {
+        body.className = "bg-slate-900 text-slate-100 min-h-screen flex justify-center items-center p-0 sm:py-6 sm:px-4";
+        shell.className = "w-full h-screen sm:h-[860px] sm:max-w-md bg-white dark:bg-darkbg text-slate-900 dark:text-white rounded-none sm:rounded-[40px] shadow-2xl overflow-hidden border-0 sm:border-[8px] sm:border-slate-800 flex flex-col relative";
+        if (statusBar) statusBar.classList.remove('hidden');
+        if (toggleText) toggleText.innerText = "Desktop Web";
+        if (toggleIcon) toggleIcon.className = "fa-solid fa-desktop text-xs text-brand";
+
+        if (appBody) {
+          appBody.className = "w-full flex-1 overflow-y-auto px-3.5 sm:px-4 py-4 space-y-4";
+        }
+        if (deskSwitch) deskSwitch.classList.add('!hidden');
+        if (mobSwitch) mobSwitch.classList.remove('lg:hidden');
+        if (searchGrid) {
+          searchGrid.className = "grid grid-cols-1 gap-2.5 items-center";
+        }
+        if (consumerMap) {
+          consumerMap.className = "w-full h-[280px] bg-slate-100 dark:bg-slate-950";
+        }
+
+        const feedWrapper = document.getElementById('feedWrapper');
+        if (feedWrapper) feedWrapper.className = "w-full";
+        const feed = document.getElementById('resultsFeed');
+        if (feed) feed.className = "space-y-4";
+      } else {
+        body.className = "bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors";
+        shell.className = "w-full min-h-screen flex flex-col relative";
+        if (statusBar) statusBar.classList.add('hidden');
+        if (toggleText) toggleText.innerText = "Mobile Frame";
+        if (toggleIcon) toggleIcon.className = "fa-solid fa-mobile-screen text-xs text-brand";
+
+        if (appBody) {
+          appBody.className = "max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 space-y-6";
+        }
+        if (deskSwitch) deskSwitch.classList.remove('!hidden');
+        if (mobSwitch) mobSwitch.classList.add('lg:hidden');
+        if (searchGrid) {
+          searchGrid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 items-center";
+        }
+        if (consumerMap) {
+          consumerMap.className = "w-full h-[360px] sm:h-[440px] bg-slate-100 dark:bg-slate-950";
+        }
+
+        applyDesktopExplorerLayout();
+      }
+
+      if (leafletMap) {
+        setTimeout(() => leafletMap.invalidateSize(), 200);
+      }
+    }
+
+    function applyDesktopExplorerLayout() {
+      if (isPhoneSimulation) return;
+      const exp = document.getElementById('explorerContainer');
+      const feedWrapper = document.getElementById('feedWrapper');
+      const feed = document.getElementById('resultsFeed');
+
+      if (exp) exp.className = "w-full";
+      if (feedWrapper) feedWrapper.className = "w-full";
+      if (feed) feed.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+    }
+
+    function showToast(msg) {
+      const existing = document.getElementById('planeToast');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.id = 'planeToast';
+      t.className = "fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-2xl z-[100] border border-slate-700 flex items-center space-x-2";
+      t.innerHTML = `<i class="fa-solid fa-circle-check text-brand"></i><span>${msg}</span>`;
+      document.body.appendChild(t);
+      setTimeout(() => { if (t) t.remove(); }, 3500);
+    }
+
+    function updateAuthUI() {
+      const icon = document.getElementById('authProfileIcon');
+      const headerLabel = document.getElementById('authHeaderLabel');
+      const headerBtn = document.getElementById('authHeaderBtn');
+      const loggedOutView = document.getElementById('authLoggedOutView');
+      const loggedInView = document.getElementById('authLoggedInView');
+      const nameEl = document.getElementById('loggedInUserName');
+      const emailEl = document.getElementById('loggedInUserEmail');
+
+      if (window.userToken && window.currentUser) {
+        if (icon) {
+          icon.className = "fa-solid fa-circle-user text-xs text-brand";
+        }
+        if (headerLabel) {
+          headerLabel.innerText = window.currentUser.full_name?.split(' ')[0] || 'John';
+        }
+        if (headerBtn) {
+          headerBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-darkborder text-slate-800 dark:text-gray-200 hover:border-brand transition shadow-sm";
+        }
+        if (loggedOutView) loggedOutView.classList.add('hidden');
+        if (loggedInView) loggedInView.classList.remove('hidden');
+        if (nameEl) nameEl.innerText = window.currentUser.full_name || 'Traveler';
+        if (emailEl) emailEl.innerText = window.currentUser.email || '';
+      } else {
+        if (icon) {
+          icon.className = "fa-solid fa-arrow-right-to-bracket text-[11px]";
+        }
+        if (headerLabel) {
+          headerLabel.innerText = 'Sign In';
+        }
+        if (headerBtn) {
+          headerBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-brand dark:text-black dark:hover:bg-[#68c918] transition shadow-sm";
+        }
+        if (loggedOutView) loggedOutView.classList.remove('hidden');
+        if (loggedInView) loggedInView.classList.add('hidden');
+      }
+    }
+
     async function initConsumerApp() {
-      switchJourney('resort');
-      setTimeout(() => {
-        if (!window.userToken) openAuthModal();
-      }, 1000);
+      applyDeviceLayout();
+      syncItineraryDisplay();
+
+      // Restore persistent session
+      const savedToken = localStorage.getItem('plane_user_token');
+      const savedUser = localStorage.getItem('plane_user_info');
+      if (savedToken && savedUser) {
+        try {
+          window.userToken = savedToken;
+          window.currentUser = JSON.parse(savedUser);
+          updateAuthUI();
+        } catch (e) {
+          localStorage.removeItem('plane_user_token');
+          localStorage.removeItem('plane_user_info');
+        }
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialJourney = urlParams.get('journey') || localStorage.getItem('plane_active_journey') || 'hotel';
+      switchJourney(initialJourney);
+
+      // Restore persisted Map view mode
+      const savedMapMode = localStorage.getItem('plane_hotel_view_mode') || 'list';
+      applyMapView(savedMapMode === 'map');
     }
 
     function openAuthModal() {
+      updateAuthUI();
       document.getElementById('authModal').classList.remove('hidden');
     }
     
@@ -290,33 +874,76 @@
       document.getElementById('authModal').classList.add('hidden');
     }
 
-    async function handleSocialLogin(provider) {
-      await loginBeta();
-      closeAuthModal();
-      document.getElementById('authProfileIcon').classList.remove('fa-regular');
-      document.getElementById('authProfileIcon').classList.add('fa-solid', 'text-brand');
-    }
-
-    async function handleEmailLogin(e) {
-      e.preventDefault();
-      await loginBeta();
-      closeAuthModal();
-      document.getElementById('authProfileIcon').classList.remove('fa-regular');
-      document.getElementById('authProfileIcon').classList.add('fa-solid', 'text-brand');
-    }
-
-    async function loginBeta() {
+    async function performLogin(email, password) {
+      const errEl = document.getElementById('loginError');
+      if (errEl) errEl.classList.add('hidden');
+      const btn = document.getElementById('loginSubmitBtn');
+      const originalText = btn ? btn.innerText : "Sign In";
+      if (btn) {
+        btn.innerText = "Signing in...";
+        btn.disabled = true;
+      }
       try {
         const res = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'traveler.alex@example.com', password: 'Password123!' })
+          body: JSON.stringify({ email: email.trim(), password: password })
         });
         const json = await res.json();
+        if (!res.ok || !json.data) {
+          throw new Error(json.detail || "Invalid email or password.");
+        }
         window.userToken = json.data.access_token;
+        window.currentUser = json.data.user;
+        localStorage.setItem('plane_user_token', window.userToken);
+        localStorage.setItem('plane_user_info', JSON.stringify(window.currentUser));
+        updateAuthUI();
+        closeAuthModal();
+        showToast(`Signed in as ${window.currentUser.full_name || 'Traveler'}`);
+        return true;
       } catch (e) {
-        console.error("Auth error", e);
+        console.error("Auth error:", e);
+        if (errEl) {
+          errEl.innerText = e.message || "Failed to log in. Please check credentials.";
+          errEl.classList.remove('hidden');
+        }
+        return false;
+      } finally {
+        if (btn) {
+          btn.innerText = originalText;
+          btn.disabled = false;
+        }
       }
+    }
+
+    async function handleDemoQuickLogin() {
+      await performLogin('john.doe@example.com', 'Password123!');
+    }
+
+    async function handleSocialLogin(provider) {
+      showToast(`Connecting via ${provider}...`);
+      await handleDemoQuickLogin();
+    }
+
+    async function handleEmailLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      await performLogin(email, password);
+    }
+
+    function handleLogout() {
+      window.userToken = null;
+      window.currentUser = null;
+      localStorage.removeItem('plane_user_token');
+      localStorage.removeItem('plane_user_info');
+      updateAuthUI();
+      closeAuthModal();
+      showToast("Signed out successfully.");
+    }
+
+    async function loginBeta() {
+      return await performLogin('john.doe@example.com', 'Password123!');
     }
 
     function handleDestinationSearch() {
@@ -331,20 +958,20 @@
       }, 300);
     }
 
-    function toggleMapView() {
-      isMapView = !isMapView;
-      const feed = document.getElementById('resultsFeed');
+    function applyMapView(showMap) {
+      isMapView = showMap;
       const mapContainer = document.getElementById('mapViewContainer');
       const btn = document.getElementById('mapToggleBtn');
       const icon = document.getElementById('mapToggleIcon');
       const text = document.getElementById('mapToggleText');
 
       if (isMapView) {
-        feed.classList.add('hidden');
-        mapContainer.classList.remove('hidden');
-        icon.className = 'fa-solid fa-list';
-        text.innerText = 'List View';
-        btn.classList.add('border-brand', 'text-brand');
+        if (icon) icon.className = 'fa-solid fa-map-location-dot';
+        if (text) text.innerText = 'Hide Map';
+        if (btn) {
+          btn.classList.add('border-brand', 'text-brand', 'bg-brand/10');
+        }
+        if (mapContainer) mapContainer.classList.remove('hidden');
 
         if (!leafletMap) {
           initLeafletMap();
@@ -356,18 +983,46 @@
         const items = currentJourney === 'hotel' ? currentHotels : currentResorts;
         renderMapMarkers(items, currentJourney);
       } else {
-        mapContainer.classList.add('hidden');
-        feed.classList.remove('hidden');
-        icon.className = 'fa-solid fa-map';
-        text.innerText = 'Map View';
-        btn.classList.remove('border-brand', 'text-brand');
+        if (icon) icon.className = 'fa-solid fa-map';
+        if (text) text.innerText = 'Map View';
+        if (btn) {
+          btn.classList.remove('border-brand', 'text-brand', 'bg-brand/10');
+        }
+        if (mapContainer) mapContainer.classList.add('hidden');
+      }
+
+      if (isPhoneSimulation) {
+        const feed = document.getElementById('resultsFeed');
+        if (feed) feed.className = "space-y-4";
+      } else {
+        applyDesktopExplorerLayout();
+      }
+    }
+
+    function toggleMapView() {
+      applyMapView(!isMapView);
+      localStorage.setItem('plane_hotel_view_mode', isMapView ? 'map' : 'list');
+    }
+
+    function resetMapBounds() {
+      if (!leafletMap || !mapMarkersGroup) return;
+      const items = currentJourney === 'hotel' ? currentHotels : currentResorts;
+      const bangaloreItems = items.filter(it => (it.city && it.city.toLowerCase().includes('bangalore')) || (it.country && it.country.toLowerCase().includes('india')));
+      if (bangaloreItems.length > 0) {
+        const bGroup = L.featureGroup(bangaloreItems.map(m => L.marker([m.latitude, m.longitude])));
+        leafletMap.fitBounds(bGroup.getBounds().pad(0.35), { maxZoom: 13 });
+      } else {
+        const bounds = mapMarkersGroup.getBounds();
+        if (bounds.isValid()) {
+          leafletMap.fitBounds(bounds.pad(0.2));
+        }
       }
     }
 
     function initLeafletMap() {
       leafletMap = L.map('consumerMap', {
         zoomControl: false
-      }).setView([37.7749, -122.4194], 12);
+      }).setView([12.9716, 77.5946], 11);
 
       L.control.zoom({ position: 'bottomright' }).addTo(leafletMap);
 
@@ -383,9 +1038,52 @@
       }, 200);
     }
 
+    function locateOnMap(id) {
+      if (!isMapView) {
+        applyMapView(true);
+      }
+      const items = currentJourney === 'hotel' ? currentHotels : currentResorts;
+      const item = items.find(x => x.id === id);
+      if (!item || !item.latitude || !item.longitude) return;
+
+      const mapContainer = document.getElementById('mapViewContainer');
+      if (mapContainer) {
+        mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      setTimeout(() => {
+        if (leafletMap) {
+          leafletMap.invalidateSize();
+          leafletMap.flyTo([item.latitude, item.longitude], 15, {
+            animate: true,
+            duration: 0.8
+          });
+          const marker = markersById[id];
+          if (marker) {
+            marker.openPopup();
+          }
+          highlightCard(id, false);
+        }
+      }, 250);
+    }
+
+    function highlightCard(id, scrollToList = false) {
+      document.querySelectorAll('.property-card').forEach(el => {
+        el.classList.remove('ring-4', 'ring-brand', 'border-brand', 'scale-[1.01]', 'shadow-xl');
+      });
+      const card = document.getElementById(`prop-card-${id}`);
+      if (card) {
+        card.classList.add('ring-4', 'ring-brand', 'border-brand', 'scale-[1.01]', 'shadow-xl');
+        if (scrollToList) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+
     function renderMapMarkers(items, type) {
       if (!leafletMap || !mapMarkersGroup) return;
       mapMarkersGroup.clearLayers();
+      markersById = {};
 
       if (!items || items.length === 0) return;
 
@@ -426,36 +1124,59 @@
         `;
 
         marker.bindPopup(popupHtml, { maxWidth: 220, closeButton: false });
+
+        marker.on('click', () => {
+          highlightCard(item.id, true);
+        });
+
+        markersById[item.id] = marker;
         mapMarkersGroup.addLayer(marker);
       });
 
       try {
-        const bounds = mapMarkersGroup.getBounds();
-        if (bounds.isValid()) {
-          leafletMap.fitBounds(bounds.pad(0.2));
+        // Focus primarily on Bangalore / Indian destination
+        const bangaloreItems = items.filter(it => (it.city && it.city.toLowerCase().includes('bangalore')) || (it.country && it.country.toLowerCase().includes('india')));
+        if (bangaloreItems.length > 0) {
+          const bGroup = L.featureGroup(bangaloreItems.map(m => L.marker([m.latitude, m.longitude])));
+          leafletMap.fitBounds(bGroup.getBounds().pad(0.35), { maxZoom: 12 });
+        } else {
+          const bounds = mapMarkersGroup.getBounds();
+          if (bounds.isValid()) {
+            leafletMap.fitBounds(bounds.pad(0.2));
+          }
         }
       } catch (e) {
-        console.error("fitBounds error", e);
+        leafletMap.setView([12.9716, 77.5946], 11);
       }
     }
 
     function switchJourney(type) {
       currentJourney = type;
+      localStorage.setItem('plane_active_journey', type);
       const hotelBtn = document.getElementById('tab-hotel');
       const resortBtn = document.getElementById('tab-resort');
+      const hotelBtnMob = document.getElementById('tab-hotel-mobile');
+      const resortBtnMob = document.getElementById('tab-resort-mobile');
 
       const inactiveClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400";
-      const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-[0_4px_14px_0_rgba(125,231,32,0.3)]";
+      const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab";
 
       if (type === 'hotel') {
-        hotelBtn.className = activeClass;
-        resortBtn.className = inactiveClass;
-        document.getElementById('destinationInput').placeholder = "Search City Hotels (e.g. San Francisco)...";
+        if (hotelBtn) hotelBtn.className = activeClass;
+        if (resortBtn) resortBtn.className = inactiveClass;
+        if (hotelBtnMob) hotelBtnMob.className = activeClass;
+        if (resortBtnMob) resortBtnMob.className = inactiveClass;
+        document.getElementById('destinationInput').placeholder = "Search City Hotels (e.g. Bangalore, San Francisco)...";
+        // Restore persisted Hotel Map/List view mode
+        const savedHotelMode = localStorage.getItem('plane_hotel_view_mode') || 'list';
+        applyMapView(savedHotelMode === 'map');
         loadHotels();
       } else {
-        resortBtn.className = activeClass;
-        hotelBtn.className = inactiveClass;
-        document.getElementById('destinationInput').placeholder = "Search Resorts & Sanctuaries (e.g. Carmel)...";
+        if (resortBtn) resortBtn.className = activeClass;
+        if (hotelBtn) hotelBtn.className = inactiveClass;
+        if (resortBtnMob) resortBtnMob.className = activeClass;
+        if (hotelBtnMob) hotelBtnMob.className = inactiveClass;
+        document.getElementById('destinationInput').placeholder = "Search Resorts & Sanctuaries (e.g. Bangalore, Nandi Hills)...";
         loadResorts();
       }
 
@@ -503,25 +1224,51 @@
           return;
         }
 
-        feed.innerHTML = hotels.map(h => `
-          <div onclick="openHotelDetail('${h.id}')" class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer">
-            <div class="relative h-36">
-              <img src="${h.cover_image_url}" class="w-full h-full object-cover">
-              <span class="absolute top-2 left-2 bg-darkbg dark:bg-darkborder text-brand border border-brand text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow"><i class="fa-solid fa-bolt mr-1"></i> Instant Hotel</span>
-              <span class="absolute bottom-2 right-2 bg-brand text-black text-xs font-extrabold px-2.5 py-1 rounded-lg">$${h.min_price_per_night} / nt</span>
+        feed.innerHTML = hotels.map(h => {
+          const totalPhotos = (h.gallery_images ? h.gallery_images.length : 0) + 1;
+          return `
+          <div id="prop-card-${h.id}" class="property-card bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div onclick="openPropertyDetail('${h.id}', 'hotel')" class="relative h-40 cursor-pointer overflow-hidden group">
+              <img src="${h.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none"></div>
+              <span class="absolute top-2 left-2 bg-slate-900/90 dark:bg-darkborder/90 text-brand border border-brand/40 text-[10px] font-bold px-2 py-0.5 rounded-md shadow backdrop-blur-xs"><i class="fa-solid fa-bolt mr-1"></i> Instant Hotel</span>
+              
+              <!-- Extra Photos Badge -->
+              <span class="absolute top-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow flex items-center space-x-1">
+                <i class="fa-solid fa-camera"></i>
+                <span>${totalPhotos} Photos</span>
+              </span>
+
+              <!-- Price Badge -->
+              <span class="absolute bottom-2 right-2 bg-brand text-black text-xs font-extrabold px-2.5 py-1 rounded-lg shadow">$${h.min_price_per_night} / nt</span>
             </div>
-            <div class="p-3">
-              <div class="flex justify-between items-start">
-                <h4 class="font-bold text-sm text-slate-900 dark:text-white">${h.name}</h4>
-                <span class="text-xs font-bold text-brand">★ ${h.review_score}</span>
+            <div class="p-3.5 space-y-2.5 flex-1 flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex justify-between items-start gap-2 cursor-pointer" onclick="openPropertyDetail('${h.id}', 'hotel')">
+                  <div class="min-w-0 flex-1">
+                    <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">${h.name}</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5 truncate"><i class="fa-solid fa-location-dot text-brand mr-1"></i>${h.address}, ${h.city}</p>
+                  </div>
+                  <span class="text-xs font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-md shrink-0">★ ${h.review_score}</span>
+                </div>
+                <div class="flex gap-1.5 flex-wrap">
+                  ${h.amenities.slice(0, 3).map(a => `<span class="text-[10px] bg-slate-100 dark:bg-darkborder text-slate-600 dark:text-gray-300 px-2 py-0.5 rounded font-medium">${a}</span>`).join('')}
+                </div>
               </div>
-              <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">${h.address}, ${h.city}</p>
-              <div class="flex gap-1.5 mt-2">
-                ${h.amenities.slice(0, 2).map(a => `<span class="text-[10px] bg-brand/10 text-brand px-2 py-0.5 rounded font-medium">${a}</span>`).join('')}
+              <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-darkborder gap-2">
+                <button onclick="event.stopPropagation(); locateOnMap('${h.id}')" class="text-xs font-bold text-brand hover:text-[#68c918] transition flex items-center space-x-1.5 py-1.5 px-2.5 sm:px-3 rounded-lg bg-brand/10 hover:bg-brand/20 shrink-0">
+                  <i class="fa-solid fa-location-crosshairs"></i>
+                  <span>Locate</span>
+                </button>
+                <button onclick="openPropertyDetail('${h.id}', 'hotel')" class="text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-1.5 rounded-lg hover:opacity-90 transition shrink-0 flex items-center space-x-1">
+                  <span>View Rooms & Photos</span>
+                  <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                </button>
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
       } catch (e) {
         feed.innerHTML = `<div class="text-center text-xs text-red-500">Error loading hotels</div>`;
       }
@@ -553,45 +1300,74 @@
           return;
         }
 
-        feed.innerHTML = resorts.map(r => `
-          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
-            <div onclick="openResortDetail('${r.id}')" class="relative h-44 cursor-pointer">
-              <img src="${r.cover_image_url}" class="w-full h-full object-cover">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30"></div>
-              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-white text-[10px] font-bold px-2.5 py-0.5 rounded-lg shadow"><i class="fa-solid fa-spa mr-1"></i> Luxury Sanctuary</span>
-              <span class="absolute bottom-2.5 right-2.5 bg-brand text-black text-xs font-extrabold px-3 py-1 rounded-lg border border-white/20">From $${r.starting_price_per_night} / nt</span>
-              <span class="absolute bottom-2.5 left-2.5 text-white text-xs font-semibold drop-shadow"><i class="fa-solid fa-location-dot mr-1"></i>${r.city}, ${r.country}</span>
+        feed.innerHTML = resorts.map(r => {
+          const totalPhotos = (r.gallery_images ? r.gallery_images.length : 0) + 1;
+          return `
+          <div id="prop-card-${r.id}" class="property-card bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <div onclick="openPropertyDetail('${r.id}', 'resort')" class="relative h-44 cursor-pointer overflow-hidden group">
+              <img src="${r.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none"></div>
+              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-[10px] font-bold px-2.5 py-0.5 rounded-lg shadow"><i class="fa-solid fa-spa mr-1"></i> Luxury Sanctuary</span>
+              
+              <!-- Extra Photos Badge -->
+              <span class="absolute top-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md shadow flex items-center space-x-1">
+                <i class="fa-solid fa-camera"></i>
+                <span>${totalPhotos} Photos</span>
+              </span>
+
+              <!-- Bottom image info: City/Country on left, Price on right with max constraint so they NEVER overlap -->
+              <div class="absolute bottom-2.5 inset-x-2.5 flex items-end justify-between gap-2">
+                <span class="text-white text-xs font-semibold drop-shadow truncate flex-1 min-w-0"><i class="fa-solid fa-location-dot mr-1"></i>${r.city}, ${r.country}</span>
+                <span class="bg-brand text-black text-xs font-extrabold px-2.5 py-1 rounded-lg border border-white/20 shrink-0 shadow whitespace-nowrap">From $${r.starting_price_per_night} / nt</span>
+              </div>
             </div>
-            <div class="p-3.5 space-y-2.5">
-              <div onclick="openResortDetail('${r.id}')" class="cursor-pointer">
-                <div class="flex justify-between items-start">
-                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">${r.name}</h4>
-                  <span class="text-xs font-bold text-brand">★ ${r.review_score}</span>
+
+            <div class="p-3.5 space-y-2.5 flex-1 flex flex-col justify-between">
+              <div class="space-y-2.5">
+                <div onclick="openPropertyDetail('${r.id}', 'resort')" class="cursor-pointer">
+                  <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0 flex-1">
+                      <h4 class="font-extrabold text-sm text-slate-900 dark:text-white truncate">${r.name}</h4>
+                    </div>
+                    <span class="text-xs font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-md shrink-0">★ ${r.review_score}</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 dark:text-gray-400 italic line-clamp-1 mt-0.5">${r.tagline || ''}</p>
                 </div>
-                <p class="text-[11px] text-slate-500 dark:text-gray-400 italic line-clamp-1">${r.tagline || ''}</p>
+
+                <!-- LOCAL GUIDE BUNDLING SECTION -->
+                <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 rounded-xl p-2.5">
+                  <div class="flex justify-between items-center text-[11px] font-bold text-amber-800 dark:text-amber-400 mb-1.5 gap-2">
+                    <span class="truncate"><i class="fa-solid fa-compass text-brand mr-1"></i> Certified Resident Guides</span>
+                    <span class="text-[10px] font-semibold text-slate-500 dark:text-gray-400 shrink-0 whitespace-nowrap">${r.available_guides_count} Available</span>
+                  </div>
+                  <div class="flex space-x-2 overflow-x-auto pb-1">
+                    ${r.featured_guides.map(g => `
+                      <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-brand/50 rounded-full py-1 px-2.5 cursor-pointer shadow-xs hover:border-brand transition shrink-0">
+                        <img src="${g.profile_photo_url}" class="w-6 h-6 rounded-full object-cover shrink-0">
+                        <div class="text-[10px] whitespace-nowrap">
+                          <span class="font-bold text-slate-900 dark:text-white">${g.full_name.split(' ')[0]}</span>
+                          <span class="text-brand font-extrabold ml-1">+$${g.daily_rate}/d</span>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
               </div>
 
-              <!-- LOCAL GUIDE BUNDLING SECTION -->
-              <div class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-2.5">
-                <div class="flex justify-between items-center text-[11px] font-bold text-amber-800 mb-1.5">
-                  <span><i class="fa-solid fa-compass text-brand mr-1"></i> Certified Resident Guides</span>
-                  <span class="text-[10px] font-semibold text-slate-500 dark:text-gray-400">${r.available_guides_count} Available</span>
-                </div>
-                <div class="flex space-x-2 overflow-x-auto pb-1">
-                  ${r.featured_guides.map(g => `
-                    <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-brand/50 rounded-full py-1 px-2.5 cursor-pointer shadow-xs hover:border-brand transition shrink-0">
-                      <img src="${g.profile_photo_url}" class="w-6 h-6 rounded-full object-cover">
-                      <div class="text-[10px]">
-                        <span class="font-bold text-slate-900 dark:text-white">${g.full_name.split(' ')[0]}</span>
-                        <span class="text-brand font-extrabold ml-1">+$${g.daily_rate}/d</span>
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
+              <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-darkborder gap-2">
+                <button onclick="event.stopPropagation(); locateOnMap('${r.id}')" class="text-xs font-bold text-brand hover:text-[#68c918] transition flex items-center space-x-1.5 py-1.5 px-2.5 sm:px-3 rounded-lg bg-brand/10 hover:bg-brand/20 shrink-0">
+                  <i class="fa-solid fa-location-crosshairs"></i>
+                  <span>Locate</span>
+                </button>
+                <button onclick="openPropertyDetail('${r.id}', 'resort')" class="text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-1.5 rounded-lg hover:opacity-90 transition shrink-0 flex items-center space-x-1">
+                  <span>Explore & Rooms</span>
+                  <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                </button>
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
       } catch (e) {
         feed.innerHTML = `<div class="text-center text-xs text-red-500">Error loading resorts</div>`;
       }
@@ -640,37 +1416,412 @@
       document.getElementById('guideModal').classList.add('hidden');
     }
 
-    async function openResortDetail(resortId) {
+    async function openPropertyDetail(propId, type = 'resort') {
       try {
-        const res = await fetch(`${API_BASE}/resorts/${resortId}`);
+        const endpoint = type === 'hotel' ? `${API_BASE}/hotels/${propId}` : `${API_BASE}/resorts/${propId}`;
+        const res = await fetch(endpoint);
         const json = await res.json();
-        activeProperty = json.data;
-        activeRoom = activeProperty.room_types[0];
-        openCheckout();
+        const prop = json.data;
+        if (!prop) throw new Error("Property not found");
+
+        activeProperty = prop;
+        activeDetailProperty = prop;
+
+        // Collect all images for destination photo gallery (cover image + gallery images)
+        activeDetailPhotos = [prop.cover_image_url];
+        if (Array.isArray(prop.gallery_images)) {
+          prop.gallery_images.forEach(img => {
+            if (img && !activeDetailPhotos.includes(img)) activeDetailPhotos.push(img);
+          });
+        }
+        activeDetailPhotoIndex = 0;
+
+        // Select first room type by default if not set
+        if (prop.room_types && prop.room_types.length > 0) {
+          activeRoom = prop.room_types[0];
+        } else {
+          activeRoom = null;
+        }
+
+        // Header info
+        const isResort = (prop.property_type === 'RESORT' || type === 'resort');
+        const badgeEl = document.getElementById('detailBadge');
+        if (badgeEl) {
+          badgeEl.innerText = isResort ? 'Resort Sanctuary' : 'Instant City Hotel';
+          badgeEl.className = isResort 
+            ? 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-brand text-black uppercase tracking-wider shrink-0'
+            : 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-slate-900 dark:bg-slate-800 text-brand border border-brand/40 uppercase tracking-wider shrink-0';
+        }
+        document.getElementById('detailTitle').innerText = prop.name;
+        document.getElementById('detailRatingVal').innerText = prop.star_rating || '4.8';
+        document.getElementById('detailReviewsCount').innerText = `${prop.review_count || 120} verified guest reviews`;
+        document.getElementById('detailAddress').querySelector('span').innerText = `${prop.address}, ${prop.city}, ${prop.country || ''}`;
+
+        // Description & Tagline
+        const taglineEl = document.getElementById('detailTagline');
+        if (prop.tagline) {
+          taglineEl.innerText = `"${prop.tagline}"`;
+          taglineEl.classList.remove('hidden');
+        } else {
+          taglineEl.classList.add('hidden');
+        }
+        document.getElementById('detailDescription').innerText = prop.description || '';
+
+        // Times & policy
+        document.getElementById('detailCheckIn').innerText = prop.check_in_time ? prop.check_in_time.slice(0,5) : '3:00 PM';
+        document.getElementById('detailCheckOut').innerText = prop.check_out_time ? prop.check_out_time.slice(0,5) : '11:00 AM';
+        document.getElementById('detailPolicy').innerText = prop.cancellation_policy || 'Free cancellation up to 48 hours';
+
+        // Amenities
+        const amList = document.getElementById('detailAmenitiesList');
+        amList.innerHTML = (prop.amenities || []).map(a => `
+          <span class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 px-3 py-1 rounded-xl font-semibold border border-slate-200 dark:border-slate-700 flex items-center space-x-1.5">
+            <i class="fa-solid fa-check text-brand text-[10px]"></i>
+            <span>${a}</span>
+          </span>
+        `).join('');
+
+        // Render Hero Image & Thumbnails
+        renderGalleryHero();
+        renderGalleryThumbnails();
+
+        // Render Available Rooms
+        renderDetailRoomsList();
+
+        // Render Guides (if resort)
+        const guideSec = document.getElementById('detailGuideSection');
+        if (isResort && prop.associated_guides && prop.associated_guides.length > 0) {
+          guideSec.classList.remove('hidden');
+          guideSec.innerHTML = `
+            <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-compass text-brand"></i>
+                    <span>Bundle a Certified Resident Local Guide</span>
+                  </h4>
+                  <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">Attach a certified expert for private excursions directly to your resort stay.</p>
+                </div>
+                <span class="text-[11px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2.5 py-0.5 rounded-full">${prop.associated_guides.length} Available</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                ${prop.associated_guides.map(g => {
+                  const isBundled = selectedGuide && selectedGuide.id === g.id;
+                  return `
+                    <div class="bg-white dark:bg-slate-900 border ${isBundled ? 'border-brand ring-2 ring-brand/30' : 'border-slate-200 dark:border-slate-800'} rounded-xl p-3 flex items-center justify-between gap-3 shadow-xs">
+                      <div class="flex items-center space-x-3 min-w-0 cursor-pointer" onclick="showGuideModal('${g.id}')">
+                        <img src="${g.profile_photo_url}" class="w-11 h-11 rounded-full object-cover shrink-0 border border-brand">
+                        <div class="min-w-0">
+                          <h5 class="font-bold text-xs text-slate-900 dark:text-white truncate">${g.full_name}</h5>
+                          <p class="text-[10px] text-slate-500 dark:text-gray-400 truncate">${g.headline}</p>
+                          <span class="text-[10px] font-extrabold text-brand">+$${g.daily_rate}/day</span>
+                        </div>
+                      </div>
+                      <button onclick="toggleGuideFromDetail('${g.id}')" class="px-3 py-1.5 rounded-xl text-[11px] font-bold transition shrink-0 ${isBundled ? 'bg-rose-500 text-white' : 'bg-brand text-black hover:bg-[#68c918]'}">
+                        ${isBundled ? 'Remove' : 'Bundle'}
+                      </button>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        } else {
+          guideSec.classList.add('hidden');
+        }
+
+        // Update Bottom Sticky Bar
+        updateDetailStickyBar();
+
+        // Show Modal
+        document.getElementById('propertyDetailModal').classList.remove('hidden');
       } catch (e) {
-        alert("Error opening resort detail");
+        console.error("Error opening property detail:", e);
+        showToast("Unable to load destination details.");
       }
+    }
+
+    function closePropertyDetailModal() {
+      document.getElementById('propertyDetailModal').classList.add('hidden');
+    }
+
+    function renderGalleryHero() {
+      const hero = document.getElementById('detailHeroImage');
+      const counter = document.getElementById('detailPhotoCounter');
+      const extraPill = document.getElementById('detailExtraImagesCount');
+      if (!hero || activeDetailPhotos.length === 0) return;
+
+      hero.src = activeDetailPhotos[activeDetailPhotoIndex];
+      if (counter) counter.innerText = `Photo ${activeDetailPhotoIndex + 1} of ${activeDetailPhotos.length}`;
+      if (extraPill) {
+        const extraCount = Math.max(0, activeDetailPhotos.length - 1);
+        extraPill.innerText = `${extraCount} Extra Image${extraCount !== 1 ? 's' : ''} Provided`;
+      }
+    }
+
+    function renderGalleryThumbnails() {
+      const row = document.getElementById('detailThumbnailsRow');
+      if (!row) return;
+
+      row.innerHTML = activeDetailPhotos.map((url, idx) => {
+        const isSelected = idx === activeDetailPhotoIndex;
+        return `
+          <div onclick="setGalleryHeroImage(${idx})" class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl overflow-hidden shrink-0 cursor-pointer border-2 transition ${isSelected ? 'border-brand ring-2 ring-brand/40 scale-105' : 'border-transparent opacity-70 hover:opacity-100'}">
+            <img src="${url}" class="w-full h-full object-cover">
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setGalleryHeroImage(idx) {
+      if (idx < 0 || idx >= activeDetailPhotos.length) return;
+      activeDetailPhotoIndex = idx;
+      renderGalleryHero();
+      renderGalleryThumbnails();
+    }
+
+    function prevGalleryImage() {
+      if (activeDetailPhotos.length <= 1) return;
+      activeDetailPhotoIndex = (activeDetailPhotoIndex - 1 + activeDetailPhotos.length) % activeDetailPhotos.length;
+      renderGalleryHero();
+      renderGalleryThumbnails();
+    }
+
+    function nextGalleryImage() {
+      if (activeDetailPhotos.length <= 1) return;
+      activeDetailPhotoIndex = (activeDetailPhotoIndex + 1) % activeDetailPhotos.length;
+      renderGalleryHero();
+      renderGalleryThumbnails();
+    }
+
+    function renderDetailRoomsList() {
+      const list = document.getElementById('detailRoomsList');
+      const badge = document.getElementById('detailRoomsCountBadge');
+      if (!list || !activeDetailProperty) return;
+
+      const rooms = activeDetailProperty.room_types || [];
+      if (badge) badge.innerText = `${rooms.length} Room Option${rooms.length !== 1 ? 's' : ''}`;
+
+      if (rooms.length === 0) {
+        list.innerHTML = `<div class="p-6 text-center text-xs text-slate-500">No active room types found for this destination.</div>`;
+        return;
+      }
+
+      const { nights } = formatItineraryLabel(itineraryCheckIn, itineraryCheckOut);
+
+      list.innerHTML = rooms.map(r => {
+        const isSelected = activeRoom && activeRoom.id === r.id;
+        const roomPhotos = (r.images && r.images.length > 0) ? r.images : [activeDetailProperty.cover_image_url];
+        const primaryRoomPhoto = roomPhotos[0];
+        const nightlyRate = parseFloat(r.current_price_per_night || r.base_price_per_night || 0);
+        const estTotal = (nightlyRate * nights).toFixed(2);
+
+        return `
+          <div id="room-card-${r.id}" onclick="selectRoomFromList('${r.id}')" class="bg-slate-50/70 dark:bg-slate-800/60 border-2 ${isSelected ? 'border-brand ring-2 ring-brand/20 bg-white dark:bg-slate-800' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'} rounded-2xl p-3.5 sm:p-4 transition flex flex-col sm:flex-row gap-4 cursor-pointer">
+            <!-- Room Image & Photo Gallery Trigger -->
+            <div class="sm:w-52 h-36 rounded-xl overflow-hidden relative group shrink-0 bg-slate-900" onclick="event.stopPropagation(); openRoomGallery('${r.id}')">
+              <img src="${primaryRoomPhoto}" alt="${r.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none"></div>
+              
+              <!-- Photo badge -->
+              <span class="absolute bottom-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center space-x-1 shadow">
+                <i class="fa-solid fa-camera"></i>
+                <span>${roomPhotos.length} Photo${roomPhotos.length !== 1 ? 's' : ''}</span>
+              </span>
+
+              <span class="absolute top-2 left-2 bg-black/60 text-brand text-[9px] font-extrabold px-1.5 py-0.5 rounded backdrop-blur-xs flex items-center space-x-1">
+                <i class="fa-solid fa-expand"></i>
+                <span>View Photos</span>
+              </span>
+            </div>
+
+            <!-- Room Info & Specifications -->
+            <div class="flex-1 flex flex-col justify-between space-y-2">
+              <div>
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <h5 class="font-extrabold text-sm text-slate-900 dark:text-white">${r.name}</h5>
+                    <div class="flex items-center space-x-2.5 text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                      <span><i class="fa-solid fa-bed text-slate-400 mr-1"></i>${r.bed_configuration}</span>
+                      <span>•</span>
+                      <span><i class="fa-solid fa-user-group text-slate-400 mr-1"></i>Max ${r.max_occupancy} Guests</span>
+                      ${r.available_rooms !== null && r.available_rooms !== undefined ? `
+                        <span>•</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 font-bold">${r.available_rooms} Available</span>
+                      ` : ''}
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-sm font-extrabold text-brand leading-none">$${nightlyRate.toFixed(0)} / nt</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Est. $${estTotal} (${nights} nts)</span>
+                  </div>
+                </div>
+
+                <p class="text-xs text-slate-600 dark:text-gray-300 mt-2 leading-relaxed line-clamp-2">${r.description || ''}</p>
+              </div>
+
+              <!-- Amenities & Selection Button -->
+              <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-700/60">
+                <div class="flex gap-1.5 flex-wrap">
+                  ${(r.amenities || []).slice(0, 4).map(a => `
+                    <span class="text-[10px] bg-white dark:bg-slate-700 text-slate-600 dark:text-gray-300 px-2 py-0.5 rounded font-medium border border-slate-200/60 dark:border-slate-600">${a}</span>
+                  `).join('')}
+                </div>
+
+                <div class="flex items-center space-x-2 shrink-0">
+                  <button onclick="event.stopPropagation(); selectRoomFromList('${r.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${isSelected ? 'bg-brand text-black font-extrabold' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-slate-600 hover:border-brand'}">
+                    <i class="fa-solid ${isSelected ? 'fa-circle-check text-black' : 'fa-circle text-slate-300'} text-xs"></i>
+                    <span>${isSelected ? 'Selected' : 'Select Room'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectRoomFromList(roomId) {
+      if (!activeDetailProperty || !activeDetailProperty.room_types) return;
+      const found = activeDetailProperty.room_types.find(r => r.id === roomId);
+      if (found) {
+        activeRoom = found;
+        renderDetailRoomsList();
+        updateDetailStickyBar();
+      }
+    }
+
+    function updateDetailStickyBar() {
+      if (!activeRoom || !activeDetailProperty) return;
+      const { nights, label } = formatItineraryLabel(itineraryCheckIn, itineraryCheckOut);
+      const nightlyRate = parseFloat(activeRoom.current_price_per_night || activeRoom.base_price_per_night || 0);
+      let total = nightlyRate * nights;
+
+      if (selectedGuide) {
+        total += parseFloat(selectedGuide.daily_rate || 0) * nights;
+      }
+
+      document.getElementById('detailSelectedRoomName').innerText = activeRoom.name;
+      document.getElementById('detailSelectedRoomRate').innerText = `$${nightlyRate.toFixed(0)} / nt`;
+      document.getElementById('detailSelectedStaySummary').innerText = `${label}${selectedGuide ? ` • + Guide (${selectedGuide.full_name})` : ''}`;
+      document.getElementById('detailTotalEstimate').innerText = `$${total.toFixed(2)}`;
+    }
+
+    function proceedToCheckoutFromDetail() {
+      if (!activeRoom) {
+        showToast("Please select a room type first.");
+        return;
+      }
+      closePropertyDetailModal();
+      openCheckout();
+    }
+
+    function locateFromDetail() {
+      if (!activeDetailProperty) return;
+      const id = activeDetailProperty.id;
+      closePropertyDetailModal();
+      locateOnMap(id);
+    }
+
+    function toggleGuideFromDetail(guideId) {
+      if (!activeDetailProperty || !activeDetailProperty.associated_guides) return;
+      const g = activeDetailProperty.associated_guides.find(item => item.id === guideId);
+      if (!g) return;
+
+      if (selectedGuide && selectedGuide.id === g.id) {
+        selectedGuide = null;
+        showToast("Local guide bundle removed.");
+      } else {
+        selectedGuide = g;
+        showToast(`🎉 ${g.full_name} attached to your booking bundle!`);
+      }
+      openPropertyDetail(activeDetailProperty.id, 'resort');
+    }
+
+    // --- FULLSCREEN LIGHTBOX VIEWER ---
+    function openLightbox(photos, startIndex = 0, caption = '') {
+      if (!photos || photos.length === 0) return;
+      lightboxPhotos = photos;
+      lightboxIndex = Math.max(0, Math.min(startIndex, photos.length - 1));
+
+      document.getElementById('lightboxCaption').innerText = caption;
+      updateLightboxView();
+      document.getElementById('lightboxModal').classList.remove('hidden');
+
+      window.addEventListener('keydown', handleLightboxKeydown);
+    }
+
+    function openLightboxFromDetail() {
+      if (!activeDetailPhotos || activeDetailPhotos.length === 0) return;
+      openLightbox(activeDetailPhotos, activeDetailPhotoIndex, `${activeDetailProperty.name} - Photo Gallery`);
+    }
+
+    function openRoomGallery(roomId) {
+      if (!activeDetailProperty || !activeDetailProperty.room_types) return;
+      const room = activeDetailProperty.room_types.find(r => r.id === roomId);
+      if (!room) return;
+
+      const photos = (room.images && room.images.length > 0) ? room.images : [activeDetailProperty.cover_image_url];
+      openLightbox(photos, 0, `${activeDetailProperty.name} • ${room.name}`);
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightboxModal').classList.add('hidden');
+      window.removeEventListener('keydown', handleLightboxKeydown);
+    }
+
+    function updateLightboxView() {
+      const img = document.getElementById('lightboxImage');
+      const counter = document.getElementById('lightboxCounter');
+      const thumbs = document.getElementById('lightboxThumbnails');
+
+      if (img) img.src = lightboxPhotos[lightboxIndex];
+      if (counter) counter.innerText = `${lightboxIndex + 1} / ${lightboxPhotos.length}`;
+
+      if (thumbs) {
+        thumbs.innerHTML = lightboxPhotos.map((url, idx) => `
+          <div onclick="setLightboxIndex(${idx})" class="w-12 h-10 rounded-lg overflow-hidden shrink-0 cursor-pointer border-2 transition ${idx === lightboxIndex ? 'border-brand scale-105' : 'border-transparent opacity-60 hover:opacity-100'}">
+            <img src="${url}" class="w-full h-full object-cover">
+          </div>
+        `).join('');
+      }
+    }
+
+    function setLightboxIndex(idx) {
+      if (idx < 0 || idx >= lightboxPhotos.length) return;
+      lightboxIndex = idx;
+      updateLightboxView();
+    }
+
+    function prevLightboxImage() {
+      if (lightboxPhotos.length <= 1) return;
+      lightboxIndex = (lightboxIndex - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+      updateLightboxView();
+    }
+
+    function nextLightboxImage() {
+      if (lightboxPhotos.length <= 1) return;
+      lightboxIndex = (lightboxIndex + 1) % lightboxPhotos.length;
+      updateLightboxView();
+    }
+
+    function handleLightboxKeydown(e) {
+      if (e.key === 'ArrowLeft') prevLightboxImage();
+      else if (e.key === 'ArrowRight') nextLightboxImage();
+      else if (e.key === 'Escape') closeLightbox();
+    }
+
+    async function openResortDetail(resortId) {
+      await openPropertyDetail(resortId, 'resort');
     }
 
     async function openHotelDetail(hotelId) {
-      try {
-        const res = await fetch(`${API_BASE}/hotels/${hotelId}`);
-        const json = await res.json();
-        activeProperty = json.data;
-        activeRoom = activeProperty.room_types[0];
-        selectedGuide = null; // Hotels do not bundle guides
-        openCheckout();
-      } catch (e) {
-        alert("Error opening hotel detail");
-      }
+      await openPropertyDetail(hotelId, 'hotel');
     }
 
     async function openCheckout() {
-      const today = new Date();
-      const checkIn = new Date(today); checkIn.setDate(today.getDate() + 2);
-      const checkOut = new Date(today); checkOut.setDate(today.getDate() + 5);
-      const checkInStr = checkIn.toISOString().split('T')[0];
-      const checkOutStr = checkOut.toISOString().split('T')[0];
+      const checkInStr = itineraryCheckIn.toISOString().split('T')[0];
+      const checkOutStr = itineraryCheckOut.toISOString().split('T')[0];
 
       // Get Quote
       const quoteBody = {
@@ -700,7 +1851,7 @@
             <div>
               <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${activeProperty.property_type === 'RESORT' ? 'bg-brand/20 text-brand' : 'bg-brand/10 text-brand'}">${activeProperty.property_type}</span>
               <h4 class="font-bold text-xs text-slate-900 dark:text-white mt-1">${activeProperty.name}</h4>
-              <p class="text-[10px] text-slate-500 dark:text-gray-400">${activeRoom.name} • 3 Nights</p>
+              <p class="text-[10px] text-slate-500 dark:text-gray-400">${activeRoom.name} • ${q.total_nights} Nights (${checkInStr} to ${checkOutStr})</p>
             </div>
           </div>
 
@@ -731,19 +1882,18 @@
     }
 
     async function submitBooking() {
-      const today = new Date();
-      const checkIn = new Date(today); checkIn.setDate(today.getDate() + 2);
-      const checkOut = new Date(today); checkOut.setDate(today.getDate() + 5);
+      const checkInStr = itineraryCheckIn.toISOString().split('T')[0];
+      const checkOutStr = itineraryCheckOut.toISOString().split('T')[0];
 
       const reqBody = {
         property_id: activeProperty.id,
-        check_in_date: checkIn.toISOString().split('T')[0],
-        check_out_date: checkOut.toISOString().split('T')[0],
+        check_in_date: checkInStr,
+        check_out_date: checkOutStr,
         guest_count: 2,
         room_items: [{ room_type_id: activeRoom.id, rooms_count: 1 }],
         guide_bundle: selectedGuide ? {
           guide_id: selectedGuide.id,
-          service_date: checkIn.toISOString().split('T')[0],
+          service_date: checkInStr,
           duration_days: 1
         } : null
       };
@@ -792,29 +1942,159 @@
       const icon = document.getElementById('themeIcon');
       if (htmlEl.classList.contains('dark')) {
         htmlEl.classList.remove('dark');
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
+        localStorage.setItem('plane_theme', 'light');
+        if (icon) {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+        }
       } else {
         htmlEl.classList.add('dark');
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
+        localStorage.setItem('plane_theme', 'dark');
+        if (icon) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        }
       }
     }
 
-    function toggleMyTrips() {
+    // Sync icon on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon = document.getElementById('themeIcon');
+      if (icon) {
+        if (document.documentElement.classList.contains('dark')) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        } else {
+          icon.classList.remove('fa-sun');
+          icon.classList.add('fa-moon');
+        }
+      }
+    });
+
+    async function toggleMyTrips() {
       const appBody = document.getElementById('appBody');
+      if (!window.userToken) {
+        await loginBeta();
+      }
       appBody.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full text-center space-y-4 pt-10 animate-slide-up">
-          <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 dark:text-slate-500 text-2xl shadow-inner">
-            <i class="fa-solid fa-suitcase-rolling"></i>
+        <div class="p-2 space-y-4 animate-slide-up">
+          <div class="flex items-center justify-between">
+            <button onclick="restoreExploreFeed()" class="text-xs text-slate-500 hover:text-brand font-bold flex items-center space-x-1 transition">
+              <i class="fa-solid fa-arrow-left text-[10px]"></i>
+              <span>Back to Explore</span>
+            </button>
+            <h3 class="font-black text-sm text-slate-900 dark:text-white">My Reservations</h3>
           </div>
-          <div>
-            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">No trips yet</h3>
-            <p class="text-xs text-slate-500 dark:text-gray-400 mt-1 max-w-[220px] mx-auto">Time to dust off your bags and start planning your next sanctuary escape.</p>
+          <div id="tripsListContainer" class="space-y-3">
+            <div class="flex justify-center py-12"><i class="fa-solid fa-circle-notch fa-spin text-brand text-2xl"></i></div>
           </div>
-          <button onclick="window.location.reload()" class="mt-4 bg-slate-900 dark:bg-brand text-white dark:text-black font-bold text-xs py-2.5 px-6 rounded-xl shadow hover:scale-105 transition">Start Exploring</button>
         </div>
       `;
+
+      try {
+        const res = await fetch(`${API_BASE}/bookings/my-reservations`, {
+          headers: { 'Authorization': `Bearer ${window.userToken}` }
+        });
+        const json = await res.json();
+        const trips = json.data || [];
+        const container = document.getElementById('tripsListContainer');
+
+        if (trips.length === 0) {
+          container.innerHTML = `
+            <div class="flex flex-col items-center justify-center text-center space-y-3 pt-8 animate-slide-up">
+              <div class="w-14 h-14 bg-slate-100 dark:bg-darkcard rounded-full flex items-center justify-center text-slate-400 text-xl shadow-inner">
+                <i class="fa-solid fa-suitcase-rolling"></i>
+              </div>
+              <div>
+                <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">No active trips</h4>
+                <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-1 max-w-[200px] mx-auto">Book your first sanctuary resort or city hotel stay.</p>
+              </div>
+              <button onclick="restoreExploreFeed()" class="bg-brand text-black font-bold text-xs py-2 px-5 rounded-xl shadow hover:scale-105 transition">Explore Now</button>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = trips.map(t => {
+          const isConfirmed = t.status === 'CONFIRMED';
+          const isResort = (t.booking_type || '').includes('RESORT');
+          return `
+            <div class="bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3.5 space-y-2.5 shadow-sm text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${isResort ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'}">${isResort ? 'Resort Stay' : 'City Hotel'}</span>
+                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${isConfirmed ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'}">${t.status}</span>
+              </div>
+              <div>
+                <h4 class="font-black text-sm text-slate-900 dark:text-white">${t.property_name}</h4>
+                <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">
+                  <i class="fa-regular fa-calendar text-brand mr-1"></i>${t.check_in_date} → ${t.check_out_date} (${t.total_nights} nights)
+                </p>
+              </div>
+
+              ${t.guide_item ? `
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-2 flex items-center space-x-2">
+                  <img src="${t.guide_item.guide_photo_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300'}" class="w-8 h-8 rounded-full object-cover">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[10px] font-black text-slate-900 dark:text-white truncate">Bundled Guide: ${t.guide_item.guide_name}</p>
+                    <p class="text-[9px] text-amber-600 dark:text-amber-400 font-semibold">Exclusivity Confirmed for ${t.guide_item.service_date}</p>
+                  </div>
+                </div>
+              ` : ''}
+
+              <div class="flex items-center justify-between pt-1 border-t border-slate-200 dark:border-darkborder text-[11px]">
+                <div class="space-y-0.5">
+                  <span class="text-[9px] text-slate-400 font-semibold">Booking Reference</span>
+                  <p class="font-mono font-bold text-slate-800 dark:text-gray-200">${t.reservation_code}</p>
+                </div>
+                <div class="text-right">
+                  <span class="text-[9px] text-slate-400 font-semibold">Total Paid</span>
+                  <p class="font-black text-slate-900 dark:text-white">$${t.total_amount} ${t.currency}</p>
+                </div>
+              </div>
+
+              ${isConfirmed ? `
+                <div class="pt-1">
+                  <button onclick="cancelBooking('${t.id}')" class="w-full py-1.5 border border-rose-300 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl text-[10px] font-bold transition">
+                    <i class="fa-solid fa-ban mr-1"></i>Cancel Reservation & Auto-Refund
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        document.getElementById('tripsListContainer').innerHTML = `
+          <div class="text-center text-rose-500 py-6 text-xs font-semibold">Failed to load reservations. Please retry.</div>
+        `;
+      }
+    }
+
+    async function cancelBooking(bookingId) {
+      if (!confirm("Are you sure you want to cancel this reservation? Room allocation and guide availability will be released immediately.")) {
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/bookings/${bookingId}/cancel`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.userToken}`
+          }
+        });
+        if (res.ok) {
+          alert("Reservation successfully cancelled. Room inventory restored and refund initiated.");
+          toggleMyTrips();
+        } else {
+          const err = await res.json();
+          alert(`Cancellation error: ${err.detail || 'Could not cancel'}`);
+        }
+      } catch (e) {
+        alert("Failed to reach cancellation endpoint.");
+      }
+    }
+
+    function restoreExploreFeed() {
+      window.location.reload();
     }
 
     window.onload = initConsumerApp;

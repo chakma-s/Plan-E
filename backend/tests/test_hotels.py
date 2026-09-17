@@ -10,15 +10,17 @@ async def test_search_hotels(client: AsyncClient):
     assert res.status_code == 200
     data = res.json()["data"]
     assert len(data) >= 1
-    assert data[0]["property_type"] == "HOTEL"
-    assert data[0]["name"] == "The Grand Metropolis Hotel"
-    assert float(data[0]["min_price_per_night"]) == 220.0
+    assert all(h["property_type"] == "HOTEL" for h in data)
+    hotel = next((h for h in data if h["name"] == "The Grand Metropolis Hotel"), None)
+    assert hotel is not None
+    assert float(hotel["min_price_per_night"]) == 220.0
 
     # 2. Search by City
     res_city = await client.get("/api/v1/hotels?city=San Francisco")
     assert res_city.status_code == 200
     city_data = res_city.json()["data"]
-    assert len(city_data) == 1
+    assert len(city_data) >= 1
+    assert all(h["city"] == "San Francisco" for h in city_data)
 
     # 3. Search by Mapbox Bounding Box (San Francisco Coordinates)
     res_geo = await client.get(
@@ -26,14 +28,15 @@ async def test_search_hotels(client: AsyncClient):
     )
     assert res_geo.status_code == 200
     geo_data = res_geo.json()["data"]
-    assert len(geo_data) == 1
+    assert len(geo_data) >= 1
 
 
 @pytest.mark.asyncio
 async def test_get_hotel_detail(client: AsyncClient):
     # Retrieve hotel ID from search
     search_res = await client.get("/api/v1/hotels")
-    hotel_id = search_res.json()["data"][0]["id"]
+    hotel = next(h for h in search_res.json()["data"] if h["name"] == "The Grand Metropolis Hotel")
+    hotel_id = hotel["id"]
 
     today = date.today()
     check_in = today.isoformat()

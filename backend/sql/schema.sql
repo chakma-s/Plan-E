@@ -205,6 +205,7 @@ CREATE TABLE IF NOT EXISTS resort_guide_associations (
     guide_id UUID NOT NULL REFERENCES local_guides(id) ON DELETE CASCADE,
     is_primary BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT uq_resort_guide UNIQUE (resort_id, guide_id)
 );
 
@@ -304,6 +305,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT chk_review_target CHECK (
         (target_type = 'PROPERTY' AND property_id IS NOT NULL AND guide_id IS NULL) OR
         (target_type = 'GUIDE' AND guide_id IS NOT NULL AND property_id IS NULL)

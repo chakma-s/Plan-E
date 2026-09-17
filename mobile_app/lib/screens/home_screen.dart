@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: IndexedStack(
         index: currentNavIndex,
         children: [
-          // Explore Tab (switches between Hotel and Resort screens based on state)
+          // Explore Tab (conditional switch to avoid concurrent WebGL map instances)
           state.activeJourney == JourneyType.hotel
               ? const HotelSearchScreen()
               : const ResortSearchScreen(),

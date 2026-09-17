@@ -112,6 +112,8 @@ class Reservation(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         CheckConstraint("guest_count > 0", name="chk_guest_count_positive"),
         CheckConstraint("check_out_date > check_in_date", name="chk_checkout_gt_checkin"),
         CheckConstraint("total_amount >= 0", name="chk_total_amount_non_negative"),
+        Index("ix_reservations_user_status", "user_id", "status"),
+        Index("ix_reservations_property_created", "property_id", "created_at"),
     )
 
 

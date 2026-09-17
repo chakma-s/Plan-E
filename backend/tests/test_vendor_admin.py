@@ -34,8 +34,7 @@ async def test_vendor_properties_and_allocations(client: AsyncClient):
     assert props[0]["name"] == "The Grand Metropolis Hotel"
 
     # 2. Update room allocations batch
-    hotel_res = await client.get("/api/v1/hotels")
-    hotel_id = hotel_res.json()["data"][0]["id"]
+    hotel_id = props[0]["id"]
     detail_res = await client.get(f"/api/v1/hotels/{hotel_id}")
     room_type_id = detail_res.json()["data"]["room_types"][0]["id"]
 

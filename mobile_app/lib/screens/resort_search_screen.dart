@@ -17,8 +17,32 @@ class ResortSearchScreen extends StatefulWidget {
 
 class _ResortSearchScreenState extends State<ResortSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  String? _selectedResortId;
   bool withGuidesOnly = false;
   bool isMapView = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onResortSelectedFromMap(String resortId) {
+    setState(() {
+      _selectedResortId = resortId;
+    });
+    final state = Provider.of<AppState>(context, listen: false);
+    final idx = state.resortResults.indexWhere((r) => r.id == resortId);
+    if (idx != -1 && _scrollController.hasClients) {
+      _scrollController.animateTo(
+        idx * 360.0,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +68,7 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
                   controller: _searchController,
                   style: TextStyle(color: AppTheme.getTextColor(context)),
                   decoration: InputDecoration(
-                    hintText: "Search Sanctuary Destinations (e.g. Carmel, Hawaii)",
+                    hintText: "Search Sanctuary Destinations (e.g. Bangalore, Carmel)",
                     prefixIcon: const Icon(Icons.explore, color: AppTheme.resortAccent),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
@@ -107,8 +131,6 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
                     },
                   ),
                   const SizedBox(width: 8),
-
-                  // Map/List View switcher removed because layout is now split 50/50
                 ],
               ),
             ],
@@ -126,22 +148,34 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
                       flex: 1,
                       child: MapboxMapView(
                         properties: state.resortResults,
+                        selectedPropertyId: _selectedResortId,
+                        showBottomMiniCard: false,
+                        onPropertyTap: (prop) => _onResortSelectedFromMap(prop.id),
                         onPropertySelected: (prop) => _navigateToDetail(context, state, prop.id),
                       ),
                     ),
                     // Bottom 50%: List View
                     Expanded(
                       flex: 1,
-                      child: state.resortResults.isEmpty
-                          ? _buildEmptyState(state)
+                      child: state.errorMessage != null
+                          ? _buildErrorState(state)
+                          : state.resortResults.isEmpty
+                              ? _buildEmptyState(state)
                           : ListView.builder(
+                              controller: _scrollController,
                               padding: const EdgeInsets.only(top: 8, bottom: 24),
                               itemCount: state.resortResults.length,
                               itemBuilder: (context, idx) {
                                 final resort = state.resortResults[idx];
                                 return ResortCard(
                                   resort: resort,
+                                  isSelected: resort.id == _selectedResortId,
                                   onTap: () => _navigateToDetail(context, state, resort.id),
+                                  onLocateTap: () {
+                                    setState(() {
+                                      _selectedResortId = resort.id;
+                                    });
+                                  },
                                   onGuideTap: (guide) => _openGuideModal(context, state, guide),
                                 );
                               },
@@ -192,6 +226,37 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
+  }
+
+  Widget _buildErrorState(AppState state) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 56, color: Colors.redAccent),
+            const SizedBox(height: 12),
+            Text(
+              "Unable to load resorts",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.getTextColor(context)),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              state.errorMessage ?? "An unexpected network error occurred.",
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.resortAccent),
+              onPressed: () => state.fetchResorts(),
+              child: const Text("Try Again"),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildEmptyState(AppState state) {

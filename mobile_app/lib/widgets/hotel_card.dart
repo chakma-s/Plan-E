@@ -6,8 +6,16 @@ import '../theme/app_theme.dart';
 class HotelCard extends StatelessWidget {
   final HotelCardModel hotel;
   final VoidCallback onTap;
+  final bool isSelected;
+  final VoidCallback? onLocateTap;
 
-  const HotelCard({super.key, required this.hotel, required this.onTap});
+  const HotelCard({
+    super.key,
+    required this.hotel,
+    required this.onTap,
+    this.isSelected = false,
+    this.onLocateTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +26,10 @@ class HotelCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.divider),
+          border: Border.all(
+            color: isSelected ? AppTheme.hotelAccent : AppTheme.divider,
+            width: isSelected ? 2.5 : 1.0,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
@@ -182,6 +193,37 @@ class HotelCard extends StatelessWidget {
                         ),
                       );
                     }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (onLocateTap != null)
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              side: BorderSide(color: isSelected ? AppTheme.hotelAccent : AppTheme.divider),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: onLocateTap,
+                            icon: const Icon(Icons.location_searching, size: 14, color: AppTheme.hotelAccent),
+                            label: const Text("Show on Map", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.hotelAccent)),
+                          ),
+                        ),
+                      if (onLocateTap != null) const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.hotelAccent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: onTap,
+                          child: const Text("View Rooms", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

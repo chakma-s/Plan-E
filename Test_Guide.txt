@@ -1,0 +1,144 @@
+### Demo Accounts & Credentials
+  All demo accounts share the same password:
+  • Password: Password123!
+  • Traveler: john.doe@example.com (John Doe)
+  • Hotel Host: host@grandmetropolis.com
+  • Resort Host: host@azurebayresort.com
+  • Admin: admin@plane-travel.com
+  (Note: Each portal also has a 1-click "Demo Login" button in its
+  navigation header for instant access.)
+  ──────
+  ### Step 1: Start the Backend & Database Stack
+
+  Run this command in your terminal from the project root (/home/chakma-
+  s/Desktop/Plan-E):
+    docker compose up -d --build
+  Verify that all three services (plane_postgres, plane_api,
+  plane_web_proxy) are healthy:
+    docker compose ps
+
+  To watch transactional logs (emails, booking events, allocation locks,
+  refund hooks) in real time:
+    docker compose logs -f api
+  ──────
+  ### Step 2: Open the Multi-Role Browser Session
+
+  Open your web browser (Chrome or Firefox) and arrange your windows side-
+  by-side:
+
+   Role                  | Browser URL           | Primary Purpose
+  -----------------------|-----------------------|------------------------
+   🌐 Master Launchpad   | http://localhost:8000 | Overview hub and quick
+                         | / (or                 | navigation
+                         | http://localhost/)    |
+   📱 Traveler Simulator | http://localhost:8000 | Booking hotels,
+                         | /consumer             | resorts & bundled
+                         |                       | guides
+   🏨 Vendor Portal      | http://localhost:8000 | Real-time room
+                         | /vendor               | allocations & guide
+                         |                       | rosters
+   🛡️ Admin Dashboard    | http://localhost:8000 | Platform metrics, fee
+                         | /admin                | oversight & guide
+                         |                       | vetting
+   📖 API Docs (Swagger) | http://localhost:8000 | Direct endpoint
+                         | /api/v1/docs          | inspection
+  ──────
+  ### Step 3: Test Hotel Search, Extra Images & Room Selection Flow
+
+  1. Switch to the Traveler Simulator tab (http://localhost/consumer or http://localhost:8000/consumer).
+  2. Ensure you are on the "City Hotels" tab.
+  3. Click the "Interactive Map" toggle button to view Mapbox pins for city properties.
+  4. Notice the camera badge on each card (e.g. "📷 6 Photos"). Click "View Rooms & Photos" on any hotel (e.g., "Grand Metropolis Hotel" or "ITC Gardenia Luxury Hotel").
+  5. In the Destination & Room Explorer Modal:
+      • Tap the thumbnail strip below the hero photo to switch images, or click "View Fullscreen" for high-resolution lightbox.
+      • Scroll down to "Available Rooms & Suites": inspect each room type's photo thumbnail, bed configuration, occupancy, and rate.
+      • Tap any room's photo badge to open the room-specific photo gallery.
+      • Select your preferred suite radio button (notice the sticky reservation bar updates rate dynamically).
+      • Click "Reserve Selected Room".
+  6. In Checkout:
+      • Inspect the pricing breakdown: Selected Room cost + 5% Platform Fee + Lodging Tax.
+      • Click "Confirm & Reserve".
+  7. Expected Result: A booking confirmation popup appears with your selected room and unique reservation code (PLN-...). Docker logs show formatted booking confirmation.
+  ──────
+  ### Step 4: Test Resort Experience, Extra Images & Local Guide Bundling
+
+  1. On the Traveler Simulator, toggle to the "Sanctuary Resorts" tab.
+  2. Click "Explore & Rooms" on an experiential resort (e.g., "Azure Bay Ocean Resort" or "Azure Coral Bay Beach Resort & Spa").
+  3. Explore resort gallery images, thumbnails, and room types.
+  4. In the property view, scroll to the "Certified Local Guides" section.
+  5. Click on a certified guide (e.g., Elena Silva or Tenzin Norbu):
+      • Inspect their modal sheet: spoken languages, bio, daily fee, and verified badges.
+      • Click "Bundle Guide with Resort".
+  6. Proceed to "Reserve Experience" / "Reserve Selected Room":
+      • Verify the composite price breakdown: Room cost + Guide service fee + Platform fee + Lodging tax.
+      • Click "Confirm & Complete Booking".
+  7. Expected Result: A composite reservation is created. The terminal log outputs both a Traveler Confirmation and an immediate Guide Dispatch Alert.
+  ──────
+  ### Step 5: Verify Inventory Locking in the Vendor Portal
+
+  1. Switch to the Vendor Portal tab (http://localhost:8000/vendor).
+  2. If prompted, click "Demo Login" or log in with host@azurebayresort.
+  com.
+  3. Check the Room Allocation Matrix:
+      • Observe that the Booked count incremented by 1 and available slots
+      decreased accordingly.
+  4. Check the Guide Roster & Schedule:
+      • Notice that the booked guide's availability for that date is now
+      marked as BOOKED / LOCKED.
+
+  ──────
+  ### Step 6: Test "My Trips" Dashboard & Instant Cancellation / Auto-    
+  Refund
+
+  1. Return to the Traveler Simulator tab (http://localhost:8000/consumer).
+  2. Click the Bookmark / Trips icon (fa-bookmark) in the top navigation
+  bar.
+  3. You will see the "My Reservations" dashboard:
+      • Both your Hotel stay and your Resort stay with the bundled guide
+      card will appear.
+  4. Locate one of your active confirmed bookings and click "Cancel
+  Reservation & Auto-Refund":
+      • Confirm the prompt.
+  5. Expected Result:
+      • The reservation status changes to CANCELLED.
+      • Look at your terminal logs: you will see the pluggable
+      PaymentGateway refund hook triggered and a cancellation confirmation
+      logged.
+      • Return to the Vendor Portal tab: refresh or view the allocation
+      matrix to verify the room allocation count decreased by 1 and guide
+      availability was restored.
+
+  ──────
+  ### Step 7: Test Internal Admin Operations
+
+  1. Open the Admin Dashboard tab (http://localhost:8000/admin).
+  2. Click "Demo Login" or enter admin@plane-travel.com.
+  3. Verify:
+      • System telemetry counters (Total Bookings, Platform GMV, Platform
+      Fees earned).
+      • Vendor & Guide certification lists.
+      • Recent system reservation audit log.
+
+  ──────
+  ### Step 8 (Optional): Run the Native Mobile Client via Flutter Web
+
+  If you want to test the native Flutter mobile client without taxing your
+  CPU/RAM:
+
+    cd mobile_app
+    flutter run -d chrome
+
+  Once Chrome launches:
+
+  1. Press F12 to open Chrome DevTools.
+  2. Press Ctrl + Shift + M to toggle Device Toolbar (select iPhone 14 Pro
+  or Pixel 7).
+  3. You can now test the mobile search UI, segmented control, and guide
+  sheets in a mobile viewport.
+  ──────
+  ### Resetting Test Data
+
+  If at any point your test bookings or allocations become cluttered,
+  reset the database to a clean seed state in 5 seconds with:
+
+    docker compose down -v && docker compose up -d

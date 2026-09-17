@@ -30,6 +30,8 @@ async def search_resorts(
     max_lon: Optional[Decimal] = Query(None, description="Mapbox east longitude"),
     with_guides_only: bool = Query(False, description="Only show resorts with available certified local guides"),
     sort_by: str = Query("featured", description="Sorting: featured, price_asc, rating_desc"),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Page size"),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -48,6 +50,8 @@ async def search_resorts(
         max_lon=max_lon,
         with_guides_only=with_guides_only,
         sort_by=sort_by,
+        page=page,
+        page_size=page_size,
     )
     resorts = await ResortService.search_resorts(db, params)
     return APIResponse(data=resorts)

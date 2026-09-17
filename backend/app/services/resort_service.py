@@ -100,7 +100,7 @@ class ResortService:
                     for day_idx in range(stay_days):
                         target_d = check_in + timedelta(days=day_idx)
                         av = guide_avail_map.get(target_d)
-                        if not av or not av.is_available or av.is_booked:
+                        if av and (not av.is_available or av.is_booked):
                             is_guide_free = False
                             break
 
@@ -152,7 +152,11 @@ class ResortService:
         elif params.sort_by == "rating_desc":
             cards.sort(key=lambda x: (x.star_rating, x.review_score), reverse=True)
 
-        return cards
+        # Pagination slice
+        page = max(1, params.page)
+        page_size = min(100, max(1, params.page_size))
+        offset = (page - 1) * page_size
+        return cards[offset : offset + page_size]
 
     @staticmethod
     async def get_resort_detail(

@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     vendor,
     admin,
     reviews,
+    compliance,
 )
 
 api_router = APIRouter()
@@ -19,5 +20,5 @@ api_router.include_router(guides.router, prefix="/guides", tags=["Local Guides"]
 api_router.include_router(bookings.router, prefix="/bookings", tags=["Bookings & Allocation Engine"])
 api_router.include_router(vendor.router, prefix="/vendor", tags=["Vendor Portal"])
 api_router.include_router(admin.router, prefix="/admin", tags=["Internal Admin"])
-
 api_router.include_router(reviews.router, prefix="/reviews", tags=["Reviews"])
+api_router.include_router(compliance.router, prefix="/compliance", tags=["Global Compliance & Policies"])

@@ -28,14 +28,32 @@ async def get_my_properties(
     props = await VendorService.get_vendor_properties(db, profile.id)
     data = [
         {
-            "id": p.id,
+            "id": str(p.id),
             "property_type": p.property_type.value,
             "name": p.name,
             "slug": p.slug,
+            "tagline": p.tagline,
+            "description": p.description,
+            "address": p.address,
             "city": p.city,
+            "state": p.state,
+            "country": p.country,
+            "latitude": float(p.latitude),
+            "longitude": float(p.longitude),
             "star_rating": float(p.star_rating),
+            "cover_image_url": p.cover_image_url,
+            "amenities": p.amenities or [],
             "is_published": p.is_published,
             "room_types_count": len(p.room_types),
+            "room_types": [
+                {
+                    "id": str(r.id),
+                    "name": r.name,
+                    "base_price_per_night": float(r.base_price_per_night),
+                    "max_occupancy": r.max_occupancy,
+                }
+                for r in p.room_types
+            ],
         }
         for p in props
     ]
@@ -58,7 +76,7 @@ async def create_property(
 
 @router.post("/rooms", response_model=APIResponse[dict], status_code=status.HTTP_201_CREATED)
 async def create_room_type(
-    room_in: RoomTypeCreate, RoomTypeUpdate,
+    room_in: RoomTypeCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_vendor),
 ):

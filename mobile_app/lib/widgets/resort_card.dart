@@ -7,12 +7,16 @@ class ResortCard extends StatelessWidget {
   final ResortCardModel resort;
   final VoidCallback onTap;
   final Function(LocalGuideModel)? onGuideTap;
+  final bool isSelected;
+  final VoidCallback? onLocateTap;
 
   const ResortCard({
     super.key,
     required this.resort,
     required this.onTap,
     this.onGuideTap,
+    this.isSelected = false,
+    this.onLocateTap,
   });
 
   @override
@@ -24,7 +28,10 @@ class ResortCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.divider),
+          border: Border.all(
+            color: isSelected ? AppTheme.resortAccent : AppTheme.divider,
+            width: isSelected ? 2.5 : 1.0,
+          ),
           boxShadow: [
             BoxShadow(
               color: AppTheme.resortAccent.withOpacity(0.08),
@@ -132,21 +139,26 @@ class ResortCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Location text on image
+                // Location text on image (constrained to prevent overlap with price badge)
                 Positioned(
                   bottom: 14,
                   left: 14,
+                  right: 155,
                   child: Row(
                     children: [
                       const Icon(Icons.location_on, color: Colors.white, size: 14),
                       const SizedBox(width: 4),
-                      Text(
-                        "${resort.city}, ${resort.country}",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+                      Expanded(
+                        child: Text(
+                          "${resort.city}, ${resort.country}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -302,6 +314,37 @@ class ResortCard extends StatelessWidget {
                         ],
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (onLocateTap != null)
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              side: BorderSide(color: isSelected ? AppTheme.resortAccent : AppTheme.divider),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            onPressed: onLocateTap,
+                            icon: const Icon(Icons.location_searching, size: 14, color: AppTheme.resortAccent),
+                            label: const Text("Show on Map", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.resortAccent)),
+                          ),
+                        ),
+                      if (onLocateTap != null) const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.resortAccent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: onTap,
+                          child: const Text("View Sanctuary", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
