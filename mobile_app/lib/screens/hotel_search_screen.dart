@@ -18,7 +18,6 @@ class HotelSearchScreen extends StatefulWidget {
 class _HotelSearchScreenState extends State<HotelSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final PageController _pageController = PageController(viewportFraction: 0.88);
   String? _selectedHotelId;
   String selectedSort = 'recommended';
 
@@ -26,8 +25,19 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
-    _pageController.dispose();
     super.dispose();
+  }
+
+  void _scrollToHotel(String id, List<HotelCardModel> list) {
+    final idx = list.indexWhere((h) => h.id == id);
+    if (idx != -1 && _scrollController.hasClients) {
+      final target = (idx * 320.0).clamp(0.0, _scrollController.position.maxScrollExtent);
+      _scrollController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -48,17 +58,18 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                 decoration: BoxDecoration(
                   color: AppTheme.getSurfaceColor(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.getDividerColor(context)),
+                  border: Border.all(color: AppTheme.getInputBorderColor(context)),
                 ),
                 child: TextField(
                   controller: _searchController,
                   style: TextStyle(color: AppTheme.getTextColor(context)),
                   decoration: InputDecoration(
                     hintText: "Where to? (e.g. Bangalore, San Francisco)",
+                    hintStyle: TextStyle(color: AppTheme.getSecondaryTextColor(context), fontSize: 13),
                     prefixIcon: const Icon(Icons.search, color: AppTheme.hotelAccent),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: Icon(Icons.clear, size: 18, color: AppTheme.getSecondaryTextColor(context)),
                             onPressed: () {
                               _searchController.clear();
                               state.fetchHotels();
@@ -83,7 +94,8 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        side: BorderSide(color: AppTheme.getDividerColor(context)),
+                        backgroundColor: AppTheme.getSurfaceColor(context),
+                        side: BorderSide(color: AppTheme.getInputBorderColor(context)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () => _selectDateRange(context, state),
@@ -100,7 +112,8 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      side: BorderSide(color: AppTheme.getDividerColor(context)),
+                      backgroundColor: AppTheme.getSurfaceColor(context),
+                      side: BorderSide(color: AppTheme.getInputBorderColor(context)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {},
@@ -111,14 +124,26 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                      side: BorderSide(color: AppTheme.getDividerColor(context)),
+                      backgroundColor: isMapView ? AppTheme.brandColor.withValues(alpha: 0.12) : AppTheme.getSurfaceColor(context),
+                      side: BorderSide(color: isMapView ? AppTheme.brandColor : AppTheme.getInputBorderColor(context)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     onPressed: () {
                       state.toggleHotelMapView();
                     },
-                    icon: Icon(isMapView ? Icons.list : Icons.map, size: 14, color: AppTheme.hotelAccent),
-                    label: Text(isMapView ? "List" : "Map", style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600)),
+                    icon: Icon(
+                      isMapView ? Icons.list : Icons.map,
+                      size: 14,
+                      color: isMapView ? AppTheme.getBrandTextColor(context) : AppTheme.brandColor,
+                    ),
+                    label: Text(
+                      isMapView ? "List" : "Map",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isMapView ? AppTheme.getBrandTextColor(context) : AppTheme.getTextColor(context),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -126,7 +151,120 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
           ),
         ),
 
-        // Body: Map View with Bottom Carousel or List View
+        // Locked Map Section when Map is shown
+        if (isMapView)
+          Container(
+            height: 290,
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            decoration: BoxDecoration(
+              color: AppTheme.getCardColor(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppTheme.getBorderColor(context)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                // Map Header Bar matching Web
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.getCardColor(context),
+                    border: Border(bottom: BorderSide(color: AppTheme.getBorderColor(context))),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                            decoration: BoxDecoration(
+                              color: AppTheme.brandColor.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.location_on, size: 10, color: AppTheme.getBrandTextColor(context)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "Map Explorer",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.getBrandTextColor(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Interactive property pins",
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.getSecondaryTextColor(context),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: () => state.toggleHotelMapView(),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.getSurfaceColor(context),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppTheme.getInputBorderColor(context)),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.visibility_off, size: 11, color: AppTheme.getBrandTextColor(context)),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Hide",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.getTextColor(context),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Vector Map
+                Expanded(
+                  child: MapboxMapView(
+                    key: const ValueKey('hotel_mapbox_map_view'),
+                    properties: state.hotelResults,
+                    selectedPropertyId: _selectedHotelId,
+                    showBottomMiniCard: false,
+                    onPropertyTap: (prop) {
+                      setState(() {
+                        _selectedHotelId = prop.id;
+                      });
+                      _scrollToHotel(prop.id, state.hotelResults);
+                    },
+                    onPropertySelected: (prop) => _navigateToDetail(context, state, prop.id),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        // Vertically Scrollable List of Hotels
         Expanded(
           child: state.isLoading
               ? ListView.builder(
@@ -134,58 +272,13 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                   itemCount: 3,
                   itemBuilder: (context, index) => const SkeletonCard(),
                 )
-              : isMapView
-                  ? Stack(
-                      children: [
-                        MapboxMapView(
-                          properties: state.hotelResults,
-                          selectedPropertyId: _selectedHotelId,
-                          showBottomMiniCard: false,
-                          onPropertyTap: (prop) {
-                            setState(() {
-                              _selectedHotelId = prop.id;
-                            });
-                            final idx = state.hotelResults.indexWhere((h) => h.id == prop.id);
-                            if (idx != -1 && _pageController.hasClients) {
-                              _pageController.animateToPage(
-                                idx,
-                                duration: const Duration(milliseconds: 350),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          onPropertySelected: (prop) => _navigateToDetail(context, state, prop.id),
-                        ),
-                        if (state.hotelResults.isNotEmpty)
-                          Positioned(
-                            bottom: 16,
-                            left: 0,
-                            right: 0,
-                            height: 110,
-                            child: PageView.builder(
-                              controller: _pageController,
-                              itemCount: state.hotelResults.length,
-                              onPageChanged: (idx) {
-                                final h = state.hotelResults[idx];
-                                setState(() {
-                                  _selectedHotelId = h.id;
-                                });
-                              },
-                              itemBuilder: (context, idx) {
-                                final h = state.hotelResults[idx];
-                                return _buildCarouselCard(context, state, h);
-                              },
-                            ),
-                          ),
-                      ],
-                    )
-                  : state.errorMessage != null
-                      ? _buildErrorState(state)
-                      : state.hotelResults.isEmpty
-                          ? _buildEmptyState(state)
+              : state.errorMessage != null
+                  ? _buildErrorState(state)
+                  : state.hotelResults.isEmpty
+                      ? _buildEmptyState(state)
                       : ListView.builder(
                           controller: _scrollController,
-                          padding: const EdgeInsets.only(top: 8, bottom: 24),
+                          padding: const EdgeInsets.only(top: 4, bottom: 24),
                           itemCount: state.hotelResults.length,
                           itemBuilder: (context, idx) {
                             final hotel = state.hotelResults[idx];
@@ -197,97 +290,15 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
                                 setState(() {
                                   _selectedHotelId = hotel.id;
                                 });
-                                state.toggleHotelMapView();
+                                if (!state.isHotelMapView) {
+                                  state.toggleHotelMapView();
+                                }
                               },
                             );
                           },
                         ),
         ),
       ],
-    );
-  }
-
-  Widget _buildCarouselCard(BuildContext context, AppState state, HotelCardModel h) {
-    final isSelected = h.id == _selectedHotelId;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedHotelId = h.id;
-        });
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppTheme.hotelAccent : AppTheme.divider,
-            width: isSelected ? 2.5 : 1.0,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.12),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                h.coverImageUrl,
-                width: 80,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 80,
-                  color: Colors.grey.shade200,
-                  child: const Icon(Icons.hotel, color: Colors.grey),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    h.name,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "${h.city} • ★ ${h.reviewScore.toStringAsFixed(1)}",
-                    style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "\$${h.minPricePerNight.toStringAsFixed(0)} / night",
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppTheme.hotelAccent),
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.hotelAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                minimumSize: Size.zero,
-              ),
-              onPressed: () => _navigateToDetail(context, state, h.id),
-              child: const Text("View", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -318,7 +329,9 @@ class _HotelSearchScreenState extends State<HotelSearchScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     }
   }
 

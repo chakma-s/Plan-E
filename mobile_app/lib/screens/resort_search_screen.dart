@@ -20,7 +20,6 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
   final ScrollController _scrollController = ScrollController();
   String? _selectedResortId;
   bool withGuidesOnly = false;
-  bool isMapView = false;
 
   @override
   void dispose() {
@@ -29,16 +28,13 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
     super.dispose();
   }
 
-  void _onResortSelectedFromMap(String resortId) {
-    setState(() {
-      _selectedResortId = resortId;
-    });
-    final state = Provider.of<AppState>(context, listen: false);
-    final idx = state.resortResults.indexWhere((r) => r.id == resortId);
+  void _scrollToResort(String id, List<ResortCardModel> list) {
+    final idx = list.indexWhere((r) => r.id == id);
     if (idx != -1 && _scrollController.hasClients) {
+      final target = (idx * 340.0).clamp(0.0, _scrollController.position.maxScrollExtent);
       _scrollController.animateTo(
-        idx * 360.0,
-        duration: const Duration(milliseconds: 400),
+        target,
+        duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
       );
     }
@@ -47,6 +43,7 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final state = Provider.of<AppState>(context);
+    final isMapView = state.isResortMapView;
 
     return Column(
       children: [
@@ -61,18 +58,19 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
               Container(
                 decoration: BoxDecoration(
                   color: AppTheme.getSurfaceColor(context),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppTheme.getDividerColor(context)),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.getInputBorderColor(context)),
                 ),
                 child: TextField(
                   controller: _searchController,
                   style: TextStyle(color: AppTheme.getTextColor(context)),
                   decoration: InputDecoration(
-                    hintText: "Search Sanctuary Destinations (e.g. Bangalore, Carmel)",
-                    prefixIcon: const Icon(Icons.explore, color: AppTheme.resortAccent),
+                    hintText: "Where to? (e.g. Bangalore, Carmel)",
+                    hintStyle: TextStyle(color: AppTheme.getSecondaryTextColor(context), fontSize: 13),
+                    prefixIcon: const Icon(Icons.search, color: AppTheme.resortAccent),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: Icon(Icons.clear, size: 18, color: AppTheme.getSecondaryTextColor(context)),
                             onPressed: () {
                               _searchController.clear();
                               state.fetchResorts();
@@ -97,11 +95,12 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                        side: BorderSide(color: AppTheme.getDividerColor(context)),
+                        backgroundColor: AppTheme.getSurfaceColor(context),
+                        side: BorderSide(color: AppTheme.getInputBorderColor(context)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () => _selectDateRange(context, state),
-                      icon: const Icon(Icons.calendar_month, size: 14, color: AppTheme.resortAccent),
+                      icon: const Icon(Icons.calendar_today, size: 14, color: AppTheme.resortAccent),
                       label: Text(
                         state.displayDateRange,
                         style: TextStyle(fontSize: 11, color: AppTheme.getTextColor(context), fontWeight: FontWeight.w600),
@@ -114,12 +113,22 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
 
                   // Guide Only Filter Pill
                   FilterChip(
-                    avatar: const Icon(Icons.verified_user, size: 14, color: AppTheme.guideGold),
-                    label: const Text("Bundled Guides", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                    backgroundColor: AppTheme.getSurfaceColor(context),
+                    avatar: const Icon(Icons.verified_user, size: 14, color: AppTheme.brandColor),
+                    label: Text(
+                      "Guides",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: withGuidesOnly ? AppTheme.getBrandTextColor(context) : AppTheme.getTextColor(context),
+                      ),
+                    ),
                     selected: withGuidesOnly,
-                    selectedColor: AppTheme.guideLight,
-                    checkmarkColor: AppTheme.guideGold,
-                    side: BorderSide(color: withGuidesOnly ? AppTheme.guideGold : AppTheme.divider),
+                    selectedColor: AppTheme.brandColor.withValues(alpha: 0.15),
+                    checkmarkColor: AppTheme.getBrandTextColor(context),
+                    side: BorderSide(color: withGuidesOnly ? AppTheme.brandColor : AppTheme.getInputBorderColor(context)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     onSelected: (selected) {
                       setState(() {
                         withGuidesOnly = selected;
@@ -131,58 +140,181 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
                     },
                   ),
                   const SizedBox(width: 8),
+
+                  // Map/List View Toggle Button
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      backgroundColor: isMapView ? AppTheme.brandColor.withValues(alpha: 0.12) : AppTheme.getSurfaceColor(context),
+                      side: BorderSide(color: isMapView ? AppTheme.brandColor : AppTheme.getInputBorderColor(context)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {
+                      state.toggleResortMapView();
+                    },
+                    icon: Icon(
+                      isMapView ? Icons.list : Icons.map,
+                      size: 14,
+                      color: isMapView ? AppTheme.getBrandTextColor(context) : AppTheme.brandColor,
+                    ),
+                    label: Text(
+                      isMapView ? "List" : "Map",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isMapView ? AppTheme.getBrandTextColor(context) : AppTheme.getTextColor(context),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
         ),
 
-        // Body: 50% Map View / 50% List View
+        // Locked Map Section when Map is shown
+        if (isMapView)
+          Container(
+            height: 290,
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            decoration: BoxDecoration(
+              color: AppTheme.getCardColor(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppTheme.getBorderColor(context)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                // Map Header Bar matching Web
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.getCardColor(context),
+                    border: Border(bottom: BorderSide(color: AppTheme.getBorderColor(context))),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                            decoration: BoxDecoration(
+                              color: AppTheme.brandColor.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.location_on, size: 10, color: AppTheme.getBrandTextColor(context)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  "Map Explorer",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.getBrandTextColor(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Interactive property pins",
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppTheme.getSecondaryTextColor(context),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: () => state.toggleResortMapView(),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.getSurfaceColor(context),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppTheme.getInputBorderColor(context)),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.visibility_off, size: 11, color: AppTheme.getBrandTextColor(context)),
+                              const SizedBox(width: 4),
+                              Text(
+                                "Hide",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.getTextColor(context),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Vector Map
+                Expanded(
+                  child: MapboxMapView(
+                    key: const ValueKey('resort_mapbox_map_view'),
+                    properties: state.resortResults,
+                    selectedPropertyId: _selectedResortId,
+                    showBottomMiniCard: false,
+                    onPropertyTap: (prop) {
+                      setState(() {
+                        _selectedResortId = prop.id;
+                      });
+                      _scrollToResort(prop.id, state.resortResults);
+                    },
+                    onPropertySelected: (prop) => _navigateToDetail(context, state, prop.id),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        // Vertically Scrollable List of Resorts
         Expanded(
           child: state.isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppTheme.resortAccent))
-              : Column(
-                  children: [
-                    // Top 50%: Map View
-                    Expanded(
-                      flex: 1,
-                      child: MapboxMapView(
-                        properties: state.resortResults,
-                        selectedPropertyId: _selectedResortId,
-                        showBottomMiniCard: false,
-                        onPropertyTap: (prop) => _onResortSelectedFromMap(prop.id),
-                        onPropertySelected: (prop) => _navigateToDetail(context, state, prop.id),
-                      ),
-                    ),
-                    // Bottom 50%: List View
-                    Expanded(
-                      flex: 1,
-                      child: state.errorMessage != null
-                          ? _buildErrorState(state)
-                          : state.resortResults.isEmpty
-                              ? _buildEmptyState(state)
-                          : ListView.builder(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.only(top: 8, bottom: 24),
-                              itemCount: state.resortResults.length,
-                              itemBuilder: (context, idx) {
-                                final resort = state.resortResults[idx];
-                                return ResortCard(
-                                  resort: resort,
-                                  isSelected: resort.id == _selectedResortId,
-                                  onTap: () => _navigateToDetail(context, state, resort.id),
-                                  onLocateTap: () {
-                                    setState(() {
-                                      _selectedResortId = resort.id;
-                                    });
-                                  },
-                                  onGuideTap: (guide) => _openGuideModal(context, state, guide),
-                                );
+              ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+              : state.errorMessage != null
+                  ? _buildErrorState(state)
+                  : state.resortResults.isEmpty
+                      ? _buildEmptyState(state)
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.only(top: 4, bottom: 24),
+                          itemCount: state.resortResults.length,
+                          itemBuilder: (context, idx) {
+                            final resort = state.resortResults[idx];
+                            return ResortCard(
+                              resort: resort,
+                              isSelected: resort.id == _selectedResortId,
+                              onTap: () => _navigateToDetail(context, state, resort.id),
+                              onLocateTap: () {
+                                setState(() {
+                                  _selectedResortId = resort.id;
+                                });
+                                if (!state.isResortMapView) {
+                                  state.toggleResortMapView();
+                                }
                               },
-                            ),
-                    ),
-                  ],
-                ),
+                              onGuideTap: (guide) => _openGuideModal(context, state, guide),
+                            );
+                          },
+                        ),
         ),
       ],
     );
@@ -224,7 +356,9 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     }
   }
 
@@ -249,9 +383,9 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.resortAccent),
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.black),
               onPressed: () => state.fetchResorts(),
-              child: const Text("Try Again"),
+              child: const Text("Try Again", style: TextStyle(fontWeight: FontWeight.w800)),
             ),
           ],
         ),
@@ -277,7 +411,7 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.resortAccent),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.black),
             onPressed: () {
               _searchController.clear();
               setState(() {
@@ -285,7 +419,7 @@ class _ResortSearchScreenState extends State<ResortSearchScreen> {
               });
               state.fetchResorts();
             },
-            child: const Text("Reset Filters"),
+            child: const Text("Reset Filters", style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),

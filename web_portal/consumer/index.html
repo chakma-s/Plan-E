@@ -31,11 +31,35 @@
     .leaflet-pane { z-index: 10 !important; }
     .leaflet-top, .leaflet-bottom { z-index: 11 !important; }
     .custom-map-pin { background: none; border: none; }
+    /* Sleek scrollbar matching locked layout */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.35);
+      border-radius: 9999px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+    }
+    html {
+      scrollbar-gutter: stable;
+    }
+    .theme-transitioning,
+    .theme-transitioning *,
+    .theme-transitioning *::before,
+    .theme-transitioning *::after {
+      transition: none !important;
+    }
   </style>
   <script>
     (function() {
       const savedTheme = localStorage.getItem('plane_theme');
-      if (savedTheme === 'dark') {
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
@@ -43,13 +67,13 @@
     })();
   </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex flex-col transition-colors">
 
-  <!-- Main Application Container (Full Desktop Web by Default, with optional Mobile Frame) -->
-  <div id="appShell" class="w-full min-h-screen flex flex-col relative">
+  <!-- Main Application Container (Full Desktop Web by Default, with Mobile Frame Simulation) -->
+  <div id="appShell" class="w-full h-screen flex flex-col relative bg-slate-50 dark:bg-black text-slate-900 dark:text-white transition-all overflow-hidden">
     
-    <!-- Top Status Bar Mock (Only active in Mobile Phone Frame Mode) -->
-    <div id="mobileStatusBar" class="hidden h-6 bg-slate-900 flex items-center justify-between px-6 text-[10px] text-white font-medium">
+    <!-- Top Status Bar Mock (Only active in Mobile Phone Simulation Mode) -->
+    <div id="mobileStatusBar" class="hidden h-6 bg-slate-900 flex items-center justify-between px-6 text-[10px] text-white font-medium shrink-0">
       <span>9:41</span>
       <div class="flex items-center space-x-1.5">
         <i class="fa-solid fa-signal"></i>
@@ -59,143 +83,224 @@
     </div>
 
     <!-- App Header -->
-    <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 transition-colors">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5">
+    <header class="bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-b border-slate-200 dark:border-[#2a2a2a] shrink-0 z-30 transition-colors">
+      <div id="headerContainer" class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 transition-all">
         <div class="flex items-center justify-between gap-3">
           <!-- Brand -->
-          <div class="flex items-center space-x-2.5 shrink-0">
-            <a href="/" title="Back to Ecosystem Launchpad" class="w-9 h-9 rounded-xl bg-slate-900 dark:bg-brand dark:text-black flex items-center justify-center text-white font-black text-sm shadow-md hover:scale-105 transition shrink-0">
-              <i class="fa-solid fa-plane-departure text-xs"></i>
+          <div class="flex items-center space-x-3 shrink-0">
+            <a href="/" title="Back to Ecosystem Launchpad" class="flex items-center space-x-2.5 group hover:opacity-90 transition shrink-0">
+              <div class="relative w-[140.4px] h-8 shrink-0 group-hover:scale-105 transition-transform">
+                <img src="/assets/logo_light.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain dark:hidden">
+                <img src="/assets/logo_dark.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain hidden dark:block">
+              </div>
+              <span id="travelerWebBadge" class="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand border border-brand/30">Traveler Web</span>
             </a>
-            <div class="flex items-center space-x-2">
-              <span class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white">Plan-E</span>
-              <span class="hidden sm:inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand border border-brand/30">Traveler Web</span>
-            </div>
           </div>
 
-          <!-- DUAL-JOURNEY SEGMENTED SWITCHER (Centered on desktop) -->
-          <div id="desktopJourneySwitcher" class="hidden lg:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner w-72 shrink-0">
-            <!-- Tab 1: City Hotels -->
-            <button id="tab-hotel" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400">
+          <!-- DUAL-JOURNEY SEGMENTED CONTROL: Centered for Desktop Web (lg:flex) -->
+          <div id="desktopJourneySwitcher" class="hidden lg:flex bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-2xl border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-72 shrink-0">
+            <button id="tab-hotel" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-sm">
               <i class="fa-solid fa-hotel text-xs"></i>
-              <span>City Hotels</span>
+              <span class="tracking-wide">HOTELS</span>
             </button>
-            <!-- Tab 2: Resorts & Guides -->
-            <button id="tab-resort" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab">
+            <button id="tab-resort" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
               <i class="fa-solid fa-umbrella-beach text-xs"></i>
-              <span>Resorts & Guides</span>
+              <span class="tracking-wide">RESORTS</span>
             </button>
           </div>
 
           <!-- Right Controls -->
-          <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+          <div class="flex items-center space-x-2 sm:space-x-2.5 shrink-0">
             <!-- View Switcher: Desktop Web vs Phone Frame (Simulation Tool) -->
-            <button onclick="toggleDeviceSimulation()" id="deviceToggleBtn" title="Switch between Full Desktop Web and Phone Frame" class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-brand text-slate-700 dark:text-slate-300 transition shadow-xs shrink-0">
+            <button onclick="toggleDeviceSimulation()" id="deviceToggleBtn" title="Switch between Full Desktop Web and Mobile App Simulation" class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] hover:border-brand text-slate-700 dark:text-slate-300 transition shadow-xs shrink-0">
               <i id="deviceToggleIcon" class="fa-solid fa-mobile-screen text-xs text-brand"></i>
-              <span id="deviceToggleText" class="hidden sm:inline">Mobile Frame</span>
+              <span id="deviceToggleText" class="text-xs">Mobile View</span>
             </button>
 
             <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="Toggle Theme">
-              <i id="themeIcon" class="fa-solid fa-moon text-xs"></i>
+            <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] flex items-center justify-center text-brand hover:opacity-80 transition shadow-xs shrink-0" title="Toggle Theme">
+              <i id="themeIcon" class="fa-solid fa-moon text-base text-brand w-5 text-center flex items-center justify-center"></i>
             </button>
 
-            <!-- My Trips -->
-            <button onclick="toggleMyTrips()" class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="My Reservations">
-              <i class="fa-regular fa-bookmark text-xs"></i>
-              <span class="hidden md:inline">Trips</span>
+            <!-- Desktop My Trips Button (Hidden on Mobile) -->
+            <button id="desktopTripsBtn" onclick="navTo('trips')" class="hidden lg:flex h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="My Reservations">
+              <i class="fa-regular fa-bookmark text-xs text-brand"></i>
+              <span>My Trips</span>
             </button>
 
-            <!-- Sign In / Active Profile -->
-            <button onclick="openAuthModal()" id="authHeaderBtn" class="flex items-center space-x-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-brand dark:text-black dark:hover:bg-[#68c918] transition shadow-sm shrink-0">
-              <i id="authProfileIcon" class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i>
-              <span id="authHeaderLabel">Sign In</span>
+            <!-- Account / Profile Button -->
+            <button onclick="openAuthModal()" id="authHeaderBtn" class="h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] text-slate-700 dark:text-white hover:border-brand flex items-center space-x-2 text-xs font-bold transition shadow-xs shrink-0">
+              <i id="authHeaderIcon" class="fa-regular fa-circle-user text-base text-brand"></i>
+              <span id="authHeaderLabel" class="hidden sm:inline">Profile</span>
             </button>
           </div>
         </div>
 
-        <!-- DUAL-JOURNEY SEGMENTED SWITCHER (Row for Mobile & Tablet & Mobile Phone Frame) -->
-        <div id="mobileJourneySwitcherRow" class="lg:hidden mt-2.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl flex border border-slate-200 dark:border-slate-700 shadow-inner w-full">
-          <button id="tab-hotel-mobile" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400">
+        <!-- DUAL-JOURNEY SEGMENTED CONTROL: Row for Mobile & Phone Simulation -->
+        <div id="mobileJourneySwitcherRow" class="lg:hidden mt-2.5 bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-2xl flex border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-full">
+          <button id="tab-hotel-mobile" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-sm">
             <i class="fa-solid fa-hotel text-xs"></i>
-            <span>City Hotels</span>
+            <span class="tracking-wide">HOTELS</span>
           </button>
-          <button id="tab-resort-mobile" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab">
+          <button id="tab-resort-mobile" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
             <i class="fa-solid fa-umbrella-beach text-xs"></i>
-            <span>Resorts & Guides</span>
+            <span class="tracking-wide">RESORTS</span>
           </button>
         </div>
       </div>
     </header>
 
     <!-- App Main Body -->
-    <main id="appBody" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 space-y-6">
+    <main id="appBody" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2 w-full flex-1 min-h-0 flex flex-col overflow-hidden transition-all">
+      
+      <!-- VIEW 1: EXPLORE FEED (Default) -->
+      <div id="explorerSection" class="w-full flex-1 min-h-0 flex flex-col overflow-hidden">
 
-      <!-- DESKTOP SEARCH & FILTER RIBBON -->
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 shadow-sm">
-        <div id="searchRibbonGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 items-center">
-          <!-- Search input -->
-          <div class="sm:col-span-2 lg:col-span-5 flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs">
-            <i class="fa-solid fa-magnifying-glass text-slate-400 shrink-0"></i>
-            <input type="text" id="destinationInput" oninput="handleDestinationSearch()" placeholder="Search destinations, cities, or property names..." class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
-          </div>
+        <!-- SEARCH & FILTER BAR (Responsive Desktop Ribbon + Mobile Chips) - LOCKED AT TOP -->
+        <div id="searchBarContainer" class="shrink-0 mb-3 bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#2a2a2a] rounded-2xl p-3 sm:p-4 shadow-sm transition-all z-10">
+          
+          <!-- DESKTOP SEARCH RIBBON (Shown on lg: and when not in mobile simulation) -->
+          <div id="desktopSearchRibbon" class="hidden lg:grid grid-cols-12 gap-3 items-center">
+            <!-- Search input -->
+            <div class="col-span-5 flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs">
+              <i class="fa-solid fa-magnifying-glass text-brand text-sm shrink-0"></i>
+              <input type="text" id="destinationInputDesktop" oninput="handleDestinationSearch(this.value)" placeholder="Where to? (e.g. Bangalore, San Francisco)" class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
+              <button onclick="clearSearchInput()" class="text-slate-400 hover:text-slate-600 text-xs hidden">
+                <i class="fa-solid fa-circle-xmark"></i>
+              </button>
+            </div>
 
-          <!-- Date / Itinerary Selector -->
-          <div onclick="openItineraryModal()" class="lg:col-span-3 flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-gray-300 font-semibold cursor-pointer hover:border-brand transition min-w-0" title="Click to Pick Itinerary Dates">
-            <i class="fa-regular fa-calendar text-brand shrink-0"></i>
-            <span id="dateRangeText" class="truncate">Sep 1 - Sep 4 (3 Nights)</span>
-          </div>
-
-          <!-- Guests Selector -->
-          <div class="lg:col-span-2 flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 dark:text-gray-300 font-semibold cursor-pointer hover:border-brand transition shrink-0">
-            <i class="fa-solid fa-user-group text-slate-400 shrink-0"></i>
-            <span>2 Guests</span>
-          </div>
-
-          <!-- Map View Button -->
-          <div class="sm:col-span-2 lg:col-span-2">
-            <button id="mapToggleBtn" onclick="toggleMapView()" class="w-full py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 hover:border-brand hover:text-brand transition flex items-center justify-center space-x-2 shadow-xs">
-              <i id="mapToggleIcon" class="fa-solid fa-map"></i>
-              <span id="mapToggleText">Map View</span>
+            <!-- Date Picker Button -->
+            <button onclick="openItineraryModal()" class="col-span-3 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
+              <i class="fa-regular fa-calendar text-brand shrink-0 text-sm"></i>
+              <span id="dateRangeTextDesktop" class="truncate font-bold">Sep 28 - Oct 1, 2026</span>
             </button>
+
+            <!-- Guests Button -->
+            <button onclick="openItineraryModal()" class="col-span-2 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
+              <i class="fa-solid fa-user-group text-slate-400 text-xs shrink-0"></i>
+              <span id="guestsCountText" class="truncate font-medium">2 Guests</span>
+            </button>
+
+            <!-- Filters Button -->
+            <button onclick="openFiltersModal()" class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
+              <i class="fa-solid fa-sliders text-brand text-xs"></i>
+              <span>Filters</span>
+            </button>
+
+            <!-- Map View Button -->
+            <button id="mapToggleBtnDesktop" onclick="toggleMapView()" class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
+              <i id="mapToggleIconDesktop" class="fa-solid fa-map text-brand text-xs"></i>
+              <span id="mapToggleTextDesktop">Map</span>
+            </button>
+          </div>
+
+          <!-- MOBILE SEARCH BAR (Shown on < lg and in mobile simulation) -->
+          <div id="mobileSearchRibbon" class="lg:hidden space-y-2.5">
+            <!-- Search input with green icon -->
+            <div class="flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs">
+              <i class="fa-solid fa-magnifying-glass text-brand text-sm shrink-0"></i>
+              <input type="text" id="destinationInput" oninput="handleDestinationSearch(this.value)" placeholder="Where to? (e.g. Bangalore, San Francisco)" class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
+              <button id="clearSearchBtn" onclick="clearSearchInput()" class="hidden text-slate-400 hover:text-slate-600 text-xs">
+                <i class="fa-solid fa-circle-xmark"></i>
+              </button>
+            </div>
+
+            <!-- 3 Filter Buttons Row: Date Picker, Filters, Map Toggle -->
+            <div class="grid grid-cols-12 gap-2">
+              <button onclick="openItineraryModal()" class="col-span-6 flex items-center justify-center space-x-1.5 py-2 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
+                <i class="fa-regular fa-calendar text-brand shrink-0 text-xs"></i>
+                <span id="dateRangeText" class="truncate text-[11px]">Sep 28 - Oct 1, 2026</span>
+              </button>
+
+              <button onclick="openFiltersModal()" class="col-span-3 flex items-center justify-center space-x-1.5 py-2 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
+                <i class="fa-solid fa-sliders text-brand text-xs"></i>
+                <span class="text-[11px]">Filters</span>
+              </button>
+
+              <button id="mapToggleBtn" onclick="toggleMapView()" class="col-span-3 flex items-center justify-center space-x-1.5 py-2 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
+                <i id="mapToggleIcon" class="fa-solid fa-map text-brand text-xs"></i>
+                <span id="mapToggleText" class="text-[11px]">Map</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOCKED INTERACTIVE MAP SECTION (Expandable/Collapsible) - LOCKED UNDER SEARCH BAR -->
+        <div id="mapViewContainer" class="hidden shrink-0 mb-3 w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-[#2a2a2a] shadow-md relative z-0 transition-all duration-300">
+          <div class="bg-white dark:bg-[#121212] px-4 py-2 border-b border-slate-200 dark:border-[#2a2a2a] flex items-center justify-between text-xs shrink-0">
+            <div class="flex items-center space-x-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-brand/20 text-emerald-800 dark:text-brand">
+                <i class="fa-solid fa-location-dot mr-1 text-[9px]"></i> Map Explorer
+              </span>
+              <span id="mapPropertiesCount" class="text-slate-500 dark:text-gray-400 font-medium text-[11px]">Interactive property pins</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button onclick="resetMapBounds()" class="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[11px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1">
+                <i class="fa-solid fa-arrows-to-eye text-brand text-[10px]"></i>
+                <span>Fit All</span>
+              </button>
+              <button onclick="toggleMapView()" class="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[11px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1">
+                <i class="fa-solid fa-eye-slash text-brand text-[10px]"></i>
+                <span>Hide Map</span>
+              </button>
+            </div>
+          </div>
+          <div id="consumerMap" class="w-full h-[250px] sm:h-[280px] lg:h-[300px] bg-slate-100 dark:bg-slate-950"></div>
+        </div>
+
+        <!-- SCROLLABLE FEED CONTAINER: Only the hotel/resort cards scroll up & down! -->
+        <div id="resultsScrollContainer" class="flex-1 min-h-0 overflow-y-auto pr-1 pb-24 lg:pb-8 custom-scrollbar">
+          <!-- RESULTS FEED (Hotel / Resort Cards) -->
+          <div id="resultsFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all">
+            <!-- Dynamically populated cards matching Left Image -->
           </div>
         </div>
       </div>
 
-      <!-- LOCKED INTERACTIVE MAP SECTION (Locked directly below search bar where itinerary is picked) -->
-      <div id="mapViewContainer" class="hidden w-full rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md relative z-0 transition-all duration-300">
-        <!-- Interactive Map Header Ribbon -->
-        <div class="bg-white dark:bg-slate-900 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
-          <div class="flex items-center space-x-2">
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-brand/20 text-emerald-800 dark:text-brand">
-              <i class="fa-solid fa-location-dot mr-1 text-[9px]"></i> Map Explorer
-            </span>
-            <span id="mapPropertiesCount" class="text-slate-500 dark:text-gray-400 font-medium text-[11px] hidden sm:inline">Interactive property pins & pricing</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <button onclick="resetMapBounds()" class="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand text-[11px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1" title="Fit all properties on map">
-              <i class="fa-solid fa-arrows-to-eye text-brand text-[10px]"></i>
-              <span>Fit All</span>
-            </button>
-            <button onclick="toggleMapView()" class="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-rose-400 text-[11px] font-bold text-slate-600 dark:text-gray-300 hover:text-rose-500 transition shadow-xs flex items-center space-x-1" title="Hide Map">
-              <i class="fa-solid fa-eye-slash text-[10px]"></i>
-              <span>Hide Map</span>
-            </button>
-          </div>
+      <!-- VIEW 2: MY TRIPS SECTION (Toggled via Bottom Nav or Header) -->
+      <div id="myTripsSection" class="hidden w-full flex-1 min-h-0 flex flex-col overflow-hidden space-y-4">
+        <div class="shrink-0 flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#2a2a2a]">
+          <h3 class="font-extrabold text-lg text-slate-900 dark:text-white flex items-center space-x-2.5">
+            <i class="fa-solid fa-suitcase-rolling text-brand"></i>
+            <span>My Reservations & Vouchers</span>
+          </h3>
+          <button onclick="navTo('explore')" class="text-xs text-brand font-bold flex items-center space-x-1 hover:underline">
+            <i class="fa-solid fa-arrow-left text-[11px]"></i>
+            <span>Back to Explore</span>
+          </button>
         </div>
-        <div id="consumerMap" class="w-full h-[360px] sm:h-[440px] bg-slate-100 dark:bg-slate-950"></div>
-      </div>
-
-      <!-- EXPLORER RESULTS FEED (Always directly below map or search bar) -->
-      <div id="explorerContainer" class="w-full">
-        <div id="feedWrapper" class="w-full">
-          <div id="resultsFeed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Dynamically loaded cards -->
+        <div class="flex-1 min-h-0 overflow-y-auto pr-1 pb-24 custom-scrollbar">
+          <div id="tripsListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="col-span-full flex justify-center py-12"><i class="fa-solid fa-circle-notch fa-spin text-brand text-2xl"></i></div>
           </div>
         </div>
       </div>
 
     </main>
+
+    <!-- PERSISTENT BOTTOM NAVIGATION BAR (Visible on Mobile / Phone Simulation, Hidden on Desktop) -->
+    <nav id="bottomNav" class="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-t border-slate-200 dark:border-[#2a2a2a] z-40 lg:hidden transition-all">
+      <div class="max-w-xl mx-auto flex items-center justify-around h-16 px-4">
+        <!-- Tab 1: Explore -->
+        <button id="nav-explore" onclick="navTo('explore')" class="flex flex-col items-center justify-center space-y-1 text-brand font-bold transition flex-1">
+          <i class="fa-solid fa-compass text-lg"></i>
+          <span class="text-[10px]">Explore</span>
+        </button>
+
+        <!-- Tab 2: My Trips -->
+        <button id="nav-trips" onclick="navTo('trips')" class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
+          <i class="fa-regular fa-bookmark text-lg"></i>
+          <span class="text-[10px]">My Trips</span>
+        </button>
+
+        <!-- Tab 3: Profile -->
+        <button id="nav-profile" onclick="navTo('profile')" class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
+          <i class="fa-regular fa-user text-lg"></i>
+          <span class="text-[10px]">Profile</span>
+        </button>
+      </div>
+    </nav>
 
     <!-- MODAL: LOCAL GUIDE BUNDLING SHEET -->
     <div id="guideModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
@@ -532,6 +637,51 @@
       </div>
     </div>
 
+    <!-- MODAL: FILTERS & SORT (Matching Flutter Filters) -->
+    <div id="filtersModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-sliders text-brand text-base"></i>
+            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Filters & Sorting</h3>
+          </div>
+          <button onclick="closeFiltersModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form onsubmit="handleFiltersSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Sort Properties</label>
+            <select id="filterSortSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+              <option value="recommended">Recommended</option>
+              <option value="price_low">Price: Low to High</option>
+              <option value="price_high">Price: High to Low</option>
+              <option value="rating">Top Rated</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Max Price Per Night ($)</label>
+            <input type="number" id="filterMaxPriceInput" placeholder="No limit" min="50" max="2000" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Minimum Rating</label>
+            <div class="grid grid-cols-4 gap-2 text-xs font-bold text-center">
+              <button type="button" onclick="selectMinRating(0)" id="ratingBtn-0" class="py-2 rounded-xl border border-brand bg-brand/10 text-brand">All</button>
+              <button type="button" onclick="selectMinRating(3)" id="ratingBtn-3" class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">3★+</button>
+              <button type="button" onclick="selectMinRating(4)" id="ratingBtn-4" class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4★+</button>
+              <button type="button" onclick="selectMinRating(4.5)" id="ratingBtn-4.5" class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4.5★+</button>
+            </div>
+          </div>
+
+          <div class="flex space-x-2 pt-2">
+            <button type="button" onclick="resetFilters()" class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Reset</button>
+            <button type="submit" class="w-1/2 bg-brand text-black font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#68c918] transition shadow-md">Apply Filters</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- MODAL: AUTHENTICATION (Login / Signup) -->
     <div id="authModal" class="hidden fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
       <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
@@ -542,10 +692,13 @@
         <!-- VIEW 1: LOGGED OUT (Login Form) -->
         <div id="authLoggedOutView" class="space-y-5">
           <div class="text-center space-y-1">
-            <div class="w-14 h-14 rounded-2xl bg-slate-900 dark:bg-brand dark:text-black mx-auto flex items-center justify-center text-white font-black text-2xl mb-3 shadow-lg">
-              <i class="fa-solid fa-plane-departure text-xl"></i>
+            <div class="w-14 h-14 mx-auto flex items-center justify-center text-[#0b1324] dark:text-white mb-2">
+              <svg viewBox="0 0 160 160" class="w-14 h-14" fill="currentColor">
+                <path d="M 114 12 H 36 A 24 24 0 0 0 12 36 V 124 A 24 24 0 0 0 36 148 H 124 A 24 24 0 0 0 148 124 V 42" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M 142.00,7.00 C 145.42,7.17 149.25,7.92 151.00,9.00 C 151.83,9.83 152.00,12.83 152.00,16.00 C 151.17,19.33 149.83,23.50 147.50,26.75 C 144.00,31.75 137.50,38.25 133.00,43.25 C 127.75,49.25 122.50,54.75 121.00,56.00 C 122.50,71.00 124.50,91.00 127.00,106.00 C 127.17,111.17 126.17,115.83 125.00,117.00 C 122.67,120.00 120.33,122.33 119.00,123.00 C 117.83,122.83 116.83,122.17 116.00,121.00 C 113.17,112.50 109.83,103.50 106.00,93.00 C 103.83,87.33 101.50,83.17 100.00,82.00 C 97.67,80.17 96.67,79.50 96.00,79.00 C 85.00,88.50 74.00,98.50 68.00,103.00 C 68.67,109.83 69.67,117.83 70.00,124.00 C 69.17,126.67 67.17,128.00 65.00,128.00 C 62.17,125.17 58.83,118.83 55.00,111.00 C 51.50,111.67 49.17,112.67 48.00,113.00 C 46.83,112.67 46.17,111.67 46.00,111.00 C 46.67,108.33 47.67,106.33 48.00,105.00 C 40.00,100.50 32.50,95.50 29.00,94.00 C 31.00,91.83 33.67,90.17 36.00,89.00 C 43.17,89.83 50.50,90.50 55.00,91.00 C 63.83,81.17 72.83,71.17 79.00,63.00 C 76.50,60.17 73.83,57.83 71.00,56.00 C 58.50,51.50 46.00,47.00 38.00,44.00 C 35.83,42.83 35.17,41.83 35.00,41.00 C 37.67,37.33 41.00,34.33 44.00,33.00 C 62.67,34.83 82.33,37.17 102.00,39.00 C 111.17,29.83 120.33,20.67 126.00,15.00 C 131.83,11.50 137.67,8.67 141.00,8.00 Z" fill="currentColor" />
+              </svg>
             </div>
-            <h3 class="font-black text-2xl text-slate-900 dark:text-white">Welcome to Plan-E</h3>
+            <h3 class="font-black text-2xl text-slate-900 dark:text-white">Welcome to PLAN<span class="text-[#f2c48c]">-E</span></h3>
             <p class="text-xs text-slate-500 dark:text-gray-400">Log in or sign up to unlock frictionless travel.</p>
           </div>
           
@@ -652,7 +805,9 @@
     function syncItineraryDisplay() {
       const { label } = formatItineraryLabel(itineraryCheckIn, itineraryCheckOut);
       const el = document.getElementById('dateRangeText');
+      const elDesk = document.getElementById('dateRangeTextDesktop');
       if (el) el.innerText = label;
+      if (elDesk) elDesk.innerText = label;
     }
 
     function openItineraryModal() {
@@ -723,70 +878,78 @@
       const toggleText = document.getElementById('deviceToggleText');
       const toggleIcon = document.getElementById('deviceToggleIcon');
       const appBody = document.getElementById('appBody');
+      const headerContainer = document.getElementById('headerContainer');
       const deskSwitch = document.getElementById('desktopJourneySwitcher');
       const mobSwitch = document.getElementById('mobileJourneySwitcherRow');
-      const searchGrid = document.getElementById('searchRibbonGrid');
+      const deskRibbon = document.getElementById('desktopSearchRibbon');
+      const mobRibbon = document.getElementById('mobileSearchRibbon');
+      const deskTripsBtn = document.getElementById('desktopTripsBtn');
+      const bottomNav = document.getElementById('bottomNav');
+      const feed = document.getElementById('resultsFeed');
       const consumerMap = document.getElementById('consumerMap');
+      const scrollContainer = document.getElementById('resultsScrollContainer');
 
       if (isPhoneSimulation) {
-        body.className = "bg-slate-900 text-slate-100 min-h-screen flex justify-center items-center p-0 sm:py-6 sm:px-4";
-        shell.className = "w-full h-screen sm:h-[860px] sm:max-w-md bg-white dark:bg-darkbg text-slate-900 dark:text-white rounded-none sm:rounded-[40px] shadow-2xl overflow-hidden border-0 sm:border-[8px] sm:border-slate-800 flex flex-col relative";
+        body.className = "bg-slate-900 text-slate-100 h-screen flex justify-center items-center p-0 sm:py-6 sm:px-4 overflow-hidden";
+        if (shell) shell.className = "w-full h-screen sm:h-[860px] sm:max-w-md bg-white dark:bg-[#121212] text-slate-900 dark:text-white rounded-none sm:rounded-[40px] shadow-2xl overflow-hidden border-0 sm:border-[8px] sm:border-slate-800 flex flex-col relative";
         if (statusBar) statusBar.classList.remove('hidden');
         if (toggleText) toggleText.innerText = "Desktop Web";
         if (toggleIcon) toggleIcon.className = "fa-solid fa-desktop text-xs text-brand";
 
-        if (appBody) {
-          appBody.className = "w-full flex-1 overflow-y-auto px-3.5 sm:px-4 py-4 space-y-4";
-        }
+        if (headerContainer) headerContainer.className = "w-full px-4 pt-3 pb-2 transition-all";
+        if (appBody) appBody.className = "w-full flex-1 min-h-0 flex flex-col overflow-hidden px-4 pt-2 pb-0 transition-all";
         if (deskSwitch) deskSwitch.classList.add('!hidden');
         if (mobSwitch) mobSwitch.classList.remove('lg:hidden');
-        if (searchGrid) {
-          searchGrid.className = "grid grid-cols-1 gap-2.5 items-center";
+        if (deskRibbon) deskRibbon.classList.add('!hidden');
+        if (mobRibbon) mobRibbon.classList.remove('lg:hidden');
+        if (deskTripsBtn) deskTripsBtn.classList.add('!hidden');
+        if (bottomNav) {
+          bottomNav.classList.remove('lg:hidden', 'hidden');
+          bottomNav.className = "absolute bottom-0 inset-x-0 bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-t border-slate-200 dark:border-[#2a2a2a] z-40 transition-all";
         }
+        if (feed) feed.className = "grid grid-cols-1 gap-4 transition-all";
         if (consumerMap) {
-          consumerMap.className = "w-full h-[280px] bg-slate-100 dark:bg-slate-950";
+          consumerMap.classList.remove('h-[250px]', 'sm:h-[280px]', 'lg:h-[300px]');
+          consumerMap.classList.add('h-[240px]', 'sm:h-[260px]');
+          if (leafletMap && !consumerMap.classList.contains('leaflet-container')) {
+            consumerMap.classList.add('leaflet-container');
+          }
         }
-
-        const feedWrapper = document.getElementById('feedWrapper');
-        if (feedWrapper) feedWrapper.className = "w-full";
-        const feed = document.getElementById('resultsFeed');
-        if (feed) feed.className = "space-y-4";
+        if (scrollContainer) scrollContainer.className = "flex-1 min-h-0 overflow-y-auto pr-0.5 pb-20 custom-scrollbar";
       } else {
-        body.className = "bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors";
-        shell.className = "w-full min-h-screen flex flex-col relative";
+        body.className = "bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen flex flex-col overflow-hidden transition-colors";
+        if (shell) shell.className = "w-full h-screen flex flex-col relative bg-slate-50 dark:bg-black text-slate-900 dark:text-white transition-all overflow-hidden";
         if (statusBar) statusBar.classList.add('hidden');
-        if (toggleText) toggleText.innerText = "Mobile Frame";
+        if (toggleText) toggleText.innerText = "Mobile View";
         if (toggleIcon) toggleIcon.className = "fa-solid fa-mobile-screen text-xs text-brand";
 
-        if (appBody) {
-          appBody.className = "max-w-7xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 space-y-6";
-        }
+        if (headerContainer) headerContainer.className = "max-w-7xl mx-auto px-4 sm:px-6 py-2.5 transition-all";
+        if (appBody) appBody.className = "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2 w-full flex-1 min-h-0 flex flex-col overflow-hidden transition-all";
         if (deskSwitch) deskSwitch.classList.remove('!hidden');
         if (mobSwitch) mobSwitch.classList.add('lg:hidden');
-        if (searchGrid) {
-          searchGrid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-3 items-center";
+        if (deskRibbon) deskRibbon.classList.remove('!hidden');
+        if (mobRibbon) mobRibbon.classList.add('lg:hidden');
+        if (deskTripsBtn) deskTripsBtn.classList.remove('!hidden');
+        if (bottomNav) {
+          bottomNav.classList.add('lg:hidden');
+          bottomNav.className = "fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-t border-slate-200 dark:border-[#2a2a2a] z-40 lg:hidden transition-all";
         }
+        if (feed) feed.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all";
         if (consumerMap) {
-          consumerMap.className = "w-full h-[360px] sm:h-[440px] bg-slate-100 dark:bg-slate-950";
+          consumerMap.classList.remove('h-[240px]', 'sm:h-[260px]');
+          consumerMap.classList.add('h-[250px]', 'sm:h-[280px]', 'lg:h-[300px]');
+          if (leafletMap && !consumerMap.classList.contains('leaflet-container')) {
+            consumerMap.classList.add('leaflet-container');
+          }
         }
-
-        applyDesktopExplorerLayout();
+        if (scrollContainer) scrollContainer.className = "flex-1 min-h-0 overflow-y-auto pr-1 pb-6 custom-scrollbar";
       }
-
-      if (leafletMap) {
-        setTimeout(() => leafletMap.invalidateSize(), 200);
-      }
-    }
-
-    function applyDesktopExplorerLayout() {
-      if (isPhoneSimulation) return;
-      const exp = document.getElementById('explorerContainer');
-      const feedWrapper = document.getElementById('feedWrapper');
-      const feed = document.getElementById('resultsFeed');
-
-      if (exp) exp.className = "w-full";
-      if (feedWrapper) feedWrapper.className = "w-full";
-      if (feed) feed.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+      setTimeout(() => {
+        if (leafletMap) {
+          leafletMap.invalidateSize();
+          resetMapBounds();
+        }
+      }, 250);
     }
 
     function showToast(msg) {
@@ -801,7 +964,7 @@
     }
 
     function updateAuthUI() {
-      const icon = document.getElementById('authProfileIcon');
+      const icon = document.getElementById('authProfileIcon') || document.getElementById('authHeaderIcon');
       const headerLabel = document.getElementById('authHeaderLabel');
       const headerBtn = document.getElementById('authHeaderBtn');
       const loggedOutView = document.getElementById('authLoggedOutView');
@@ -811,13 +974,13 @@
 
       if (window.userToken && window.currentUser) {
         if (icon) {
-          icon.className = "fa-solid fa-circle-user text-xs text-brand";
+          icon.className = "fa-solid fa-circle-user text-sm text-brand";
         }
         if (headerLabel) {
-          headerLabel.innerText = window.currentUser.full_name?.split(' ')[0] || 'John';
+          headerLabel.innerText = window.currentUser.full_name?.split(' ')[0] || 'Traveler';
         }
         if (headerBtn) {
-          headerBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-darkborder text-slate-800 dark:text-gray-200 hover:border-brand transition shadow-sm";
+          headerBtn.className = "h-9 px-3 rounded-xl border border-brand/50 dark:border-brand/40 bg-brand/10 dark:bg-[#1a1a1a] text-slate-900 dark:text-white hover:border-brand flex items-center space-x-2 text-xs font-bold transition shadow-xs shrink-0";
         }
         if (loggedOutView) loggedOutView.classList.add('hidden');
         if (loggedInView) loggedInView.classList.remove('hidden');
@@ -825,13 +988,13 @@
         if (emailEl) emailEl.innerText = window.currentUser.email || '';
       } else {
         if (icon) {
-          icon.className = "fa-solid fa-arrow-right-to-bracket text-[11px]";
+          icon.className = "fa-regular fa-circle-user text-base text-brand";
         }
         if (headerLabel) {
-          headerLabel.innerText = 'Sign In';
+          headerLabel.innerText = 'Profile';
         }
         if (headerBtn) {
-          headerBtn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 dark:bg-brand dark:text-black dark:hover:bg-[#68c918] transition shadow-sm";
+          headerBtn.className = "h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] text-slate-700 dark:text-white hover:border-brand flex items-center space-x-2 text-xs font-bold transition shadow-xs shrink-0";
         }
         if (loggedOutView) loggedOutView.classList.remove('hidden');
         if (loggedInView) loggedInView.classList.add('hidden');
@@ -860,7 +1023,7 @@
       const initialJourney = urlParams.get('journey') || localStorage.getItem('plane_active_journey') || 'hotel';
       switchJourney(initialJourney);
 
-      // Restore persisted Map view mode
+      // Restore persisted Map view mode (Default: list view like Flutter app)
       const savedMapMode = localStorage.getItem('plane_hotel_view_mode') || 'list';
       applyMapView(savedMapMode === 'map');
     }
@@ -946,10 +1109,32 @@
       return await performLogin('john.doe@example.com', 'Password123!');
     }
 
-    function handleDestinationSearch() {
+    function clearSearchInput() {
+      const mobInput = document.getElementById('destinationInput');
+      const deskInput = document.getElementById('destinationInputDesktop');
+      if (mobInput) mobInput.value = '';
+      if (deskInput) deskInput.value = '';
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) clearBtn.classList.add('hidden');
+      if (currentJourney === 'hotel') loadHotels();
+      else loadResorts();
+    }
+
+    function handleDestinationSearch(val) {
       clearTimeout(searchDebounce);
+      const mobInput = document.getElementById('destinationInput');
+      const deskInput = document.getElementById('destinationInputDesktop');
+      const q = (val !== undefined ? val : (deskInput && deskInput.value) || (mobInput && mobInput.value) || '').trim();
+
+      if (mobInput && mobInput.value !== q) mobInput.value = q;
+      if (deskInput && deskInput.value !== q) deskInput.value = q;
+
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) {
+        if (q.length > 0) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+      }
       searchDebounce = setTimeout(() => {
-        const q = document.getElementById('destinationInput').value.trim();
         if (currentJourney === 'hotel') {
           loadHotels(q);
         } else {
@@ -965,12 +1150,30 @@
       const icon = document.getElementById('mapToggleIcon');
       const text = document.getElementById('mapToggleText');
 
+      const btnDesk = document.getElementById('mapToggleBtnDesktop');
+      const iconDesk = document.getElementById('mapToggleIconDesktop');
+      const textDesk = document.getElementById('mapToggleTextDesktop');
+
+      const activeBtnClasses = ['bg-brand/10', 'border-brand', 'text-brand', 'font-bold'];
+      const inactiveBtnClasses = ['bg-slate-50', 'dark:bg-[#1a1a1a]', 'border-slate-200', 'dark:border-[#333]', 'text-slate-700', 'dark:text-gray-300'];
+
       if (isMapView) {
-        if (icon) icon.className = 'fa-solid fa-map-location-dot';
-        if (text) text.innerText = 'Hide Map';
+        // Button shows "List" with active highlight
+        if (icon) icon.className = 'fa-solid fa-list text-brand text-xs';
+        if (text) text.innerText = 'List';
         if (btn) {
-          btn.classList.add('border-brand', 'text-brand', 'bg-brand/10');
+          inactiveBtnClasses.forEach(c => btn.classList.remove(c));
+          activeBtnClasses.forEach(c => btn.classList.add(c));
         }
+
+        if (iconDesk) iconDesk.className = 'fa-solid fa-list text-brand text-xs';
+        if (textDesk) textDesk.innerText = 'List';
+        if (btnDesk) {
+          inactiveBtnClasses.forEach(c => btnDesk.classList.remove(c));
+          activeBtnClasses.forEach(c => btnDesk.classList.add(c));
+        }
+
+        // Show the map, results feed stays visible
         if (mapContainer) mapContainer.classList.remove('hidden');
 
         if (!leafletMap) {
@@ -981,21 +1184,28 @@
           }, 150);
         }
         const items = currentJourney === 'hotel' ? currentHotels : currentResorts;
-        renderMapMarkers(items, currentJourney);
-      } else {
-        if (icon) icon.className = 'fa-solid fa-map';
-        if (text) text.innerText = 'Map View';
-        if (btn) {
-          btn.classList.remove('border-brand', 'text-brand', 'bg-brand/10');
+        if (items && items.length > 0) {
+          renderMapMarkers(items, currentJourney);
+          setTimeout(() => { resetMapBounds(); }, 200);
         }
-        if (mapContainer) mapContainer.classList.add('hidden');
-      }
-
-      if (isPhoneSimulation) {
-        const feed = document.getElementById('resultsFeed');
-        if (feed) feed.className = "space-y-4";
       } else {
-        applyDesktopExplorerLayout();
+        // Button shows "Map" with inactive style
+        if (icon) icon.className = 'fa-solid fa-map text-brand text-xs';
+        if (text) text.innerText = 'Map';
+        if (btn) {
+          activeBtnClasses.forEach(c => btn.classList.remove(c));
+          inactiveBtnClasses.forEach(c => btn.classList.add(c));
+        }
+
+        if (iconDesk) iconDesk.className = 'fa-solid fa-map text-brand text-xs';
+        if (textDesk) textDesk.innerText = 'Map';
+        if (btnDesk) {
+          activeBtnClasses.forEach(c => btnDesk.classList.remove(c));
+          inactiveBtnClasses.forEach(c => btnDesk.classList.add(c));
+        }
+
+        // Hide the map, results feed stays visible
+        if (mapContainer) mapContainer.classList.add('hidden');
       }
     }
 
@@ -1019,23 +1229,100 @@
       }
     }
 
+    // =========================================================================
+    // MAP DOCKING SYSTEM (SWAPPABLE PROVIDERS - BATTERY SWAP ARCHITECTURE)
+    // To switch map vendors across Desktop & Mobile Web, simply change activeProvider!
+    // =========================================================================
+    const MapDock = {
+      // ⚡ BATTERY SWAP: Change this single value to switch map providers!
+      // Options: 'osm' | 'mapTiler' | 'stadia' | 'cartoVoyager'
+      activeProvider: 'osm',
+
+      // Optional API keys for hosted providers (leave empty for keyless providers)
+      keys: {
+        mapTiler: '',
+        stadia: '',
+        carto: ''
+      },
+
+      providers: {
+        // 1. OpenStreetMap: 100% free, universal rural Asian village coverage, zero setup required
+        osm: {
+          name: 'OpenStreetMap Standard',
+          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          options: {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }
+        },
+
+        // 2. MapTiler: Official OpenMapTiles worldwide dataset (100,000 requests/month free tier)
+        mapTiler: {
+          name: 'MapTiler Streets v2',
+          getUrl: (key) => key ? `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${key}` : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          options: {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+          }
+        },
+
+        // 3. Stadia Maps: Alidade Smooth / Outdoors style (200,000 requests/month free tier)
+        stadia: {
+          name: 'Stadia Maps Alidade',
+          getUrl: (key) => key ? `https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${key}` : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          options: {
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+          }
+        },
+
+        // 4. CartoDB Voyager: Clean travel map raster styling
+        cartoVoyager: {
+          name: 'CartoDB Voyager',
+          getUrl: (key) => key ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?api_key=${key}` : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+          options: {
+            subdomains: 'abcd',
+            maxZoom: 20,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          }
+        }
+      },
+
+      // Returns a fully configured Leaflet tile layer based on activeProvider
+      createTileLayer() {
+        const prov = this.providers[this.activeProvider] || this.providers.osm;
+        const key = this.keys[this.activeProvider] || '';
+        const tileUrl = prov.getUrl ? prov.getUrl(key) : prov.url;
+        return L.tileLayer(tileUrl, prov.options);
+      }
+    };
+
     function initLeafletMap() {
+      const mapEl = document.getElementById('consumerMap');
+      if (!mapEl) return;
+      if (!mapEl.classList.contains('leaflet-container')) {
+        mapEl.classList.add('leaflet-container');
+      }
+
+      if (leafletMap) {
+        leafletMap.invalidateSize();
+        return;
+      }
+
       leafletMap = L.map('consumerMap', {
         zoomControl: false
       }).setView([12.9716, 77.5946], 11);
 
       L.control.zoom({ position: 'bottomright' }).addTo(leafletMap);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; CARTO',
-        maxZoom: 19,
-        subdomains: 'abcd'
-      }).addTo(leafletMap);
+      // Plugs directly into the MapDock provider system
+      MapDock.createTileLayer().addTo(leafletMap);
 
       mapMarkersGroup = L.featureGroup().addTo(leafletMap);
       setTimeout(() => {
         leafletMap.invalidateSize();
-      }, 200);
+        resetMapBounds();
+      }, 250);
     }
 
     function locateOnMap(id) {
@@ -1046,9 +1333,11 @@
       const item = items.find(x => x.id === id);
       if (!item || !item.latitude || !item.longitude) return;
 
+      highlightCard(id, false);
+
       const mapContainer = document.getElementById('mapViewContainer');
       if (mapContainer) {
-        mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        mapContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
 
       setTimeout(() => {
@@ -1056,15 +1345,14 @@
           leafletMap.invalidateSize();
           leafletMap.flyTo([item.latitude, item.longitude], 15, {
             animate: true,
-            duration: 0.8
+            duration: 0.6
           });
           const marker = markersById[id];
           if (marker) {
             marker.openPopup();
           }
-          highlightCard(id, false);
         }
-      }, 250);
+      }, 200);
     }
 
     function highlightCard(id, scrollToList = false) {
@@ -1082,6 +1370,11 @@
 
     function renderMapMarkers(items, type) {
       if (!leafletMap || !mapMarkersGroup) return;
+      const mapEl = document.getElementById('consumerMap');
+      if (mapEl && !mapEl.classList.contains('leaflet-container')) {
+        mapEl.classList.add('leaflet-container');
+      }
+      leafletMap.invalidateSize();
       mapMarkersGroup.clearLayers();
       markersById = {};
 
@@ -1117,7 +1410,7 @@
             <div style="font-weight: 700; font-size: 12px; line-height: 1.2; margin-bottom: 2px;">${item.name}</div>
             <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">⭐ ${item.review_score} • ${item.city}</div>
             <div style="font-weight: 800; font-size: 12px; color: ${badgeBg}; margin-bottom: 6px;">${price} / nt</div>
-            <button onclick="${isResort ? `openResortDetail('${item.id}')` : `openHotelDetail('${item.id}')`}" style="width: 100%; background-color: #0f172a; color: #ffffff; padding: 5px 0; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; border: none;">
+            <button onclick="openPropertyDetail('${item.id}', '${isResort ? 'resort' : 'hotel'}')" style="width: 100%; background-color: #0f172a; color: #ffffff; padding: 5px 0; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; border: none;">
               View Details
             </button>
           </div>
@@ -1150,64 +1443,119 @@
       }
     }
 
+    let selectedSort = 'recommended';
+    let filterMaxPrice = null;
+    let filterMinRating = 0;
+
+    function openFiltersModal() {
+      const modal = document.getElementById('filtersModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeFiltersModal() {
+      const modal = document.getElementById('filtersModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectMinRating(r) {
+      filterMinRating = r;
+      [0, 3, 4, 4.5].forEach(val => {
+        const btn = document.getElementById(`ratingBtn-${val}`);
+        if (!btn) return;
+        if (val === r) {
+          btn.className = "py-2 rounded-xl border border-brand bg-brand/10 text-brand font-bold";
+        } else {
+          btn.className = "py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300";
+        }
+      });
+    }
+
+    function resetFilters() {
+      selectedSort = 'recommended';
+      filterMaxPrice = null;
+      filterMinRating = 0;
+      const sortSel = document.getElementById('filterSortSelect');
+      const maxIn = document.getElementById('filterMaxPriceInput');
+      if (sortSel) sortSel.value = 'recommended';
+      if (maxIn) maxIn.value = '';
+      selectMinRating(0);
+      closeFiltersModal();
+      if (currentJourney === 'hotel') loadHotels();
+      else loadResorts();
+    }
+
+    function handleFiltersSubmit(e) {
+      if (e) e.preventDefault();
+      const sortSel = document.getElementById('filterSortSelect');
+      const maxIn = document.getElementById('filterMaxPriceInput');
+      selectedSort = sortSel ? sortSel.value : 'recommended';
+      filterMaxPrice = maxIn && maxIn.value ? parseFloat(maxIn.value) : null;
+      closeFiltersModal();
+      if (currentJourney === 'hotel') loadHotels();
+      else loadResorts();
+    }
+
     function switchJourney(type) {
       currentJourney = type;
       localStorage.setItem('plane_active_journey', type);
       const hotelBtn = document.getElementById('tab-hotel');
       const resortBtn = document.getElementById('tab-resort');
-      const hotelBtnMob = document.getElementById('tab-hotel-mobile');
-      const resortBtnMob = document.getElementById('tab-resort-mobile');
+      const hotelMobBtn = document.getElementById('tab-hotel-mobile');
+      const resortMobBtn = document.getElementById('tab-resort-mobile');
 
-      const inactiveClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-600 dark:text-gray-400";
-      const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab";
+      const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-sm";
+      const inactiveClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white";
 
       if (type === 'hotel') {
         if (hotelBtn) hotelBtn.className = activeClass;
         if (resortBtn) resortBtn.className = inactiveClass;
-        if (hotelBtnMob) hotelBtnMob.className = activeClass;
-        if (resortBtnMob) resortBtnMob.className = inactiveClass;
-        document.getElementById('destinationInput').placeholder = "Search City Hotels (e.g. Bangalore, San Francisco)...";
-        // Restore persisted Hotel Map/List view mode
-        const savedHotelMode = localStorage.getItem('plane_hotel_view_mode') || 'list';
-        applyMapView(savedHotelMode === 'map');
+        if (hotelMobBtn) hotelMobBtn.className = activeClass;
+        if (resortMobBtn) resortMobBtn.className = inactiveClass;
+        const destInput = document.getElementById('destinationInput');
+        const destInputDesk = document.getElementById('destinationInputDesktop');
+        if (destInput) destInput.placeholder = "Where to? (e.g. Bangalore, San Francisco)";
+        if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Bangalore, San Francisco)";
         loadHotels();
       } else {
         if (resortBtn) resortBtn.className = activeClass;
         if (hotelBtn) hotelBtn.className = inactiveClass;
-        if (resortBtnMob) resortBtnMob.className = activeClass;
-        if (hotelBtnMob) hotelBtnMob.className = inactiveClass;
-        document.getElementById('destinationInput').placeholder = "Search Resorts & Sanctuaries (e.g. Bangalore, Nandi Hills)...";
+        if (resortMobBtn) resortMobBtn.className = activeClass;
+        if (hotelMobBtn) hotelMobBtn.className = inactiveClass;
+        const destInput = document.getElementById('destinationInput');
+        const destInputDesk = document.getElementById('destinationInputDesktop');
+        if (destInput) destInput.placeholder = "Where to? (e.g. Bali, Phuket)";
+        if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Bali, Phuket)";
         loadResorts();
       }
 
       if (isMapView) {
         setTimeout(() => {
+          if (leafletMap) {
+            leafletMap.invalidateSize();
+          }
           const items = type === 'hotel' ? currentHotels : currentResorts;
-          renderMapMarkers(items, type);
+          if (items && items.length > 0) {
+            renderMapMarkers(items, type);
+            resetMapBounds();
+          }
         }, 150);
       }
     }
 
     async function loadHotels(city = '') {
       const feed = document.getElementById('resultsFeed');
+      if (!feed) return;
       feed.innerHTML = `
         <div class="animate-pulse space-y-4">
-          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
-            <div class="h-36 bg-slate-200 dark:bg-slate-800"></div>
-            <div class="p-3 space-y-2.5">
+          <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
+            <div class="h-44 bg-slate-200 dark:bg-slate-800"></div>
+            <div class="p-3.5 space-y-2.5">
               <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-2/3"></div>
               <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2"></div>
               <div class="flex gap-1.5 mt-2">
-                <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div>
-                <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div>
+                <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
+                <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div>
               </div>
-            </div>
-          </div>
-          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
-            <div class="h-36 bg-slate-200 dark:bg-slate-800"></div>
-            <div class="p-3 space-y-2.5">
-              <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
-              <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-2/5"></div>
             </div>
           </div>
         </div>`;
@@ -1215,59 +1563,87 @@
         const url = city ? `${API_BASE}/hotels?city=${encodeURIComponent(city)}` : `${API_BASE}/hotels`;
         const res = await fetch(url);
         const json = await res.json();
-        const hotels = json.data || [];
+        let hotels = json.data || [];
+
+        // Apply filters
+        if (filterMaxPrice) {
+          hotels = hotels.filter(h => parseFloat(h.min_price_per_night || 0) <= filterMaxPrice);
+        }
+        if (filterMinRating > 0) {
+          hotels = hotels.filter(h => parseFloat(h.star_rating || 0) >= filterMinRating || parseFloat(h.review_score || 0) >= filterMinRating);
+        }
+        if (selectedSort === 'price_low') {
+          hotels.sort((a, b) => parseFloat(a.min_price_per_night || 0) - parseFloat(b.min_price_per_night || 0));
+        } else if (selectedSort === 'price_high') {
+          hotels.sort((a, b) => parseFloat(b.min_price_per_night || 0) - parseFloat(a.min_price_per_night || 0));
+        } else if (selectedSort === 'rating') {
+          hotels.sort((a, b) => parseFloat(b.star_rating || 0) - parseFloat(a.star_rating || 0));
+        }
+
         currentHotels = hotels;
-        if (isMapView) renderMapMarkers(currentHotels, 'hotel');
+        if (isMapView) {
+          if (!leafletMap) initLeafletMap();
+          renderMapMarkers(currentHotels, 'hotel');
+          setTimeout(() => resetMapBounds(), 150);
+        }
 
         if (hotels.length === 0) {
-          feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-500">No hotels found matching "${city}"</div>`;
+          feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-500">No hotels found matching criteria.</div>`;
           return;
         }
 
         feed.innerHTML = hotels.map(h => {
-          const totalPhotos = (h.gallery_images ? h.gallery_images.length : 0) + 1;
           return `
-          <div id="prop-card-${h.id}" class="property-card bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
-            <div onclick="openPropertyDetail('${h.id}', 'hotel')" class="relative h-40 cursor-pointer overflow-hidden group">
-              <img src="${h.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none"></div>
-              <span class="absolute top-2 left-2 bg-slate-900/90 dark:bg-darkborder/90 text-brand border border-brand/40 text-[10px] font-bold px-2 py-0.5 rounded-md shadow backdrop-blur-xs"><i class="fa-solid fa-bolt mr-1"></i> Instant Hotel</span>
+          <div id="prop-card-${h.id}" class="property-card bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <!-- Image Area Matching Left Image -->
+            <div onclick="openPropertyDetail('${h.id}', 'hotel')" class="relative h-44 cursor-pointer overflow-hidden group">
+              <img src="${h.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
               
-              <!-- Extra Photos Badge -->
-              <span class="absolute top-2 right-2 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow flex items-center space-x-1">
-                <i class="fa-solid fa-camera"></i>
-                <span>${totalPhotos} Photos</span>
+              <!-- Top-Left Badge: Instant Hotel Booking (Lime green background, white bolt, white text) -->
+              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center space-x-1">
+                <i class="fa-solid fa-bolt text-white text-xs"></i>
+                <span class="text-white font-bold ml-1">Instant Hotel Booking</span>
               </span>
 
-              <!-- Price Badge -->
-              <span class="absolute bottom-2 right-2 bg-brand text-black text-xs font-extrabold px-2.5 py-1 rounded-lg shadow">$${h.min_price_per_night} / nt</span>
+              <!-- Bottom-Right Badge: Price / night in dark pill -->
+              <span class="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg shadow text-xs font-black">
+                $${Math.round(h.min_price_per_night || 100)} <span class="text-white/70 font-normal text-[10px]">/ night</span>
+              </span>
             </div>
-            <div class="p-3.5 space-y-2.5 flex-1 flex flex-col justify-between">
-              <div class="space-y-2">
+
+            <!-- Body Details Matching Left Image -->
+            <div class="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+              <div class="space-y-1.5">
                 <div class="flex justify-between items-start gap-2 cursor-pointer" onclick="openPropertyDetail('${h.id}', 'hotel')">
-                  <div class="min-w-0 flex-1">
-                    <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">${h.name}</h4>
-                    <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5 truncate"><i class="fa-solid fa-location-dot text-brand mr-1"></i>${h.address}, ${h.city}</p>
-                  </div>
-                  <span class="text-xs font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-md shrink-0">★ ${h.review_score}</span>
+                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white truncate flex-1">${h.name}</h4>
+                  <span class="text-xs font-bold text-amber-500 flex items-center shrink-0">
+                    <i class="fa-solid fa-star mr-1"></i> (${h.review_count || 0})
+                  </span>
                 </div>
-                <div class="flex gap-1.5 flex-wrap">
-                  ${h.amenities.slice(0, 3).map(a => `<span class="text-[10px] bg-slate-100 dark:bg-darkborder text-slate-600 dark:text-gray-300 px-2 py-0.5 rounded font-medium">${a}</span>`).join('')}
+                <p class="text-[11px] text-slate-500 dark:text-gray-400 truncate">
+                  <i class="fa-solid fa-location-dot text-slate-400 mr-1.5"></i>${h.address}, ${h.city}
+                </p>
+
+                <!-- Amenity Chips (Light green background matching Left Image) -->
+                <div class="flex gap-1.5 flex-wrap pt-1">
+                  ${(h.amenities || []).slice(0, 3).map(a => `<span class="text-[10px] bg-brand/15 text-emerald-800 dark:text-brand border border-brand/30 px-2 py-0.5 rounded font-medium">${a}</span>`).join('')}
                 </div>
               </div>
-              <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-darkborder gap-2">
-                <button onclick="event.stopPropagation(); locateOnMap('${h.id}')" class="text-xs font-bold text-brand hover:text-[#68c918] transition flex items-center space-x-1.5 py-1.5 px-2.5 sm:px-3 rounded-lg bg-brand/10 hover:bg-brand/20 shrink-0">
-                  <i class="fa-solid fa-location-crosshairs"></i>
-                  <span>Locate</span>
+
+              <!-- Action Buttons Row Matching Left Image -->
+              <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-darkborder gap-2">
+                <button onclick="event.stopPropagation(); locateOnMap('${h.id}')" class="flex-1 py-2 px-3 border border-brand text-emerald-800 dark:text-brand hover:bg-brand/10 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-location-crosshairs text-xs"></i>
+                  <span>Show on Map</span>
                 </button>
-                <button onclick="openPropertyDetail('${h.id}', 'hotel')" class="text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-1.5 rounded-lg hover:opacity-90 transition shrink-0 flex items-center space-x-1">
-                  <span>View Rooms & Photos</span>
-                  <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                <button onclick="openPropertyDetail('${h.id}', 'hotel')" class="flex-1 py-2 px-3 bg-brand hover:bg-[#68c918] text-black font-extrabold rounded-xl text-xs transition flex items-center justify-center space-x-1 shadow-sm">
+                  <span>View Rooms</span>
                 </button>
               </div>
             </div>
           </div>
-        `;
+          `;
         }).join('');
       } catch (e) {
         feed.innerHTML = `<div class="text-center text-xs text-red-500">Error loading hotels</div>`;
@@ -1276,14 +1652,14 @@
 
     async function loadResorts(destination = '') {
       const feed = document.getElementById('resultsFeed');
+      if (!feed) return;
       feed.innerHTML = `
         <div class="animate-pulse space-y-4">
-          <div class="bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
+          <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm">
             <div class="h-44 bg-slate-200 dark:bg-slate-800"></div>
             <div class="p-3.5 space-y-3">
               <div class="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
               <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded w-full"></div>
-              <div class="h-16 bg-slate-100 dark:bg-slate-800/50 rounded-xl mt-2 border border-slate-200 dark:border-darkborder"></div>
             </div>
           </div>
         </div>`;
@@ -1291,47 +1667,63 @@
         const url = destination ? `${API_BASE}/resorts?destination=${encodeURIComponent(destination)}` : `${API_BASE}/resorts`;
         const res = await fetch(url);
         const json = await res.json();
-        const resorts = json.data || [];
+        let resorts = json.data || [];
+
+        if (filterMaxPrice) {
+          resorts = resorts.filter(r => parseFloat(r.starting_price_per_night || 0) <= filterMaxPrice);
+        }
+        if (filterMinRating > 0) {
+          resorts = resorts.filter(r => parseFloat(r.review_score || 0) >= filterMinRating);
+        }
+        if (selectedSort === 'price_low') {
+          resorts.sort((a, b) => parseFloat(a.starting_price_per_night || 0) - parseFloat(b.starting_price_per_night || 0));
+        } else if (selectedSort === 'price_high') {
+          resorts.sort((a, b) => parseFloat(b.starting_price_per_night || 0) - parseFloat(a.starting_price_per_night || 0));
+        } else if (selectedSort === 'rating') {
+          resorts.sort((a, b) => parseFloat(b.review_score || 0) - parseFloat(a.review_score || 0));
+        }
+
         currentResorts = resorts;
-        if (isMapView) renderMapMarkers(currentResorts, 'resort');
+        if (isMapView) {
+          if (!leafletMap) initLeafletMap();
+          renderMapMarkers(currentResorts, 'resort');
+          setTimeout(() => resetMapBounds(), 150);
+        }
 
         if (resorts.length === 0) {
-          feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-500">No resorts found matching "${destination}"</div>`;
+          feed.innerHTML = `<div class="text-center py-10 text-xs text-slate-500">No resorts found matching criteria.</div>`;
           return;
         }
 
         feed.innerHTML = resorts.map(r => {
-          const totalPhotos = (r.gallery_images ? r.gallery_images.length : 0) + 1;
           return `
-          <div id="prop-card-${r.id}" class="property-card bg-white dark:bg-darkbg border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
+          <div id="prop-card-${r.id}" class="property-card bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
             <div onclick="openPropertyDetail('${r.id}', 'resort')" class="relative h-44 cursor-pointer overflow-hidden group">
-              <img src="${r.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none"></div>
-              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-[10px] font-bold px-2.5 py-0.5 rounded-lg shadow"><i class="fa-solid fa-spa mr-1"></i> Luxury Sanctuary</span>
+              <img src="${r.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80'">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 pointer-events-none"></div>
               
-              <!-- Extra Photos Badge -->
-              <span class="absolute top-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md shadow flex items-center space-x-1">
-                <i class="fa-solid fa-camera"></i>
-                <span>${totalPhotos} Photos</span>
+              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center space-x-1">
+                <i class="fa-solid fa-umbrella-beach text-white text-xs"></i>
+                <span class="text-white font-bold ml-1">Instant Resort Booking</span>
               </span>
 
-              <!-- Bottom image info: City/Country on left, Price on right with max constraint so they NEVER overlap -->
-              <div class="absolute bottom-2.5 inset-x-2.5 flex items-end justify-between gap-2">
-                <span class="text-white text-xs font-semibold drop-shadow truncate flex-1 min-w-0"><i class="fa-solid fa-location-dot mr-1"></i>${r.city}, ${r.country}</span>
-                <span class="bg-brand text-black text-xs font-extrabold px-2.5 py-1 rounded-lg border border-white/20 shrink-0 shadow whitespace-nowrap">From $${r.starting_price_per_night} / nt</span>
-              </div>
+              <span class="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg shadow text-xs font-black">
+                From $${Math.round(r.starting_price_per_night || 280)} <span class="text-white/70 font-normal text-[10px]">/ night</span>
+              </span>
             </div>
 
-            <div class="p-3.5 space-y-2.5 flex-1 flex flex-col justify-between">
-              <div class="space-y-2.5">
+            <div class="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+              <div class="space-y-1.5">
                 <div onclick="openPropertyDetail('${r.id}', 'resort')" class="cursor-pointer">
                   <div class="flex justify-between items-start gap-2">
-                    <div class="min-w-0 flex-1">
-                      <h4 class="font-extrabold text-sm text-slate-900 dark:text-white truncate">${r.name}</h4>
-                    </div>
-                    <span class="text-xs font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-md shrink-0">★ ${r.review_score}</span>
+                    <h4 class="font-extrabold text-sm text-slate-900 dark:text-white truncate flex-1">${r.name}</h4>
+                    <span class="text-xs font-bold text-amber-500 flex items-center shrink-0">
+                      <i class="fa-solid fa-star mr-1"></i> ★ (${r.review_score})
+                    </span>
                   </div>
-                  <p class="text-[11px] text-slate-500 dark:text-gray-400 italic line-clamp-1 mt-0.5">${r.tagline || ''}</p>
+                  <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5 truncate">
+                    <i class="fa-solid fa-location-dot text-slate-400 mr-1"></i>${r.city}, ${r.country}
+                  </p>
                 </div>
 
                 <!-- LOCAL GUIDE BUNDLING SECTION -->
@@ -1340,10 +1732,10 @@
                     <span class="truncate"><i class="fa-solid fa-compass text-brand mr-1"></i> Certified Resident Guides</span>
                     <span class="text-[10px] font-semibold text-slate-500 dark:text-gray-400 shrink-0 whitespace-nowrap">${r.available_guides_count} Available</span>
                   </div>
-                  <div class="flex space-x-2 overflow-x-auto pb-1">
-                    ${r.featured_guides.map(g => `
-                      <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-2 bg-white dark:bg-darkbg border border-brand/50 rounded-full py-1 px-2.5 cursor-pointer shadow-xs hover:border-brand transition shrink-0">
-                        <img src="${g.profile_photo_url}" class="w-6 h-6 rounded-full object-cover shrink-0">
+                  <div class="flex space-x-2 overflow-x-auto pb-1 scrollbar-none">
+                    ${(r.featured_guides || []).map(g => `
+                      <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-1.5 bg-white dark:bg-darkbg border border-brand/50 rounded-full py-0.5 px-2 cursor-pointer shadow-xs hover:border-brand transition shrink-0">
+                        <img src="${g.profile_photo_url}" class="w-5 h-5 rounded-full object-cover shrink-0">
                         <div class="text-[10px] whitespace-nowrap">
                           <span class="font-bold text-slate-900 dark:text-white">${g.full_name.split(' ')[0]}</span>
                           <span class="text-brand font-extrabold ml-1">+$${g.daily_rate}/d</span>
@@ -1354,19 +1746,18 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-darkborder gap-2">
-                <button onclick="event.stopPropagation(); locateOnMap('${r.id}')" class="text-xs font-bold text-brand hover:text-[#68c918] transition flex items-center space-x-1.5 py-1.5 px-2.5 sm:px-3 rounded-lg bg-brand/10 hover:bg-brand/20 shrink-0">
-                  <i class="fa-solid fa-location-crosshairs"></i>
-                  <span>Locate</span>
+              <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-darkborder gap-2">
+                <button onclick="event.stopPropagation(); locateOnMap('${r.id}')" class="flex-1 py-2 px-3 border border-brand text-emerald-800 dark:text-brand hover:bg-brand/10 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-location-crosshairs text-xs"></i>
+                  <span>Show on Map</span>
                 </button>
-                <button onclick="openPropertyDetail('${r.id}', 'resort')" class="text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-1.5 rounded-lg hover:opacity-90 transition shrink-0 flex items-center space-x-1">
-                  <span>Explore & Rooms</span>
-                  <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                <button onclick="openPropertyDetail('${r.id}', 'resort')" class="flex-1 py-2 px-3 bg-brand hover:bg-[#68c918] text-black font-extrabold rounded-xl text-xs transition flex items-center justify-center space-x-1 shadow-sm">
+                  <span>View Rooms</span>
                 </button>
               </div>
             </div>
           </div>
-        `;
+          `;
         }).join('');
       } catch (e) {
         feed.innerHTML = `<div class="text-center text-xs text-red-500">Error loading resorts</div>`;
@@ -1939,22 +2330,25 @@
     
     function toggleTheme() {
       const htmlEl = document.documentElement;
+      htmlEl.classList.add('theme-transitioning');
       const icon = document.getElementById('themeIcon');
-      if (htmlEl.classList.contains('dark')) {
-        htmlEl.classList.remove('dark');
-        localStorage.setItem('plane_theme', 'light');
-        if (icon) {
+      const isDark = htmlEl.classList.toggle('dark');
+      localStorage.setItem('plane_theme', isDark ? 'dark' : 'light');
+      if (icon) {
+        if (isDark) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        } else {
           icon.classList.remove('fa-sun');
           icon.classList.add('fa-moon');
         }
-      } else {
-        htmlEl.classList.add('dark');
-        localStorage.setItem('plane_theme', 'dark');
-        if (icon) {
-          icon.classList.remove('fa-moon');
-          icon.classList.add('fa-sun');
-        }
       }
+      window.getComputedStyle(htmlEl).opacity;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          htmlEl.classList.remove('theme-transitioning');
+        });
+      });
     }
 
     // Sync icon on load
@@ -1971,25 +2365,56 @@
       }
     });
 
+    function navTo(tab) {
+      const exploreBtn = document.getElementById('nav-explore');
+      const tripsBtn = document.getElementById('nav-trips');
+      const profileBtn = document.getElementById('nav-profile');
+      const desktopTripsBtn = document.getElementById('desktopTripsBtn');
+      const explorerSection = document.getElementById('explorerSection');
+      const myTripsSection = document.getElementById('myTripsSection');
+
+      const activeNav = "flex flex-col items-center justify-center space-y-1 text-brand font-bold transition flex-1";
+      const inactiveNav = "flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1";
+
+      if (tab === 'explore') {
+        if (exploreBtn) exploreBtn.className = activeNav;
+        if (tripsBtn) tripsBtn.className = inactiveNav;
+        if (profileBtn) profileBtn.className = inactiveNav;
+        if (desktopTripsBtn) {
+          desktopTripsBtn.classList.remove('border-brand', 'text-brand', 'bg-brand/10');
+        }
+        if (explorerSection) explorerSection.classList.remove('hidden');
+        if (myTripsSection) myTripsSection.classList.add('hidden');
+      } else if (tab === 'trips') {
+        if (exploreBtn) exploreBtn.className = inactiveNav;
+        if (tripsBtn) tripsBtn.className = activeNav;
+        if (profileBtn) profileBtn.className = inactiveNav;
+        if (desktopTripsBtn) {
+          desktopTripsBtn.classList.add('border-brand', 'text-brand', 'bg-brand/10');
+        }
+        if (explorerSection) explorerSection.classList.add('hidden');
+        if (myTripsSection) myTripsSection.classList.remove('hidden');
+        loadMyReservations();
+      } else if (tab === 'profile') {
+        openAuthModal();
+      }
+    }
+
     async function toggleMyTrips() {
-      const appBody = document.getElementById('appBody');
+      navTo('trips');
+    }
+
+    function restoreExploreFeed() {
+      navTo('explore');
+    }
+
+    async function loadMyReservations() {
+      const container = document.getElementById('tripsListContainer');
+      if (!container) return;
       if (!window.userToken) {
         await loginBeta();
       }
-      appBody.innerHTML = `
-        <div class="p-2 space-y-4 animate-slide-up">
-          <div class="flex items-center justify-between">
-            <button onclick="restoreExploreFeed()" class="text-xs text-slate-500 hover:text-brand font-bold flex items-center space-x-1 transition">
-              <i class="fa-solid fa-arrow-left text-[10px]"></i>
-              <span>Back to Explore</span>
-            </button>
-            <h3 class="font-black text-sm text-slate-900 dark:text-white">My Reservations</h3>
-          </div>
-          <div id="tripsListContainer" class="space-y-3">
-            <div class="flex justify-center py-12"><i class="fa-solid fa-circle-notch fa-spin text-brand text-2xl"></i></div>
-          </div>
-        </div>
-      `;
+      container.innerHTML = `<div class="flex justify-center py-12"><i class="fa-solid fa-circle-notch fa-spin text-brand text-2xl"></i></div>`;
 
       try {
         const res = await fetch(`${API_BASE}/bookings/my-reservations`, {
@@ -1997,7 +2422,6 @@
         });
         const json = await res.json();
         const trips = json.data || [];
-        const container = document.getElementById('tripsListContainer');
 
         if (trips.length === 0) {
           container.innerHTML = `
@@ -2019,7 +2443,7 @@
           const isConfirmed = t.status === 'CONFIRMED';
           const isResort = (t.booking_type || '').includes('RESORT');
           return `
-            <div class="bg-slate-50 dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3.5 space-y-2.5 shadow-sm text-xs">
+            <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-2xl p-3.5 space-y-2.5 shadow-sm text-xs">
               <div class="flex items-center justify-between">
                 <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${isResort ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'}">${isResort ? 'Resort Stay' : 'City Hotel'}</span>
                 <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${isConfirmed ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'}">${t.status}</span>
@@ -2083,7 +2507,7 @@
         });
         if (res.ok) {
           alert("Reservation successfully cancelled. Room inventory restored and refund initiated.");
-          toggleMyTrips();
+          loadMyReservations();
         } else {
           const err = await res.json();
           alert(`Cancellation error: ${err.detail || 'Could not cancel'}`);
@@ -2094,7 +2518,7 @@
     }
 
     function restoreExploreFeed() {
-      window.location.reload();
+      navTo('explore');
     }
 
     window.onload = initConsumerApp;

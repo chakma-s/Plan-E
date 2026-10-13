@@ -214,5 +214,154 @@ Per the Master Specification, the following operational decisions are tracked fo
    * *Current MVP Default:* 5.0% platform processing fee, 8.5% lodging tax.
    * *Target Production Model:* 10% commission on room booking subtotal; 10% service commission on guide fees.
 
+---
+
+## 8. Cross-Platform UI/UX Parity, Map Architecture & Technical Fixes Log (October 2026 Session)
+
+### A. UI/UX & Layout Parity Across Platforms
+* **Pure Black & Neon Brand Theme Alignment:**
+  * Aligned the color palette across both the Flutter mobile/web app (`mobile_app`) and the Web Portal (`web_portal/consumer/index.html`):
+    * Dark scaffold background: Pure Black (`#000000`).
+    * Card surfaces: Dark neutral `#121212`.
+    * Interactive buttons / active pill: Neon lime brand accent (`#7DE720`).
+    * Borders / Dividers: `#2A2A2A` and `#333333`.
+  * Typography: Standardized on **Google Fonts Plus Jakarta Sans** across Flutter (`GoogleFonts.plusJakartaSansTextTheme`) and Web CSS (`font-family: 'Plus Jakarta Sans', sans-serif`).
+* **Locked Header/Search/Map with Independent Vertical Scroll:**
+  * Both the Desktop Web, Mobile Web (and simulated phone frame), and Flutter app share an identical layout hierarchy:
+    1. Fixed Top Header / Nav Bar.
+    2. Fixed Search Ribbon & Filter Chips (`#searchBarContainer` / `_buildSearchHeaderBar()`).
+    3. Fixed Map Explorer window (~290px height) when map is toggled on (`isMapView = true`).
+    4. **Scrollable Property Feed:** Only the hotel and resort cards feed (`#resultsScrollContainer` in Web, `Expanded(ListView.builder)` in Flutter) scrolls vertically up and down underneath the locked search and map elements.
+    5. The Map toggle button switches labels between "Map" and "List" without losing vertical feed scrollability.
+* **Pin ↔ Card Synchronization:**
+  * Clicking any map pin highlights the property marker and smoothly scrolls the list underneath to center and highlight the matching card.
+  * Clicking "Show on Map" on any card opens the map (if closed) and immediately animates the camera to center and zoom on that property's coordinates.
+
+### B. Technical Bug Fixes Resolved
+
+#### 1. Flutter Web Image Loading (`AppNetworkImage`)
+* **Problem:** In Flutter Web, external images (Unsplash) failed to load, displaying the fallback grey hotel/beach icon box.
+* **Root Cause:** `CachedNetworkImage` relies on `flutter_cache_manager`, which attempts raw byte streams and local `IndexedDB` disk caching. In browser environments, this fails due to web storage/decoding exceptions.
+* **Fix:** Created [`AppNetworkImage`](file:///home/chakma-s/Desktop/Plan-E/mobile_app/lib/widgets/app_network_image.dart) and [`appNetworkImageProvider`](file:///home/chakma-s/Desktop/Plan-E/mobile_app/lib/widgets/app_network_image.dart#L105-L113). On Flutter Web (`kIsWeb`), it delegates directly to Flutter's native `Image.network` and `NetworkImage` browser rendering pipeline, preserving `CachedNetworkImage` on native mobile (Android/iOS). Applied across all hotel/resort cards, details, avatars, and gallery viewers.
+
+#### 2. Flutter Map TypeError & Canvas Duplication
+* **Problem:** Clicking "Show on Map" in the Flutter app threw a red error banner (`TypeError: Instance of '() => Null': type '() => Null' is not a subtype of type '(() => HotelCardModel)?'`), and the map created duplicate zoom controls and spliced canvas partitions.
+* **Root Causes:**
+  1. In [`mapbox_map_view.dart`](file:///home/chakma-s/Desktop/Plan-E/mobile_app/lib/widgets/mapbox_map_view.dart), `widget.properties.firstWhere(..., orElse: () => null)` violated Dart null-safety on typed lists `List<HotelCardModel>`.
+  2. Initial camera target was hardcoded to Bangalore instead of prioritizing the clicked property.
+  3. When the exception crashed Flutter's build, MapLibre Web re-mounted a second canvas over the crashed platform view without disposing of the existing instance.
+* **Fix:**
+  - Implemented type-safe `_findProperty(String? id)` helper method.
+  - Implemented `_getInitialCameraPosition()` that dynamically targets the selected property's lat/long at street-level zoom (`14.0`).
+  - Added stable platform-view keys (`ValueKey('plane_maplibre_canvas')`) and cleanup in `dispose()` to prevent canvas duplication.
+  - **Camera Fly-To Speed Optimization (2x Speedup):** Configured `animateCamera` with `duration: const Duration(milliseconds: 600)` (reduced from the default ~1500–2000ms), providing a snappy 2x faster location transition that matches the Web Portal's 0.6s fly-to speed.
+
+#### 4. Consumer Web Map Dark Background on Journey / View Mode Switch
+* **Problem:** In Desktop/Mobile Web view (`web_portal/consumer/index.html`), after navigating between Resorts and Hotels, the interactive map would occasionally render completely dark/black behind property pins.
+* **Root Cause:**
+  1. In `applyDeviceLayout()`, switching between Mobile and Desktop simulation mode reassigned `consumerMap.className = "..."`, which erased Leaflet's internal `.leaflet-container` class. Without `.leaflet-container`, Leaflet's `overflow: hidden` and `position: relative` rules stopped applying, causing the tile panes to collapse and exposing the dark container background (`dark:bg-slate-950`).
+  2. In `switchJourney()`, `leafletMap.invalidateSize()` was missing when switching between journey types, preventing Leaflet from recalculating viewport dimensions.
+* **Fix:**
+  - Preserved `.leaflet-container` on `#consumerMap` by using `classList.remove/add` for responsive height utilities instead of overwriting `className`.
+  - Added explicit `.leaflet-container` existence checks in `initLeafletMap()`, `applyDeviceLayout()`, and `renderMapMarkers()`.
+  - Added `leafletMap.invalidateSize()` inside `switchJourney()` and `renderMapMarkers()` to guarantee instant tile re-projection on all journey transitions.
+
+### C. Map Architecture Comparison & Commercial Release Strategy
+* **Platform Map Architecture Comparison:**
+  * **Web Portal (`web_portal`):** Uses **Leaflet.js** (raster map tiles via OpenStreetMap). Clicking a pin opens an HTML popup (`marker.bindPopup`) containing the thumbnail image, rating, title, price, and action button.
+  * **Flutter App (`mobile_app`):** Uses **MapLibre GL** (vector tile rendering on GPU/WebGL canvas). Tapping a pin highlights it and scrolls to the card underneath (`showBottomMiniCard: false`).
+* **Commercial Launch Strategy for Worldwide Remote & Village Coverage:**
+  * **OpenStreetMap (OSM) Data:** Offers the highest density of rural villages, unpaved roads, and remote destinations globally due to community crowd-sourcing.
+  * **Tile Usage Policy:** Direct requests to `tile.openstreetmap.org` are prohibited for commercial production apps.
+  * **Recommended Zero-Cost Scalable Architecture:** **Protomaps + Cloudflare R2** (single `.pmtiles` archive hosted on R2 with $0 egress fees, 10M free requests/mo, 100% free OSM global coverage, zero commercial per-request fees, drop-in compatible with MapLibre & Leaflet).
+  * **Recommended Hosted Turnkey Alternatives:** **MapTiler** (100k free requests/month, commercial friendly) or **Stadia Maps** (200k free credits/month).
+
+---
+
+## 9. Platform Scope & Isolation Policy
+
+To prevent unintended modifications between independent codebase platforms:
+* **Targeted Platform Scope:**
+  * When a request specifies the **Flutter app** (`mobile_app`), only inspect and modify code in `mobile_app/`. Do **not** touch the Web Portals (`web_portal/`).
+  * When a request specifies the **Desktop Web or Mobile View** (`web_portal/consumer/index.html` or other web portals), only inspect and modify the web portal code. Do **not** touch `mobile_app/`.
+  * **Strict Isolation Rule:** Never touch or alter a platform/view that was not specifically requested. Cross-platform edits are only permitted when explicitly requested by the user.
+
+---
+
+## 10. MapDock Pluggable Architecture (Swappable Map Engines)
+
+Both platforms now implement the **MapDock Provider Pattern** for painless, zero-refactoring map provider swaps:
+1. **Flutter App (`mobile_app/lib/config/map_dock.dart`):**
+   * Plugs into MapLibre GL via `MapDock.activeStyleUrl`.
+   * Swapping vendors is a 1-line constant change: `static const MapProvider activeProvider = MapProvider.cartoVoyager;` (supports `cartoVoyager`, `mapTiler`, `stadia`, `osmPositron`).
+2. **Web Portal Desktop & Mobile View (`web_portal/consumer/index.html`):**
+   * Plugs into Leaflet via `MapDock.createTileLayer()`.
+   * Swapping vendors is a 1-line property change: `activeProvider: 'osm'` (supports `'osm'`, `'mapTiler'`, `'stadia'`, `'cartoVoyager'`).
+
+---
+
+## 11. Plan-E Vector Brand Identity & Adaptive Dual-Theme System
+
+The official Plan-E brand assets feature a supersonic aircraft breaking through a squircle boundary with an accent on `-E`:
+* **Geometry:** Squircle outline with top-right breakout opening, housing a solid 45° supersonic aircraft with twin stabilizers.
+* **Colors:**
+  * **Dark Mode:** White (`#FFFFFF`) icon & `PLAN`, warm caramel/amber (`#F2C48C`) for `-E`.
+  * **Light Mode:** Deep navy/slate (`#0B1324`) icon & `PLAN`, warm caramel/amber (`#F2C48C`) for `-E`.
+* **Canonical Cross-Platform Image Assets:**
+  * Identical byte-for-byte image files deployed to `web_portal/assets/` and `mobile_app/assets/images/`:
+    * Light Theme SVG: `logo_light.svg` (MD5: `2ee753a82d6dcee7a527a95717c93080`)
+    * Dark Theme SVG: `logo_dark.svg` (MD5: `4396c43a04b21a7479d9b704d92f51f4`)
+    * Light Theme PNG: `logo_light.png` (MD5: `8a845ba28bf93937db978c960f24108b`)
+    * Dark Theme PNG: `logo_dark.png` (MD5: `ddbe37e2a4e30943dfaa1281278016de`)
+  * Full logo assets are self-contained with vectorized typography paths for "PLAN-E" (Plus Jakarta Sans 900), eliminating cross-platform font rendering variations.
+* **Flutter Component:** [`mobile_app/lib/widgets/app_logo.dart`](file:///home/chakma-s/Desktop/Plan-E/mobile_app/lib/widgets/app_logo.dart) using a pre-warmed dual-layer `Stack` with strictly calculated layout bounds (`effectiveWidth = effectiveHeight * (702.0 / 160.0)`).
+* **Web Portals:** Integrated across [`index.html`](file:///home/chakma-s/Desktop/Plan-E/web_portal/index.html), [`consumer/index.html`](file:///home/chakma-s/Desktop/Plan-E/web_portal/consumer/index.html), [`vendor/index.html`](file:///home/chakma-s/Desktop/Plan-E/web_portal/vendor/index.html), and [`admin/index.html`](file:///home/chakma-s/Desktop/Plan-E/web_portal/admin/index.html).
+
+---
+
+## 12. Zero-Jitter Theme Switching Architecture
+
+To ensure elements never move, shift, or jump during theme toggling between light and dark modes:
+1. **Rigid Logo Containers:**
+   * Logo image swaps are placed inside rigid layout containers (`w-[175.5px] h-10` on the main landing hub, `w-[140.4px] h-8` on consumer and vendor portals) with `absolute inset-0 w-full h-full object-contain`. This prevents the intrinsic width from momentarily collapsing to 0 when toggling `dark:hidden` / `hidden dark:block`.
+2. **Scrollbar Gutter Stabilization:**
+   * All portal HTML templates enforce `html { scrollbar-gutter: stable; }` to eliminate Cumulative Layout Shift caused by vertical scrollbars appearing/disappearing.
+3. **Transition Freezing (`.theme-transitioning`):**
+   * Toggling theme adds `.theme-transitioning` to `<html>`, which forces `transition: none !important;` across all descendants during the theme swap frame, then cleanly restores normal transitions via `requestAnimationFrame`. This eliminates layout and box-shadow interpolation wobbles.
+4. **Flutter Pre-warmed Stack:**
+   * Flutter's `PlanELogo` and `PlanELogoIcon` widgets hold both light and dark SVGs in a pre-warmed `Stack` with explicit bounds. When theme toggles, opacity switches instantaneously with zero asynchronous asset loading delays, zero placeholder flashes, and zero title bar movement.
+
+---
+
+## 13. Session State & Context Resumption Cheatsheet
+
+### A. Completed Work in this Session
+1. **Full-Stack Orchestration & Testing Rules:** Documented in [`AGENTS.md`](file:///home/chakma-s/Desktop/Plan-E/AGENTS.md) and [`PROJECT_KNOWLEDGE.md`](file:///home/chakma-s/Desktop/Plan-E/PROJECT_KNOWLEDGE.md). Zero Android Studio/AVD emulator usage due to host resource limits. Flutter Web (`flutter run -d chrome`) is the primary simulation route.
+2. **Web Portal Map Blackout Fix:** Resolved Leaflet map canvas collapsing to dark/black when switching between Hotels and Resorts in [`web_portal/consumer/index.html`](file:///home/chakma-s/Desktop/Plan-E/web_portal/consumer/index.html) by preserving Leaflet internal classes on the map container and calling `invalidateSize()`.
+3. **Strict Platform Isolation Policy:** Strictly enforced in [`AGENTS.md`](file:///home/chakma-s/Desktop/Plan-E/AGENTS.md) — never touch `mobile_app/` during web requests, and never touch `web_portal/` during Flutter requests unless cross-platform updates are explicitly asked.
+4. **"Battery-Swap" MapDock Architecture:**
+   - **Flutter (`mobile_app/lib/config/map_dock.dart`):** Pluggable vector style URLs (`MapDock.activeStyleUrl`). Default is Carto Voyager vector (zero-key, zero-cost, watermark-free).
+   - **Web Portal (`web_portal/consumer/index.html`):** Pluggable tile layers (`MapDock.createTileLayer()`). Default is OpenStreetMap standard raster (zero-key, zero-cost, watermark-free).
+5. **Profile Button Light Mode Theming:** Fixed `#authHeaderBtn` staying dark in light mode by replacing hardcoded `bg-slate-900 text-white` with dynamic theme-aware Tailwind classes in [`web_portal/consumer/index.html`](file:///home/chakma-s/Desktop/Plan-E/web_portal/consumer/index.html).
+6. **Canonical Dual-Theme Logo Assets:**
+   - Single-image vector assets (`logo_light.svg`, `logo_dark.svg`) and high-res PNGs (`logo_light.png`, `logo_dark.png`) deployed across `web_portal/assets/` and `mobile_app/assets/images/` with identical MD5 checksums.
+7. **Zero-Jitter Theme Switching:**
+   - Fixed all layout movement across Web and Flutter Mobile so components remain placed exactly where they are in both themes.
+
+### B. Current Running Environment
+- **Docker Compose Stack:** PostgreSQL (`localhost:5432`), FastAPI (`http://localhost:8000`), Nginx (`http://localhost:80`).
+- **Web Portals Accessible At:**
+  - Launchpad: `http://localhost/`
+  - Traveler Web (Consumer Portal): `http://localhost/consumer/`
+  - Vendor Portal: `http://localhost/vendor/`
+  - Admin Portal: `http://localhost/admin/`
+- **Flutter Web App:** Running via `cd mobile_app && flutter run -d chrome` (connects to backend via `http://127.0.0.1:8000/api/v1`).
+
+
+
+
+
+
+
 
 

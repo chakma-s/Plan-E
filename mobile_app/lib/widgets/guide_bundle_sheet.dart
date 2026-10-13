@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import 'app_network_image.dart';
 
 class GuideBundleSheet extends StatelessWidget {
   final LocalGuideModel guide;
@@ -37,9 +37,9 @@ class GuideBundleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.82,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppTheme.getCardColor(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -64,15 +64,13 @@ class GuideBundleSheet extends StatelessWidget {
                   // Guide Header (Avatar, Name, Badge, Rating)
                   Row(
                     children: [
-                      ClipRRect(
+                      AppNetworkImage(
+                        imageUrl: guide.profilePhotoUrl,
+                        width: 72,
+                        height: 72,
+                        fit: BoxFit.cover,
                         borderRadius: BorderRadius.circular(36),
-                        child: CachedNetworkImage(
-                          imageUrl: guide.profilePhotoUrl,
-                          width: 72,
-                          height: 72,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => const CircleAvatar(radius: 36, backgroundColor: Colors.grey),
-                        ),
+                        fallbackIcon: Icons.person,
                       ),
                       const SizedBox(width: 16),
                       Expanded(
@@ -224,8 +222,8 @@ class GuideBundleSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: const Border(top: BorderSide(color: AppTheme.divider)),
+              color: AppTheme.getCardColor(context),
+              border: Border(top: BorderSide(color: AppTheme.getBorderColor(context))),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),

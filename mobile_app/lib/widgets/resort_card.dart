@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import 'app_network_image.dart';
 
 class ResortCard extends StatelessWidget {
   final ResortCardModel resort;
@@ -21,20 +21,23 @@ class ResortCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final greenTextColor = isDark ? AppTheme.brandColor : const Color(0xFF065F46);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.getCardColor(context),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppTheme.resortAccent : AppTheme.divider,
-            width: isSelected ? 2.5 : 1.0,
+            color: isSelected ? AppTheme.resortAccent : AppTheme.getBorderColor(context),
+            width: isSelected ? 2.0 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.resortAccent.withOpacity(0.08),
+              color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -46,24 +49,13 @@ class ResortCard extends StatelessWidget {
             // Immersive Hero Visual with Gradient Overlay
             Stack(
               children: [
-                ClipRRect(
+                AppNetworkImage(
+                  imageUrl: resort.coverImageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: CachedNetworkImage(
-                    imageUrl: resort.coverImageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      height: 200,
-                      color: Colors.grey.shade200,
-                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      height: 200,
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.beach_access, size: 48, color: Colors.grey),
-                    ),
-                  ),
+                  fallbackIcon: Icons.beach_access,
                 ),
                 // Gradient Scrim
                 Positioned.fill(
@@ -98,11 +90,11 @@ class ResortCard extends StatelessWidget {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.spa, color: Colors.white, size: 14),
+                        Icon(Icons.spa, color: Colors.black, size: 14),
                         SizedBox(width: 5),
                         Text(
                           "Luxury Vacation Sanctuary",
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                          style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w800),
                         ),
                       ],
                     ),
@@ -179,10 +171,10 @@ class ResortCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           resort.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
-                            color: AppTheme.textPrimary,
+                            color: AppTheme.getTextColor(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -194,15 +186,15 @@ class ResortCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             resort.reviewScore.toStringAsFixed(2),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
+                              color: AppTheme.getTextColor(context),
                             ),
                           ),
                           Text(
                             " (${resort.reviewCount})",
-                            style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                            style: TextStyle(fontSize: 12, color: AppTheme.getSecondaryTextColor(context)),
                           ),
                         ],
                       ),
@@ -212,10 +204,10 @@ class ResortCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       resort.tagline!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.getSecondaryTextColor(context),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -229,9 +221,9 @@ class ResortCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.guideLight.withOpacity(0.5),
+                      color: AppTheme.brandColor.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.guideGold.withOpacity(0.3)),
+                      border: Border.all(color: AppTheme.brandColor.withOpacity(0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,10 +243,10 @@ class ResortCard extends StatelessWidget {
                             const Spacer(),
                             Text(
                               "${resort.availableGuidesCount} Available to Bundle",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: AppTheme.textSecondary,
+                                color: AppTheme.getSecondaryTextColor(context),
                               ),
                             ),
                           ],
@@ -274,7 +266,7 @@ class ResortCard extends StatelessWidget {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: AppTheme.getSurfaceColor(context),
                                       borderRadius: BorderRadius.circular(24),
                                       border: Border.all(color: AppTheme.guideGold.withOpacity(0.4)),
                                     ),
@@ -283,7 +275,7 @@ class ResortCard extends StatelessWidget {
                                       children: [
                                         CircleAvatar(
                                           radius: 14,
-                                          backgroundImage: CachedNetworkImageProvider(guide.profilePhotoUrl),
+                                          backgroundImage: appNetworkImageProvider(guide.profilePhotoUrl),
                                         ),
                                         const SizedBox(width: 8),
                                         Column(
@@ -292,15 +284,15 @@ class ResortCard extends StatelessWidget {
                                           children: [
                                             Text(
                                               guide.fullName,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,
-                                                color: AppTheme.textPrimary,
+                                                color: AppTheme.getTextColor(context),
                                               ),
                                             ),
                                             Text(
                                               "\$${guide.dailyRate.toStringAsFixed(0)}/day • ⭐ ${guide.rating}",
-                                              style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary),
+                                              style: TextStyle(fontSize: 10, color: AppTheme.getSecondaryTextColor(context)),
                                             ),
                                           ],
                                         ),
@@ -323,12 +315,16 @@ class ResortCard extends StatelessWidget {
                           child: OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              side: BorderSide(color: isSelected ? AppTheme.resortAccent : AppTheme.divider),
+                              side: const BorderSide(color: AppTheme.brandColor),
+                              backgroundColor: AppTheme.brandColor.withValues(alpha: 0.08),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                             onPressed: onLocateTap,
-                            icon: const Icon(Icons.location_searching, size: 14, color: AppTheme.resortAccent),
-                            label: const Text("Show on Map", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.resortAccent)),
+                            icon: Icon(Icons.location_searching, size: 14, color: greenTextColor),
+                            label: Text(
+                              "Show on Map",
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: greenTextColor),
+                            ),
                           ),
                         ),
                       if (onLocateTap != null) const SizedBox(width: 8),
@@ -336,12 +332,12 @@ class ResortCard extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.resortAccent,
-                            foregroundColor: Colors.white,
+                            foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: onTap,
-                          child: const Text("View Sanctuary", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                          child: const Text("View Sanctuary", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black)),
                         ),
                       ),
                     ],

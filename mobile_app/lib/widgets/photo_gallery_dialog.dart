@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'app_network_image.dart';
 
 void showPhotoGallery(
   BuildContext context,
@@ -93,13 +93,13 @@ class _PhotoGalleryViewerState extends State<PhotoGalleryViewer> {
                   child: InteractiveViewer(
                     minScale: 0.8,
                     maxScale: 3.5,
-                    child: CachedNetworkImage(
+                    child: AppNetworkImage(
                       imageUrl: url,
                       fit: BoxFit.contain,
-                      placeholder: (_, __) => const Center(
+                      placeholder: const Center(
                         child: CircularProgressIndicator(color: Colors.white),
                       ),
-                      errorWidget: (_, __, ___) => const Center(
+                      errorWidget: const Center(
                         child: Icon(Icons.broken_image, color: Colors.grey, size: 48),
                       ),
                     ),
@@ -141,7 +141,7 @@ class _PhotoGalleryViewerState extends State<PhotoGalleryViewer> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: CachedNetworkImage(
+                        child: AppNetworkImage(
                           imageUrl: widget.images[index],
                           fit: BoxFit.cover,
                         ),

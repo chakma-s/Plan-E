@@ -22,8 +22,17 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    html {
+      scrollbar-gutter: stable;
+    }
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .theme-transitioning,
+    .theme-transitioning *,
+    .theme-transitioning *::before,
+    .theme-transitioning *::after {
+      transition: none !important;
+    }
   </style>
   <script>
     (function() {
@@ -46,7 +55,7 @@
           <i class="fa-solid fa-shield-halved text-sm"></i>
         </div>
         <div>
-          <span class="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white">Plan-E</span>
+          <span class="font-black text-lg tracking-wide uppercase text-slate-900 dark:text-white">PLAN<span class="text-[#f2c48c]">-E</span></span>
           <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">Admin Operations</span>
         </div>
       </div>
@@ -82,7 +91,7 @@
         </div>
         <!-- Dark/Light Theme Switcher -->
         <button onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Light/Dark Theme" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-brand dark:hover:text-brand hover:border-brand dark:hover:border-brand flex items-center justify-center transition shadow-sm">
-          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+          <i id="themeIcon" class="fa-solid fa-moon text-sm w-4 text-center"></i>
         </button>
       </div>
     </div>
@@ -177,22 +186,25 @@
 
     function toggleTheme() {
       const htmlEl = document.documentElement;
+      htmlEl.classList.add('theme-transitioning');
       const icon = document.getElementById('themeIcon');
-      if (htmlEl.classList.contains('dark')) {
-        htmlEl.classList.remove('dark');
-        localStorage.setItem('plane_theme', 'light');
-        if (icon) {
+      const isDark = htmlEl.classList.toggle('dark');
+      localStorage.setItem('plane_theme', isDark ? 'dark' : 'light');
+      if (icon) {
+        if (isDark) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        } else {
           icon.classList.remove('fa-sun');
           icon.classList.add('fa-moon');
         }
-      } else {
-        htmlEl.classList.add('dark');
-        localStorage.setItem('plane_theme', 'dark');
-        if (icon) {
-          icon.classList.remove('fa-moon');
-          icon.classList.add('fa-sun');
-        }
       }
+      window.getComputedStyle(htmlEl).opacity;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          htmlEl.classList.remove('theme-transitioning');
+        });
+      });
     }
 
     // Sync icon on load

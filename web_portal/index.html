@@ -23,7 +23,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    html {
+      scrollbar-gutter: stable;
+    }
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .theme-transitioning,
+    .theme-transitioning *,
+    .theme-transitioning *::before,
+    .theme-transitioning *::after {
+      transition: none !important;
+    }
   </style>
   <script>
     (function() {
@@ -42,13 +51,11 @@
   <header class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 backdrop-blur sticky top-0 z-50 transition-colors">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-teal-500/20">
-          <i class="fa-solid fa-plane-departure"></i>
+        <div class="relative w-[175.5px] h-10 shrink-0">
+          <img src="assets/logo_light.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain dark:hidden">
+          <img src="assets/logo_dark.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain hidden dark:block">
         </div>
-        <div>
-          <span class="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">Plan-E</span>
-          <span class="ml-2 text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">OTA 500-User Beta Stack</span>
-        </div>
+        <span class="ml-2.5 text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">OTA 500-User Beta Stack</span>
       </div>
       <div class="flex items-center space-x-4">
         <span class="hidden sm:flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -56,7 +63,7 @@
         </span>
         <!-- Dark/Light Theme Switcher -->
         <button onclick="toggleTheme()" id="themeToggleBtn" title="Toggle Light/Dark Theme" class="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-brand dark:hover:text-brand hover:border-brand dark:hover:border-brand flex items-center justify-center transition shadow-sm">
-          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+          <i id="themeIcon" class="fa-solid fa-moon text-sm w-4 text-center"></i>
         </button>
       </div>
     </div>
@@ -162,7 +169,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       
       <!-- 1. Consumer Web Experience -->
-      <a href="/consumer" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-teal-500/10 hover:-translate-y-1">
+      <a href="/consumer" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-500 rounded-3xl p-6 flex flex-col justify-between transition-colors duration-150 shadow-sm hover:shadow-xl hover:shadow-teal-500/10 hover:-translate-y-1 hover:transition-transform">
         <div class="space-y-4">
           <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950 border border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
             <i class="fa-solid fa-compass"></i>
@@ -182,7 +189,7 @@
       </a>
 
       <!-- 2. Vendor Management Portal -->
-      <a href="/vendor" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1">
+      <a href="/vendor" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 rounded-3xl p-6 flex flex-col justify-between transition-colors duration-150 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 hover:transition-transform">
         <div class="space-y-4">
           <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
             <i class="fa-solid fa-hotel"></i>
@@ -202,7 +209,7 @@
       </a>
 
       <!-- 3. Admin Operations Dashboard -->
-      <a href="/admin" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1">
+      <a href="/admin" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-500 rounded-3xl p-6 flex flex-col justify-between transition-colors duration-150 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1 hover:transition-transform">
         <div class="space-y-4">
           <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
             <i class="fa-solid fa-shield-halved"></i>
@@ -222,7 +229,7 @@
       </a>
 
       <!-- 4. Interactive OpenAPI / Swagger Engine -->
-      <a href="/api/v1/docs" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1">
+      <a href="/api/v1/docs" target="_blank" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 rounded-3xl p-6 flex flex-col justify-between transition-colors duration-150 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:transition-transform">
         <div class="space-y-4">
           <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl group-hover:scale-110 transition">
             <i class="fa-solid fa-code"></i>
@@ -283,22 +290,25 @@
   <script>
     function toggleTheme() {
       const htmlEl = document.documentElement;
+      htmlEl.classList.add('theme-transitioning');
       const icon = document.getElementById('themeIcon');
-      if (htmlEl.classList.contains('dark')) {
-        htmlEl.classList.remove('dark');
-        localStorage.setItem('plane_theme', 'light');
-        if (icon) {
+      const isDark = htmlEl.classList.toggle('dark');
+      localStorage.setItem('plane_theme', isDark ? 'dark' : 'light');
+      if (icon) {
+        if (isDark) {
+          icon.classList.remove('fa-moon');
+          icon.classList.add('fa-sun');
+        } else {
           icon.classList.remove('fa-sun');
           icon.classList.add('fa-moon');
         }
-      } else {
-        htmlEl.classList.add('dark');
-        localStorage.setItem('plane_theme', 'dark');
-        if (icon) {
-          icon.classList.remove('fa-moon');
-          icon.classList.add('fa-sun');
-        }
       }
+      window.getComputedStyle(htmlEl).opacity;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          htmlEl.classList.remove('theme-transitioning');
+        });
+      });
     }
 
     // Sync icon with current theme on load

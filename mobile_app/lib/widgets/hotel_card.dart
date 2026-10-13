@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import 'app_network_image.dart';
 
 class HotelCard extends StatelessWidget {
   final HotelCardModel hotel;
@@ -19,20 +19,23 @@ class HotelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final greenTextColor = isDark ? AppTheme.brandColor : const Color(0xFF065F46);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.getCardColor(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppTheme.hotelAccent : AppTheme.divider,
-            width: isSelected ? 2.5 : 1.0,
+            color: isSelected ? AppTheme.hotelAccent : AppTheme.getBorderColor(context),
+            width: isSelected ? 2.0 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -44,42 +47,38 @@ class HotelCard extends StatelessWidget {
             // Image with Price Badge & Star Rating
             Stack(
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: CachedNetworkImage(
-                    imageUrl: hotel.coverImageUrl,
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      height: 160,
-                      color: Colors.grey.shade200,
-                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      height: 160,
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.hotel, size: 48, color: Colors.grey),
-                    ),
-                  ),
+                AppNetworkImage(
+                  imageUrl: hotel.coverImageUrl,
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                  fallbackIcon: Icons.hotel,
                 ),
                 Positioned(
                   top: 12,
                   left: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppTheme.hotelAccent,
                       borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.bolt, color: Colors.white, size: 14),
+                        Icon(Icons.bolt, color: Colors.black, size: 14),
                         SizedBox(width: 4),
                         Text(
                           "Instant Hotel Booking",
-                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: Colors.black, fontSize: 11, fontWeight: FontWeight.w800),
                         ),
                       ],
                     ),
@@ -91,7 +90,7 @@ class HotelCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.75),
+                      color: Colors.black.withValues(alpha: 0.75),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -107,7 +106,7 @@ class HotelCard extends StatelessWidget {
                         ),
                         const Text(
                           " / night",
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                          style: TextStyle(color: Colors.white70, fontSize: 11),
                         ),
                       ],
                     ),
@@ -127,10 +126,10 @@ class HotelCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           hotel.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.getTextColor(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -142,15 +141,15 @@ class HotelCard extends StatelessWidget {
                           const SizedBox(width: 3),
                           Text(
                             hotel.reviewScore.toStringAsFixed(1),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: AppTheme.textPrimary,
+                              color: AppTheme.getTextColor(context),
                             ),
                           ),
                           Text(
                             " (${hotel.reviewCount})",
-                            style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                            style: TextStyle(fontSize: 11, color: AppTheme.getSecondaryTextColor(context)),
                           ),
                         ],
                       ),
@@ -159,12 +158,12 @@ class HotelCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 14, color: AppTheme.textSecondary),
+                      Icon(Icons.location_on, size: 14, color: AppTheme.getSecondaryTextColor(context)),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           "${hotel.address}, ${hotel.city}",
-                          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                          style: TextStyle(fontSize: 12, color: AppTheme.getSecondaryTextColor(context)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -180,15 +179,16 @@ class HotelCard extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppTheme.hotelLight,
+                          color: AppTheme.brandColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.3)),
                         ),
                         child: Text(
                           amenity,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppTheme.hotelAccent,
-                            fontWeight: FontWeight.w500,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: greenTextColor,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       );
@@ -202,12 +202,16 @@ class HotelCard extends StatelessWidget {
                           child: OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 8),
-                              side: BorderSide(color: isSelected ? AppTheme.hotelAccent : AppTheme.divider),
+                              side: const BorderSide(color: AppTheme.brandColor),
+                              backgroundColor: AppTheme.brandColor.withValues(alpha: 0.08),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                             onPressed: onLocateTap,
-                            icon: const Icon(Icons.location_searching, size: 14, color: AppTheme.hotelAccent),
-                            label: const Text("Show on Map", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.hotelAccent)),
+                            icon: Icon(Icons.location_searching, size: 14, color: greenTextColor),
+                            label: Text(
+                              "Show on Map",
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: greenTextColor),
+                            ),
                           ),
                         ),
                       if (onLocateTap != null) const SizedBox(width: 8),
@@ -215,12 +219,12 @@ class HotelCard extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.hotelAccent,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppTheme.blackColor,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: onTap,
-                          child: const Text("View Rooms", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                          child: const Text("View Rooms", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black)),
                         ),
                       ),
                     ],

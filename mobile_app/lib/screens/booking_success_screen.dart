@@ -81,17 +81,17 @@ class BookingSuccessScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.getCardColor(context),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppTheme.divider),
+                  border: Border.all(color: AppTheme.getBorderColor(context)),
                 ),
                 child: Column(
                   children: [
-                    _buildRow("Property", reservation.propertyName),
+                    _buildRow(context, "Property", reservation.propertyName),
                     const Divider(height: 20),
-                    _buildRow("Dates", "${reservation.checkInDate} → ${reservation.checkOutDate}"),
+                    _buildRow(context, "Dates", "${reservation.checkInDate} → ${reservation.checkOutDate}"),
                     const Divider(height: 20),
-                    _buildRow("Total Paid", "\$${reservation.totalAmount.toStringAsFixed(2)} USD"),
+                    _buildRow(context, "Total Paid", "\$${reservation.totalAmount.toStringAsFixed(2)} USD"),
                   ],
                 ),
               ),
@@ -121,11 +121,11 @@ class BookingSuccessScreen extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               reservation.guideName!,
-                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.getTextColor(context)),
                             ),
-                            const Text(
+                            Text(
                               "Your guide will meet you at resort check-in.",
-                              style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                              style: TextStyle(fontSize: 11, color: AppTheme.getSecondaryTextColor(context)),
                             ),
                           ],
                         ),
@@ -140,6 +140,10 @@ class BookingSuccessScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    foregroundColor: Colors.black,
+                  ),
                   onPressed: () {
                     Navigator.pushAndRemoveUntil(
                       context,
@@ -147,7 +151,7 @@ class BookingSuccessScreen extends StatelessWidget {
                       (route) => false,
                     );
                   },
-                  child: const Text("Return to Home Explorer"),
+                  child: const Text("Return to Home Explorer", style: TextStyle(fontWeight: FontWeight.w800, color: Colors.black)),
                 ),
               ),
             ],
@@ -157,12 +161,12 @@ class BookingSuccessScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildRow(BuildContext context, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-        Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+        Text(label, style: TextStyle(fontSize: 13, color: AppTheme.getSecondaryTextColor(context))),
+        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.getTextColor(context))),
       ],
     );
   }

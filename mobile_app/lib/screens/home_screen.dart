@@ -4,7 +4,9 @@ import '../providers/app_state.dart';
 import '../theme/app_theme.dart';
 import 'hotel_search_screen.dart';
 import 'resort_search_screen.dart';
-import 'my_trips_screen.dart';import '../widgets/auth_bottom_sheet.dart';
+import 'my_trips_screen.dart';
+import '../widgets/auth_bottom_sheet.dart';
+import '../widgets/app_logo.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,46 +24,66 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.flight_takeoff, color: AppTheme.blackColor, size: 20),
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              "Plan-E",
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: -0.5),
-            ),
-          ],
+        backgroundColor: AppTheme.getCardColor(context),
+        elevation: 0,
+        titleSpacing: 16,
+        shape: Border(
+          bottom: BorderSide(color: AppTheme.getBorderColor(context), width: 1),
+        ),
+        title: const PlanELogo(
+          iconSize: 28,
+          fontSize: 20,
         ),
         actions: [
-          IconButton(
-            icon: Icon(state.currentTheme == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode, color: AppTheme.brandColor),
-            onPressed: () {
-              state.toggleTheme();
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              state.isAuthenticated ? Icons.account_circle : Icons.account_circle_outlined,
-              color: state.isAuthenticated ? AppTheme.brandColor : AppTheme.getTextColor(context),
+          Container(
+            width: 36,
+            height: 36,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.getSurfaceColor(context),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppTheme.getInputBorderColor(context)),
             ),
-            onPressed: () {
-              if (!state.isAuthenticated) {
-                AuthBottomSheet.show(context);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Already logged in")));
-              }
-            },
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(
+                state.currentTheme == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+                color: AppTheme.brandColor,
+                size: 18,
+              ),
+              onPressed: () {
+                state.toggleTheme();
+              },
+            ),
+          ),
+          Container(
+            width: 36,
+            height: 36,
+            margin: const EdgeInsets.only(right: 16),
+            decoration: BoxDecoration(
+              color: AppTheme.getSurfaceColor(context),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppTheme.getInputBorderColor(context)),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(
+                state.isAuthenticated ? Icons.account_circle : Icons.account_circle_outlined,
+                color: AppTheme.brandColor,
+                size: 18,
+              ),
+              onPressed: () {
+                if (!state.isAuthenticated) {
+                  AuthBottomSheet.show(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Already logged in")));
+                }
+              },
+            ),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
+          preferredSize: const Size.fromHeight(60),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -82,22 +104,31 @@ class _HomeScreenState extends State<HomeScreen> {
           const Center(child: Text("Traveler Profile & Settings")),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentNavIndex,
-        selectedItemColor: state.activeJourney == JourneyType.hotel
-            ? AppTheme.hotelAccent
-            : AppTheme.resortAccent,
-        unselectedItemColor: AppTheme.textMuted,
-        onTap: (index) {
-          setState(() {
-            currentNavIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
-          BottomNavigationBarItem(icon: Icon(Icons.bookmark_outline), label: "My Trips"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.getCardColor(context),
+          border: Border(top: BorderSide(color: AppTheme.getBorderColor(context), width: 1)),
+        ),
+        child: BottomNavigationBar(
+          elevation: 0,
+          backgroundColor: AppTheme.getCardColor(context),
+          currentIndex: currentNavIndex,
+          selectedItemColor: AppTheme.brandColor,
+          unselectedItemColor: AppTheme.textMuted,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 10),
+          type: BottomNavigationBarType.fixed,
+          onTap: (index) {
+            setState(() {
+              currentNavIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
+            BottomNavigationBarItem(icon: Icon(Icons.bookmark_outline), label: "My Trips"),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
+          ],
+        ),
       ),
     );
   }
@@ -106,9 +137,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.getSurfaceColor(context),
+        color: AppTheme.getSegmentedBgColor(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.getDividerColor(context)),
+        border: Border.all(color: AppTheme.getBorderColor(context)),
       ),
       child: Row(
         children: [
@@ -125,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: state.activeJourney == JourneyType.hotel
-                      ? [BoxShadow(color: AppTheme.hotelAccent.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))]
+                      ? [BoxShadow(color: AppTheme.hotelAccent.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
                       : null,
                 ),
                 child: Row(
@@ -165,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: state.activeJourney == JourneyType.resort
-                      ? [BoxShadow(color: AppTheme.resortAccent.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))]
+                      ? [BoxShadow(color: AppTheme.resortAccent.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
                       : null,
                 ),
                 child: Row(

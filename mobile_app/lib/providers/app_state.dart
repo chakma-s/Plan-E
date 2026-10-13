@@ -9,8 +9,8 @@ class AppState extends ChangeNotifier {
   final ApiService api = ApiService();
 
 
-  // Theme State
-  ThemeMode currentTheme = ThemeMode.light;
+  // Theme State (default dark mode matching consumer portal)
+  ThemeMode currentTheme = ThemeMode.dark;
 
   void toggleTheme() {
     currentTheme = currentTheme == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
@@ -36,6 +36,21 @@ class AppState extends ChangeNotifier {
   void setHotelMapView(bool value) {
     if (isHotelMapView != value) {
       isHotelMapView = value;
+      notifyListeners();
+    }
+  }
+
+  // Resort Screen Map/List View Persistence
+  bool isResortMapView = false;
+
+  void toggleResortMapView() {
+    isResortMapView = !isResortMapView;
+    notifyListeners();
+  }
+
+  void setResortMapView(bool value) {
+    if (isResortMapView != value) {
+      isResortMapView = value;
       notifyListeners();
     }
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_network_image.dart';
 import 'booking_success_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -43,20 +43,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.getCardColor(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.divider),
+                border: Border.all(color: AppTheme.getBorderColor(context)),
               ),
               child: Row(
                 children: [
-                  ClipRRect(
+                  AppNetworkImage(
+                    imageUrl: prop.coverImageUrl,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
                     borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: prop.coverImageUrl,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -81,14 +79,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         const SizedBox(height: 4),
                         Text(
                           prop.name,
-                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppTheme.getTextColor(context)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
                         Text(
                           "${prop.city}, ${prop.country}",
-                          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                          style: TextStyle(fontSize: 12, color: AppTheme.getSecondaryTextColor(context)),
                         ),
                       ],
                     ),
@@ -102,9 +100,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.getCardColor(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.divider),
+                border: Border.all(color: AppTheme.getBorderColor(context)),
               ),
               child: Column(
                 children: [
@@ -164,7 +162,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
-                          backgroundImage: CachedNetworkImageProvider(guide.profilePhotoUrl),
+                          backgroundImage: appNetworkImageProvider(guide.profilePhotoUrl),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -195,14 +193,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.getCardColor(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.divider),
+                border: Border.all(color: AppTheme.getBorderColor(context)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Price Breakdown", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  Text("Price Breakdown", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppTheme.getTextColor(context))),
                   const SizedBox(height: 12),
                   _buildPriceRow(
                     "Room Subtotal (${quote.totalNights} nights)",

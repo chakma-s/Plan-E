@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../theme/app_theme.dart';
+import 'app_logo.dart';
 
 class AuthBottomSheet extends StatelessWidget {
   const AuthBottomSheet({super.key});
@@ -44,25 +45,28 @@ class AuthBottomSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)
-                ],
-              ),
-              child: const Icon(Icons.flight_takeoff, color: Colors.white, size: 32),
-            ),
+            const PlanELogoIcon(size: 64),
             const SizedBox(height: 16),
-            Text(
-              "Welcome to Plan-E",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-                color: AppTheme.getTextColor(context),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Welcome to PLAN",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.getTextColor(context),
+                    ),
+                  ),
+                  const TextSpan(
+                    text: "-E",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.logoAccent,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),

@@ -20,3 +20,9 @@ When asked to test, simulate, run, or diagnose the ecosystem:
    * **Primary / Recommended:** Flutter Web in Google Chrome (`cd mobile_app && flutter run -d chrome`). Emulate mobile screens via Chrome DevTools (`Ctrl+Shift+M`). Base URL connects to `http://127.0.0.1:8000/api/v1`.
    * **Physical Device Alternative:** Physical Android phone via USB + `scrcpy` (`adb reverse tcp:8000 tcp:8000`). Zero PC emulation load.
    * **Linux Desktop Alternative:** `cd mobile_app && flutter run -d linux` for native desktop execution.
+
+## Platform Isolation & Modification Policy
+* **Targeted Platform Scope:**
+  * When a request specifically specifies the **Flutter app** (`mobile_app`), only inspect and modify files within `mobile_app/`. Do NOT modify Web Portals (`web_portal/`).
+  * When a request specifically specifies the **Desktop Web or Mobile View** (`web_portal/consumer/index.html` or other web portals), only inspect and modify web portal files. Do NOT modify `mobile_app/`.
+  * **Strict Isolation Rule:** Never touch or alter an unspecified platform or view. Only make cross-platform changes when explicitly asked to update both.

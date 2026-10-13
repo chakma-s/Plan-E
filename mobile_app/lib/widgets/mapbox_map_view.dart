@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import '../config/map_dock.dart';
+import 'app_network_image.dart';
 
 class MapboxMapView extends StatefulWidget {
   final List<dynamic> properties; // List<HotelCardModel> or List<ResortCardModel>
@@ -30,8 +32,49 @@ class _MapboxMapViewState extends State<MapboxMapView> {
   dynamic selectedProperty;
   bool isStyleLoaded = false;
 
-  // High-performance worldwide vector tile style with unlimited street-level zoom (no API key required)
-  static const String mapboxStyle = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json";
+  // Swappable vector tile style delegated to the central MapDock
+  static String get mapboxStyle => MapDock.activeStyleUrl;
+
+  dynamic _findProperty(String? id) {
+    if (id == null) return null;
+    for (final prop in widget.properties) {
+      if (prop.id == id) return prop;
+    }
+    return null;
+  }
+
+  CameraPosition _getInitialCameraPosition() {
+    final selected = _findProperty(widget.selectedPropertyId);
+    if (selected != null && selected.latitude != null && selected.longitude != null) {
+      return CameraPosition(
+        target: LatLng(selected.latitude, selected.longitude),
+        zoom: 14.0,
+      );
+    }
+
+    for (final p in widget.properties) {
+      final city = (p.city as String?)?.toLowerCase() ?? '';
+      if (city.contains('bangalore') || city.contains('bengaluru')) {
+        return CameraPosition(
+          target: LatLng(p.latitude, p.longitude),
+          zoom: 12.0,
+        );
+      }
+    }
+
+    if (widget.properties.isNotEmpty) {
+      final first = widget.properties.first;
+      return CameraPosition(
+        target: LatLng(first.latitude, first.longitude),
+        zoom: 12.0,
+      );
+    }
+
+    return const CameraPosition(
+      target: LatLng(12.9716, 77.5946),
+      zoom: 11.0,
+    );
+  }
 
   @override
   void didUpdateWidget(covariant MapboxMapView oldWidget) {
@@ -43,19 +86,17 @@ class _MapboxMapViewState extends State<MapboxMapView> {
       }
       if (widget.selectedPropertyId != null &&
           widget.selectedPropertyId != oldWidget.selectedPropertyId) {
-        final prop = widget.properties.firstWhere(
-          (p) => p.id == widget.selectedPropertyId,
-          orElse: () => null,
-        );
-        if (prop != null) {
+        final prop = _findProperty(widget.selectedPropertyId);
+        if (prop != null && prop.latitude != null && prop.longitude != null) {
           setState(() {
             selectedProperty = prop;
           });
           mapController?.animateCamera(
             CameraUpdate.newLatLngZoom(
               LatLng(prop.latitude, prop.longitude),
-              13.5,
+              14.0,
             ),
+            duration: const Duration(milliseconds: 600),
           );
         }
       }
@@ -63,34 +104,20 @@ class _MapboxMapViewState extends State<MapboxMapView> {
   }
 
   @override
+  void dispose() {
+    mapController?.onSymbolTapped.remove(_onSymbolTapped);
+    mapController?.onCircleTapped.remove(_onCircleTapped);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Default initial location: Bangalore, India
-    final bangaloreProp = widget.properties.cast<dynamic>().firstWhere(
-      (p) {
-        try {
-          final city = (p.city as String?)?.toLowerCase() ?? '';
-          return city.contains('bangalore') || city.contains('bengaluru');
-        } catch (_) {
-          return false;
-        }
-      },
-      orElse: () => null,
-    );
-
-    final initialTarget = bangaloreProp != null
-        ? LatLng(bangaloreProp.latitude, bangaloreProp.longitude)
-        : (widget.properties.isNotEmpty
-            ? LatLng(widget.properties.first.latitude, widget.properties.first.longitude)
-            : const LatLng(12.9716, 77.5946));
-
     return Stack(
       children: [
         MapLibreMap(
+          key: const ValueKey('plane_maplibre_canvas'),
           styleString: mapboxStyle,
-          initialCameraPosition: CameraPosition(
-            target: initialTarget,
-            zoom: 11.0,
-          ),
+          initialCameraPosition: _getInitialCameraPosition(),
           onMapCreated: (controller) {
             mapController = controller;
             controller.onSymbolTapped.add(_onSymbolTapped);
@@ -103,6 +130,18 @@ class _MapboxMapViewState extends State<MapboxMapView> {
               });
             }
             _addPropertyMarkers();
+            if (widget.selectedPropertyId != null) {
+              final prop = _findProperty(widget.selectedPropertyId);
+              if (prop != null && prop.latitude != null && prop.longitude != null) {
+                mapController?.animateCamera(
+                  CameraUpdate.newLatLngZoom(
+                    LatLng(prop.latitude, prop.longitude),
+                    14.0,
+                  ),
+                  duration: const Duration(milliseconds: 600),
+                );
+              }
+            }
           },
           onCameraIdle: () async {
             if (mapController != null && widget.onBoundsChanged != null) {
@@ -206,20 +245,20 @@ class _MapboxMapViewState extends State<MapboxMapView> {
 
   void _handlePropertyTap(dynamic propId) {
     if (propId == null) return;
-    final match = widget.properties.firstWhere(
-      (p) => p.id == propId,
-      orElse: () => null,
-    );
+    final match = _findProperty(propId.toString());
     if (match != null && mounted) {
       setState(() {
         selectedProperty = match;
       });
-      mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          LatLng(match.latitude, match.longitude),
-          13.5,
-        ),
-      );
+      if (match.latitude != null && match.longitude != null) {
+        mapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(
+            LatLng(match.latitude, match.longitude),
+            14.0,
+          ),
+          duration: const Duration(milliseconds: 600),
+        );
+      }
       _addPropertyMarkers();
       if (widget.onPropertyTap != null) {
         widget.onPropertyTap!(match);
@@ -232,8 +271,9 @@ class _MapboxMapViewState extends State<MapboxMapView> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.getCardColor(context),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.getBorderColor(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.12),
@@ -244,20 +284,13 @@ class _MapboxMapViewState extends State<MapboxMapView> {
       ),
       child: Row(
         children: [
-          ClipRRect(
+          AppNetworkImage(
+            imageUrl: prop.coverImageUrl,
+            width: 70,
+            height: 70,
+            fit: BoxFit.cover,
             borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              prop.coverImageUrl,
-              width: 70,
-              height: 70,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 70,
-                height: 70,
-                color: Colors.grey.shade300,
-                child: const Icon(Icons.apartment),
-              ),
-            ),
+            fallbackIcon: Icons.apartment,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -267,7 +300,7 @@ class _MapboxMapViewState extends State<MapboxMapView> {
               children: [
                 Text(
                   prop.name,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.getTextColor(context)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

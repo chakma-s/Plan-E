@@ -65,9 +65,9 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.getCardColor(context),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.divider),
+                        border: Border.all(color: AppTheme.getBorderColor(context)),
                         boxShadow: [
                           BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
                         ],
@@ -95,19 +95,19 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
                               ),
                               Text(
                                 res.reservationCode,
-                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppTheme.textPrimary),
+                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppTheme.getTextColor(context)),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
                           Text(
                             res.propertyName,
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.getTextColor(context)),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             "${res.checkInDate} → ${res.checkOutDate} (${res.totalNights} nights)",
-                            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                            style: TextStyle(fontSize: 12, color: AppTheme.getSecondaryTextColor(context)),
                           ),
                           if (hasGuide) ...[
                             const SizedBox(height: 10),
@@ -134,7 +134,7 @@ class _MyTripsScreenState extends State<MyTripsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Paid: \$${res.totalAmount.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.w700)),
+                              Text("Paid: \$${res.totalAmount.toStringAsFixed(2)}", style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.getTextColor(context))),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(

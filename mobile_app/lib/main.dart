@@ -70,7 +70,39 @@ class PlanETravelApp extends StatelessWidget {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(25),
-                              child: child ?? const SizedBox(),
+                              child: Column(
+                                children: [
+                                  // Mobile status bar mock matching consumer web simulator
+                                  Container(
+                                    height: 24,
+                                    color: AppTheme.getCardColor(context),
+                                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "9:41",
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppTheme.getTextColor(context),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.signal_cellular_alt, size: 11, color: AppTheme.getTextColor(context)),
+                                            const SizedBox(width: 4),
+                                            Icon(Icons.wifi, size: 11, color: AppTheme.getTextColor(context)),
+                                            const SizedBox(width: 4),
+                                            Icon(Icons.battery_full, size: 12, color: AppTheme.getTextColor(context)),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(child: child ?? const SizedBox()),
+                                ],
+                              ),
                             ),
                           ),
                         ),

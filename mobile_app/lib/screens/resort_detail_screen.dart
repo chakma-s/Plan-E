@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/app_state.dart';
 import '../models/models.dart';
 import '../widgets/guide_bundle_sheet.dart';
 import '../widgets/photo_gallery_dialog.dart';
+import '../widgets/app_network_image.dart';
 import '../theme/app_theme.dart';
 import 'checkout_screen.dart';
 
@@ -64,14 +64,10 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
                           initialIndex: _currentImageIndex,
                           title: resort.name,
                         ),
-                        child: CachedNetworkImage(
+                        child: AppNetworkImage(
                           imageUrl: allImages[idx],
                           fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(color: Colors.grey.shade300),
-                          errorWidget: (_, __, ___) => Container(
-                            color: Colors.grey.shade300,
-                            child: const Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                          ),
+                          fallbackIcon: Icons.broken_image,
                         ),
                       );
                     },
@@ -264,12 +260,10 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
                                   width: isSelected ? 2 : 1,
                                 ),
                               ),
-                              child: ClipRRect(
+                              child: AppNetworkImage(
+                                imageUrl: allImages[idx],
+                                fit: BoxFit.cover,
                                 borderRadius: BorderRadius.circular(6),
-                                child: CachedNetworkImage(
-                                  imageUrl: allImages[idx],
-                                  fit: BoxFit.cover,
-                                ),
                               ),
                             ),
                           );
@@ -397,8 +391,8 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
       bottomSheet: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: const Border(top: BorderSide(color: AppTheme.divider)),
+          color: AppTheme.getCardColor(context),
+          border: Border(top: BorderSide(color: AppTheme.getBorderColor(context))),
           boxShadow: [
             BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, -4)),
           ],
@@ -424,13 +418,16 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
             const SizedBox(width: 20),
             Expanded(
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.resortAccent),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.resortAccent,
+                  foregroundColor: Colors.black,
+                ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (ctx) => const CheckoutScreen()));
                 },
                 child: Text(
                   state.selectedGuideBundle != null ? "Book Bundled Stay" : "Reserve Selected Room",
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black),
                 ),
               ),
             ),
@@ -450,10 +447,10 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.resortLight : Colors.white,
+          color: isSelected ? AppTheme.resortLight : AppTheme.getCardColor(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppTheme.resortAccent : AppTheme.divider,
+            color: isSelected ? AppTheme.resortAccent : AppTheme.getBorderColor(context),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -481,15 +478,12 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
                     },
                     child: Stack(
                       children: [
-                        ClipRRect(
+                        AppNetworkImage(
+                          imageUrl: roomImage,
+                          width: 88,
+                          height: 72,
+                          fit: BoxFit.cover,
                           borderRadius: BorderRadius.circular(10),
-                          child: CachedNetworkImage(
-                            imageUrl: roomImage,
-                            width: 88,
-                            height: 72,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(width: 88, height: 72, color: Colors.grey.shade200),
-                          ),
                         ),
                         if (room.images.length > 1)
                           Positioned(
@@ -527,12 +521,12 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
                     children: [
                       Text(
                         room.name,
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.textPrimary),
+                        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: AppTheme.getTextColor(context)),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         "${room.bedConfiguration} • Max ${room.maxOccupancy} Guests",
-                        style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                        style: TextStyle(fontSize: 12, color: AppTheme.getSecondaryTextColor(context)),
                       ),
                       if (room.description != null && room.description!.isNotEmpty) ...[
                         const SizedBox(height: 4),
@@ -601,10 +595,10 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isBundled ? Colors.white : Colors.white.withOpacity(0.8),
+        color: AppTheme.getCardColor(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isBundled ? AppTheme.guideGold : AppTheme.divider,
+          color: isBundled ? AppTheme.guideGold : AppTheme.getBorderColor(context),
           width: isBundled ? 2 : 1,
         ),
         boxShadow: isBundled
@@ -615,14 +609,13 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
         children: [
           Row(
             children: [
-              ClipRRect(
+              AppNetworkImage(
+                imageUrl: guide.profilePhotoUrl,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
                 borderRadius: BorderRadius.circular(24),
-                child: CachedNetworkImage(
-                  imageUrl: guide.profilePhotoUrl,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                ),
+                fallbackIcon: Icons.person,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -633,7 +626,7 @@ class _ResortDetailScreenState extends State<ResortDetailScreen> {
                       children: [
                         Text(
                           guide.fullName,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.textPrimary),
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.getTextColor(context)),
                         ),
                         const SizedBox(width: 4),
                         const Icon(Icons.verified, color: AppTheme.resortAccent, size: 14),
