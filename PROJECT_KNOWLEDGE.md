@@ -347,6 +347,16 @@ To ensure elements never move, shift, or jump during theme toggling between ligh
    - Single-image vector assets (`logo_light.svg`, `logo_dark.svg`) and high-res PNGs (`logo_light.png`, `logo_dark.png`) deployed across `web_portal/assets/` and `mobile_app/assets/images/` with identical MD5 checksums.
 7. **Zero-Jitter Theme Switching:**
    - Fixed all layout movement across Web and Flutter Mobile so components remain placed exactly where they are in both themes.
+8. **Consumer Desktop Web Full-Width & Comprehensive Feature Expansion:**
+   - Applied full-width responsive layouts across Launchpad, Admin, Vendor, and Consumer portals removing `max-w-7xl` constraints.
+   - Completed all 7 Consumer Web Portal roadmap features:
+     1. Adults & Children guest count selector with dynamic `/api/v1/bookings/quote` and `/api/v1/bookings` sync.
+     2. 5-star traveler reviews modal wired to `POST /api/v1/reviews` with My Trips status badges.
+     3. GDPR/CCPA Privacy & Regional Compliance Hub (Article 20 JSON data export, Article 17 account erasure, and statutory regional policy badge).
+     4. Printable & downloadable booking voucher with QR code and print styles (`@media print`).
+     5. Dedicated 3-tab **Guides** discovery journey querying `GET /api/v1/guides` with verified badges, languages, and specialty chips.
+     6. Extended amenities multi-checkbox filtering (Pool, Beach, Spa, Wi-Fi, Gym, Dining).
+     7. Real-time map viewport "Search as I move" bounding box filter and multi-option checkout payment selector (Card, Apple/Google Pay, Regional Instant Gateway).
 
 ### B. Current Running Environment
 - **Docker Compose Stack:** PostgreSQL (`localhost:5432`), FastAPI (`http://localhost:8000`), Nginx (`http://localhost:80`).
@@ -357,11 +367,25 @@ To ensure elements never move, shift, or jump during theme toggling between ligh
   - Admin Portal: `http://localhost/admin/`
 - **Flutter Web App:** Running via `cd mobile_app && flutter run -d chrome` (connects to backend via `http://127.0.0.1:8000/api/v1`).
 
-
-
-
-
-
-
-
-
+### C. Daily User Simulation & End-to-End Sanity (October 17, 2026 Session)
+1. **Consumer Web Lifecycle & Scope Hotfix:**
+   - Declared filter and interactive state variables (`selectedSort`, `filterMaxPrice`, `filterMinRating`, `filterAmenities`, `selectedPaymentMethod`, `searchAsMapMoves`, `currentTripsById`, `currentGuides`) at top of script to eliminate runtime `ReferenceError`.
+   - Upgraded initialization trigger from `window.onload` to `DOMContentLoaded` to avoid CDN image download delays stalling the skeleton loader.
+   - Fixed `desktopJourneySwitcher` styling to `w-[340px]` ensuring clean 3-tab layout across Hotels, Resorts, and Guides.
+2. **Backend Review Schema & Target Type Enforcement (`POST /api/v1/reviews`):**
+   - Fixed missing `target_type` in `backend/app/api/v1/endpoints/reviews.py` violating the PostgreSQL `reviews.target_type` NOT NULL constraint.
+   - Enforced mutual exclusivity: `PROPERTY` XOR `GUIDE` target type mapping per database check constraint.
+3. **Async Relationship Eager Loading in Cancellation (`booking_service.py`):**
+   - Added `selectinload(Reservation.property)` to `cancel_reservation` query to prevent SQLAlchemy AsyncSession lazy-loading greenlet exceptions when dispatching post-cancellation email notifications.
+4. **Automated End-to-End Daily Journey Test Results:**
+   - 100% of tested user journeys passed with zero discrepancies:
+     - User Authentication (`POST /api/v1/auth/login`) -> `HTTP 200`
+     - Hotel & Resort Search and Detail Views -> `HTTP 200`
+     - Local Certified Guide Roster -> `HTTP 200`
+     - Pre-Checkout Quote Calculations -> `HTTP 200`
+     - ACID Atomic Reservation Lock (`POST /api/v1/bookings`) -> `HTTP 201`
+     - My Trips & Itinerary Retrieval -> `HTTP 200`
+     - 5-Star Traveler Review Submission -> `HTTP 200`
+     - Reservation Cancellation & Automated Inventory Release -> `HTTP 200`
+     - Cancellation Review Guard (preventing reviewing cancelled stays) -> `HTTP 400`
+     - Statutory GDPR Article 20 Personal Data Export -> `HTTP 200`

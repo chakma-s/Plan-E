@@ -434,6 +434,7 @@ class BookingService:
             select(Reservation)
             .where(Reservation.id == reservation_id)
             .options(
+                selectinload(Reservation.property),
                 selectinload(Reservation.room_items),
                 selectinload(Reservation.guide_items),
             )

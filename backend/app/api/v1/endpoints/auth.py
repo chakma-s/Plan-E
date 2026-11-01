@@ -10,6 +10,9 @@ from app.schemas.user import (
     Token,
     VendorProfileCreate,
     VendorProfileResponse,
+    SendOTPRequest,
+    SendOTPResponse,
+    VerifyOTPRequest,
 )
 from app.schemas.common import APIResponse
 from app.services.auth_service import AuthService
@@ -55,3 +58,18 @@ async def create_vendor_profile(
         message="Vendor profile created successfully.",
         data=VendorProfileResponse.model_validate(profile),
     )
+
+
+@router.post("/otp/send", response_model=APIResponse[SendOTPResponse])
+async def send_otp(otp_in: SendOTPRequest, db: AsyncSession = Depends(get_db)):
+    """Dispatch a 6-digit OTP to user's Email (Gmail) or Mobile Phone."""
+    res = await AuthService.send_otp(db, otp_in)
+    return APIResponse(message=res.message, data=res)
+
+
+@router.post("/otp/verify", response_model=APIResponse[Token])
+async def verify_otp(verify_in: VerifyOTPRequest, db: AsyncSession = Depends(get_db)):
+    """Validate 6-digit OTP code and authenticate/register user seamlessly."""
+    token = await AuthService.verify_otp(db, verify_in)
+    return APIResponse(message="Authentication verified successfully.", data=token)
+

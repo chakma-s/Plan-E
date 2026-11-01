@@ -191,3 +191,32 @@ class NotificationService:
             body_text=body,
         )
         return await cls._provider.send_email(payload)
+
+    @classmethod
+    async def dispatch_otp(
+        cls,
+        target: str,
+        channel: str,
+        otp_code: str,
+        purpose: str = "authentication",
+    ) -> bool:
+        """Dispatch 6-digit OTP verification code via Email or SMS."""
+        if channel == "email":
+            body = (
+                f"Your Plan-E Verification Code is: {otp_code}\n\n"
+                f"Enter this 6-digit code to complete your {purpose}.\n"
+                f"This code will expire in 10 minutes.\n\n"
+                f"If you did not request this code, please disregard this email.\n\n"
+                f"— The Plan-E Security Team"
+            )
+            payload = NotificationPayload(
+                recipient=target,
+                subject=f"Plan-E Verification Code: {otp_code}",
+                body_text=body,
+                metadata={"otp": otp_code, "purpose": purpose},
+            )
+            return await cls._provider.send_email(payload)
+        else:
+            message = f"Your Plan-E verification code is {otp_code}. Valid for 10 minutes. Do not share this code."
+            return await cls._provider.send_sms(target, message)
+

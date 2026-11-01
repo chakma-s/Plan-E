@@ -1,7 +1,8 @@
 import enum
 import uuid
+from datetime import datetime
 from typing import List, Optional, TYPE_CHECKING
-from sqlalchemy import String, Boolean, ForeignKey, Enum as SQLEnum
+from sqlalchemy import String, Boolean, ForeignKey, Integer, DateTime, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, UUIDPrimaryKeyMixin, TimestampMixin, UUID_TYPE
@@ -62,3 +63,16 @@ class VendorProfile(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     user: Mapped["User"] = relationship("User", back_populates="vendor_profile")
     properties: Mapped[List["Property"]] = relationship("Property", back_populates="vendor")
     guides: Mapped[List["LocalGuide"]] = relationship("LocalGuide", back_populates="vendor")
+
+
+class OTPVerification(Base, UUIDPrimaryKeyMixin, TimestampMixin):
+    __tablename__ = "otp_verifications"
+
+    target: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    channel: Mapped[str] = mapped_column(String(20), nullable=False)  # 'email' or 'phone'
+    otp_code: Mapped[str] = mapped_column(String(10), nullable=False)
+    purpose: Mapped[str] = mapped_column(String(50), default="login", nullable=False)  # 'login', 'signup', 'recovery'
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+

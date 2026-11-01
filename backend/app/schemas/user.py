@@ -61,3 +61,25 @@ class VendorProfileResponse(VendorProfileCreate):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class SendOTPRequest(BaseModel):
+    target: str  # Email address or phone number
+    purpose: str = "login"  # 'login', 'signup', 'recovery'
+
+
+class SendOTPResponse(BaseModel):
+    message: str
+    target: str
+    channel: str
+    expires_in_seconds: int = 600
+    dev_code_hint: Optional[str] = None
+
+
+class VerifyOTPRequest(BaseModel):
+    target: str
+    otp_code: str
+    purpose: str = "login"  # 'login', 'signup', 'recovery'
+    full_name: Optional[str] = None
+    new_password: Optional[str] = None
+
