@@ -169,6 +169,7 @@
             <button id="tab-guide" onclick="switchJourney('guide')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
               <i class="fa-solid fa-person-hiking text-xs"></i>
               <span class="tracking-wide">GUIDES</span>
+              <span class="text-[9px] bg-amber-500/20 text-amber-500 dark:text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded-full font-extrabold uppercase">Soon</span>
             </button>
           </div>
 
@@ -207,6 +208,7 @@
           <button id="tab-guide-mobile" onclick="switchJourney('guide')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
             <i class="fa-solid fa-person-hiking text-xs"></i>
             <span class="tracking-wide text-[11px]">GUIDES</span>
+            <span class="text-[8px] bg-amber-500/20 text-amber-500 dark:text-amber-300 border border-amber-500/40 px-1 py-0.2 rounded font-extrabold uppercase">Soon</span>
           </button>
         </div>
       </div>
@@ -368,11 +370,14 @@
       </div>
     </nav>
 
-    <!-- MODAL: LOCAL GUIDE BUNDLING SHEET -->
+    <!-- MODAL: LOCAL GUIDE BUNDLING SHEET (COMING SOON PREVIEW) -->
     <div id="guideModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
       <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">
-          <span class="text-[10px] font-black uppercase tracking-wider text-brand">Resident Local Guide Profile</span>
+          <div class="flex items-center space-x-2">
+            <span class="text-[10px] font-black uppercase tracking-wider text-amber-500">Resident Local Guide Profile</span>
+            <span class="text-[9px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase">Coming Soon (Phase 2)</span>
+          </div>
           <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="flex items-center space-x-4">
@@ -395,7 +400,7 @@
           <div class="w-[1px] bg-slate-200 dark:bg-slate-700"></div>
           <div>
             <div class="text-[10px] text-slate-400 font-bold">DAILY RATE</div>
-            <div id="guideModalRate" class="text-xs font-extrabold text-brand"></div>
+            <div id="guideModalRate" class="text-xs font-extrabold text-amber-500"></div>
           </div>
           <div class="w-[1px] bg-slate-200 dark:bg-slate-700"></div>
           <div>
@@ -415,9 +420,9 @@
         </div>
 
         <div class="pt-2">
-          <button id="guideBundleBtn" onclick="toggleBundleCurrentGuide()" class="w-full bg-brand text-black hover:bg-[#68c918] font-bold py-3 rounded-xl shadow text-xs transition flex items-center justify-center space-x-2">
-            <i class="fa-solid fa-plus-circle"></i>
-            <span id="guideBundleBtnText">Bundle Guide with Resort (+$300/day)</span>
+          <button id="guideBundleBtn" onclick="handleGuideWaitlist()" class="w-full bg-slate-100 dark:bg-slate-800 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-bold py-3 rounded-xl shadow-xs text-xs transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-bell"></i>
+            <span id="guideBundleBtnText">Guide Bundling Coming Soon — Join VIP Waitlist</span>
           </button>
           <button onclick="closeGuideModal()" class="w-full mt-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-medium py-1.5">Close</button>
         </div>
@@ -2556,8 +2561,35 @@
 
         currentGuides = guides;
 
+        const bannerHtml = `
+          <div class="col-span-full bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm mb-2">
+            <div class="space-y-2 max-w-2xl">
+              <div class="flex items-center space-x-2">
+                <span class="bg-amber-500 text-black text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider shadow-sm flex items-center gap-1">
+                  <i class="fa-solid fa-clock text-[9px]"></i> Coming Soon to Production v1.1
+                </span>
+                <span class="text-xs text-amber-600 dark:text-amber-400 font-bold">Curated Resident Guides</span>
+              </div>
+              <h2 class="text-2xl font-black text-slate-900 dark:text-white">Resident Local Tour Guides</h2>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                We are actively vetting and onboarding certified resident naturalists and cultural guides across our resort destinations. Explore verified preview profiles below or join our VIP waitlist to get early-access booking notifications!
+              </p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
+              <button onclick="handleGuideWaitlist()" class="px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition shadow-md flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-bell"></i>
+                <span>Join VIP Waitlist</span>
+              </button>
+              <button onclick="switchJourney('resort')" class="px-5 py-3 rounded-2xl bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-xs border border-slate-200 dark:border-slate-700 hover:border-amber-500 transition flex items-center justify-center space-x-1.5 shadow-sm">
+                <i class="fa-solid fa-umbrella-beach text-amber-500"></i>
+                <span>Explore Resorts</span>
+              </button>
+            </div>
+          </div>
+        `;
+
         if (guides.length === 0) {
-          feed.innerHTML = `
+          feed.innerHTML = bannerHtml + `
             <div class="col-span-full text-center py-12 space-y-2">
               <i class="fa-solid fa-person-hiking text-3xl text-slate-400"></i>
               <p class="text-xs text-slate-500 font-bold">No certified local guides matching criteria.</p>
@@ -2566,7 +2598,7 @@
           return;
         }
 
-        feed.innerHTML = guides.map(g => {
+        feed.innerHTML = bannerHtml + guides.map(g => {
           return `
             <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-darkborder rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
               <!-- Guide Photo with Gradient & Verification Badges -->
@@ -2575,8 +2607,8 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none"></div>
                 
                 <div class="absolute top-3 left-3 flex gap-1.5 flex-wrap">
-                  <span class="bg-brand text-black text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
-                    <i class="fa-solid fa-certificate text-[9px] mr-1"></i> Certified Guide
+                  <span class="bg-amber-500 text-black text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-sm flex items-center space-x-1">
+                    <i class="fa-solid fa-clock text-[9px] mr-1"></i> Preview Profile
                   </span>
                   ${g.is_verified ? `
                     <span class="bg-blue-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-xs shadow-sm flex items-center space-x-1">
@@ -2602,7 +2634,7 @@
               <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
                 <div class="space-y-2">
                   <div class="flex items-center space-x-1.5 text-xs text-slate-500 dark:text-gray-400">
-                    <i class="fa-solid fa-language text-brand text-xs"></i>
+                    <i class="fa-solid fa-language text-amber-500 text-xs"></i>
                     <span class="font-medium truncate">${(g.languages || ['English']).join(' • ')}</span>
                   </div>
 
@@ -2622,8 +2654,8 @@
                     <span class="text-[10px] text-slate-400 block font-semibold">Exclusivity Rate</span>
                     <span class="text-sm font-black text-slate-900 dark:text-white">$${g.daily_rate} <span class="text-[10px] font-normal text-slate-400">/ day</span></span>
                   </div>
-                  <button onclick="showGuideModal('${g.id}')" class="px-3.5 py-2 bg-brand text-black font-extrabold text-xs rounded-xl hover:bg-[#68c918] transition shadow-xs flex items-center space-x-1.5">
-                    <span>View Profile</span>
+                  <button onclick="showGuideModal('${g.id}')" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-extrabold text-xs rounded-xl transition border border-amber-500/30 shadow-xs flex items-center space-x-1.5">
+                    <span>Preview Profile</span>
                     <i class="fa-solid fa-arrow-right text-[10px]"></i>
                   </button>
                 </div>
@@ -2837,19 +2869,19 @@
                   </p>
                 </div>
 
-                <!-- LOCAL GUIDE BUNDLING SECTION -->
+                <!-- LOCAL GUIDE BUNDLING SECTION (COMING SOON) -->
                 <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 rounded-xl p-2.5">
                   <div class="flex justify-between items-center text-[11px] font-bold text-amber-800 dark:text-amber-400 mb-1.5 gap-2">
-                    <span class="truncate"><i class="fa-solid fa-compass text-brand mr-1"></i> Certified Resident Guides</span>
-                    <span class="text-[10px] font-semibold text-slate-500 dark:text-gray-400 shrink-0 whitespace-nowrap">${r.available_guides_count} Available</span>
+                    <span class="truncate"><i class="fa-solid fa-compass text-amber-500 mr-1"></i> Certified Resident Guides</span>
+                    <span class="text-[9px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase">Coming Soon</span>
                   </div>
                   <div class="flex space-x-2 overflow-x-auto pb-1 scrollbar-none">
                     ${(r.featured_guides || []).map(g => `
-                      <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-1.5 bg-white dark:bg-darkbg border border-brand/50 rounded-full py-0.5 px-2 cursor-pointer shadow-xs hover:border-brand transition shrink-0">
+                      <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-1.5 bg-white dark:bg-darkbg border border-amber-500/40 rounded-full py-0.5 px-2 cursor-pointer shadow-xs hover:border-amber-500 transition shrink-0">
                         <img src="${g.profile_photo_url}" class="w-5 h-5 rounded-full object-cover shrink-0">
                         <div class="text-[10px] whitespace-nowrap">
                           <span class="font-bold text-slate-900 dark:text-white">${g.full_name.split(' ')[0]}</span>
-                          <span class="text-brand font-extrabold ml-1">+$${g.daily_rate}/d</span>
+                          <span class="text-amber-600 dark:text-amber-400 font-extrabold ml-1">$${g.daily_rate}/d</span>
                         </div>
                       </div>
                     `).join('')}
@@ -2892,13 +2924,10 @@
         document.getElementById('guideModalRate').innerText = `$${g.daily_rate}/day`;
         document.getElementById('guideModalLangs').innerText = g.languages.join(', ');
         document.getElementById('guideModalBio').innerText = g.bio;
-        document.getElementById('guideModalSpecs').innerHTML = g.specialties.map(s => `<span class="bg-brand/20 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">${s}</span>`).join('');
+        document.getElementById('guideModalSpecs').innerHTML = g.specialties.map(s => `<span class="bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${s}</span>`).join('');
         
-        const isSelected = selectedGuide && selectedGuide.id === g.id;
-        document.getElementById('guideBundleBtnText').innerText = isSelected ? "Remove Guide Bundle" : `Bundle Guide with Resort (+$${g.daily_rate}/day)`;
-        document.getElementById('guideBundleBtn').className = isSelected 
-          ? "w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow text-xs transition" 
-          : "w-full bg-brand text-black hover:bg-[#68c918] text-black text-white font-bold py-3 rounded-xl shadow text-xs transition";
+        document.getElementById('guideBundleBtnText').innerText = "Guide Bundling Coming Soon — Join VIP Waitlist";
+        document.getElementById('guideBundleBtn').className = "w-full bg-slate-100 dark:bg-slate-800 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-bold py-3 rounded-xl shadow-xs text-xs transition flex items-center justify-center space-x-2";
 
         document.getElementById('guideModal').classList.remove('hidden');
       } catch (e) {
@@ -2907,13 +2936,14 @@
     }
 
     function toggleBundleCurrentGuide() {
-      if (selectedGuide && selectedGuide.id === activeGuideModal.id) {
-        selectedGuide = null;
-      } else {
-        selectedGuide = activeGuideModal;
+      handleGuideWaitlist();
+    }
+
+    function handleGuideWaitlist() {
+      const email = prompt("Enter your email address to receive early-access notification when Guide Bundling launches in Production v1.1:", "traveler@example.com");
+      if (email && email.trim()) {
+        showToast("🎉 You're on the VIP Waitlist! We'll notify you as soon as Guide Bundling launches.");
       }
-      closeGuideModal();
-      alert(selectedGuide ? `🎉 ${selectedGuide.full_name} attached to your booking bundle!` : "Guide bundle removed.");
     }
 
     function closeGuideModal() {
@@ -2946,6 +2976,9 @@
         } else {
           activeRoom = null;
         }
+
+        // On production launch branch, guide bundling is deferred to Phase 2
+        selectedGuide = null;
 
         // Header info
         const isResort = (prop.property_type === 'RESORT' || type === 'resort');
@@ -2998,35 +3031,32 @@
           guideSec.classList.remove('hidden');
           guideSec.innerHTML = `
             <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4">
-              <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center justify-between mb-2">
                 <div>
                   <h4 class="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
-                    <i class="fa-solid fa-compass text-brand"></i>
-                    <span>Bundle a Certified Resident Local Guide</span>
+                    <i class="fa-solid fa-compass text-amber-500"></i>
+                    <span>Resident Local Guides</span>
                   </h4>
-                  <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">Attach a certified expert for private excursions directly to your resort stay.</p>
+                  <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">Attach a certified expert for private excursions — launching in Production v1.1.</p>
                 </div>
-                <span class="text-[11px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2.5 py-0.5 rounded-full">${prop.associated_guides.length} Available</span>
+                <span class="text-[10px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">Coming Soon</span>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                ${prop.associated_guides.map(g => {
-                  const isBundled = selectedGuide && selectedGuide.id === g.id;
-                  return `
-                    <div class="bg-white dark:bg-slate-900 border ${isBundled ? 'border-brand ring-2 ring-brand/30' : 'border-slate-200 dark:border-slate-800'} rounded-xl p-3 flex items-center justify-between gap-3 shadow-xs">
-                      <div class="flex items-center space-x-3 min-w-0 cursor-pointer" onclick="showGuideModal('${g.id}')">
-                        <img src="${g.profile_photo_url}" class="w-11 h-11 rounded-full object-cover shrink-0 border border-brand">
-                        <div class="min-w-0">
-                          <h5 class="font-bold text-xs text-slate-900 dark:text-white truncate">${g.full_name}</h5>
-                          <p class="text-[10px] text-slate-500 dark:text-gray-400 truncate">${g.headline}</p>
-                          <span class="text-[10px] font-extrabold text-brand">+$${g.daily_rate}/day</span>
-                        </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                ${prop.associated_guides.map(g => `
+                  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 shadow-xs">
+                    <div class="flex items-center space-x-3 min-w-0 cursor-pointer" onclick="showGuideModal('${g.id}')">
+                      <img src="${g.profile_photo_url}" class="w-11 h-11 rounded-full object-cover shrink-0 border border-amber-500/40">
+                      <div class="min-w-0">
+                        <h5 class="font-bold text-xs text-slate-900 dark:text-white truncate">${g.full_name}</h5>
+                        <p class="text-[10px] text-slate-500 dark:text-gray-400 truncate">${g.headline}</p>
+                        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400">Rate: $${g.daily_rate}/day (Preview)</span>
                       </div>
-                      <button onclick="toggleGuideFromDetail('${g.id}')" class="px-3 py-1.5 rounded-xl text-[11px] font-bold transition shrink-0 ${isBundled ? 'bg-rose-500 text-white' : 'bg-brand text-black hover:bg-[#68c918]'}">
-                        ${isBundled ? 'Remove' : 'Bundle'}
-                      </button>
                     </div>
-                  `;
-                }).join('')}
+                    <button onclick="handleGuideWaitlist()" class="px-3 py-1.5 rounded-xl text-[11px] font-bold transition shrink-0 bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                      Notify Me
+                    </button>
+                  </div>
+                `).join('')}
               </div>
             </div>
           `;
@@ -3228,18 +3258,7 @@
     }
 
     function toggleGuideFromDetail(guideId) {
-      if (!activeDetailProperty || !activeDetailProperty.associated_guides) return;
-      const g = activeDetailProperty.associated_guides.find(item => item.id === guideId);
-      if (!g) return;
-
-      if (selectedGuide && selectedGuide.id === g.id) {
-        selectedGuide = null;
-        showToast("Local guide bundle removed.");
-      } else {
-        selectedGuide = g;
-        showToast(`🎉 ${g.full_name} attached to your booking bundle!`);
-      }
-      openPropertyDetail(activeDetailProperty.id, 'resort');
+      handleGuideWaitlist();
     }
 
     // --- FULLSCREEN LIGHTBOX VIEWER ---

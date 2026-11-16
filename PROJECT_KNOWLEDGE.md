@@ -131,6 +131,20 @@ flowchart TD
 * **Status:** Accepted
 * **Decision:** Fully decouple the reservation engine from single-vendor payment solutions. Establish an abstract `PaymentGatewayInterface` and factory (`PaymentGatewayFactory`) allowing plug-and-play regional payment providers (bKash, Razorpay, Adyen, Pix, M-Pesa, etc.) without altering core transactional booking or room allocation logic.
 
+### ADR-016: Dual-Branch Release Strategy & Phased Guide Feature Rollout
+* **Status:** Accepted
+* **Context:** The platform contains a fully developed Local Guide Bundling engine, composite checkout, and vendor/admin guide management. For initial commercial launch (Production v1.0), the business strategy requires deploying the primary hotel and resort booking engine first, while gating the guide bundling flow as "Coming Soon (Phase 2)" to finalize physical guide licensing, background checks, and resident partner onboarding.
+* **Decision:**
+  1. **Branch Topology:**
+     * **`main` (Active Feature Branch):** Maintains the full, un-gated ecosystem including end-to-end Guide Bundling, dual line-item checkout commit, and all active development updates.
+     * **`production` (Release Branch):** Targets live deployment where the Local Tour Guide feature is presented as "Coming Soon / Phase 2" with VIP early-access waitlist capture, while core hotel and resort bookings operate with 100% functionality and zero guide dependency.
+  2. **Release Branch UI/UX Specifications (`production`):**
+     * **Consumer Portal:** Guides tab displays a prominent "Coming Soon to Production v1.1" banner with an interactive VIP waitlist prompt (`handleGuideWaitlist()`). Guide cards display "Preview Profile", and resort cards display "Certified Resident Guides • Coming Soon". Resort room booking proceeds seamlessly with `selectedGuide = null`.
+     * **Vendor Portal:** Guide Roster Linker displays a "Pre-Launch Staging (Phase 2)" badge, enabling hosts to pre-register guides ahead of the public launch.
+     * **Admin Portal:** Guide Verification Queue displays a "Pre-Launch Staging" badge, allowing administrators to audit credentials in advance.
+     * **Master Launchpad:** Displays "Guides Soon" badges on the hero search ribbon and card descriptions.
+  3. **Synchronization & Maintenance Policy:** General bug fixes, core engine enhancements, and database migrations are developed on `main` and selectively merged/cherry-picked into `production` without disturbing the production release feature gate.
+
 ---
 
 ## 5. Complete Milestone Checklist & Verification
@@ -389,3 +403,21 @@ To ensure elements never move, shift, or jump during theme toggling between ligh
      - Reservation Cancellation & Automated Inventory Release -> `HTTP 200`
      - Cancellation Review Guard (preventing reviewing cancelled stays) -> `HTTP 400`
      - Statutory GDPR Article 20 Personal Data Export -> `HTTP 200`
+
+
+### D. Git Branching Architecture & Dual-Branch Strategy (ADR-016)
+To balance rapid ongoing engineering with commercial market readiness, the repository employs a two-tier release topology:
+1. **`main` Branch (Active Feature & Innovation Pipeline):**
+   - Contains all bleeding-edge features, including live Local Guide Bundling, dual line-item composite checkout, guide review aggregation, and active partner integrations.
+   - All shared enhancements, platform scalability updates, and new endpoints originate here.
+2. **`production` Branch (Commercial Launch & Gated Release):**
+   - Deployed directly to production infrastructure.
+   - Gates the Local Guide feature as **"Coming Soon (Phase 2)"** with early-access VIP waitlist capture across the web portals.
+   - Core hotel and resort reservations operate with 100% velocity and zero external guide dependency.
+   - Hosts and admins can still utilize pre-launch staging to register and audit guides in advance.
+
+### E. Host Environment Integrity & Execution Rules (Windows / SAC)
+- **Windows 11 Smart App Control (SAC):** In active enforcement mode. Pip-generated wrappers in `Scripts/` (e.g., `uvicorn.exe`, `pytest.exe`) are blocked by SAC policy.
+  - **Resolution:** Always invoke Python CLI tools via the Microsoft-signed binary: `python -m uvicorn app.main:app ...` and `python -m pytest tests/ -v`.
+- **Package Pinning:** Pinned `sqlalchemy==2.0.36` and `greenlet==3.0.3` to avoid untrusted C-extension binaries blocked by SAC.
+- **Static Assets:** Mounted `/assets` in FastAPI backend (`backend/app/main.py`) to serve branded logos and static graphics reliably.
