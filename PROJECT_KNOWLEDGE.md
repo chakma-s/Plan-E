@@ -137,11 +137,10 @@ flowchart TD
 * **Decision:**
   1. **Primary Development & Release Trunk (`main`):**
      * Serves as the primary branch where all active development happens and from which production releases are deployed.
-     * The Local Tour Guide feature is actively maintained as **"Coming Soon (Phase 2)"** with VIP early-access waitlist capture, while hotel and resort room reservations operate with 100% velocity and zero external guide dependency.
-     * **Consumer Portal:** Guides tab displays a prominent "Coming Soon to Production v1.1" banner with an interactive VIP waitlist prompt (`handleGuideWaitlist()`). Guide cards display "Preview Profile", and resort cards display "Certified Resident Guides • Coming Soon". Resort room booking proceeds seamlessly with `selectedGuide = null`.
-     * **Vendor Portal:** Guide Roster Linker displays a "Pre-Launch Staging (Phase 2)" badge, enabling hosts to pre-register guides ahead of the public launch.
-     * **Admin Portal:** Guide Verification Queue displays a "Pre-Launch Staging" badge, allowing administrators to audit credentials in advance.
-     * **Master Launchpad:** Displays "Guides Soon" badges on the hero search ribbon and card descriptions.
+     * **Decoupled Architecture:** The Local Tour Guide feature is completely decoupled from Hotels and Resorts. Both Hotels and Resorts operate cleanly with direct room-only checkout and zero guide bundling dependency or UI clutter.
+     * **Dedicated Standalone Guides Journey:** The Local Tour Guide feature is maintained exclusively in its own dedicated discovery tab/journey as **"Coming Soon (Phase 2)"** with VIP early-access waitlist capture (`handleGuideWaitlist()`) and verified preview profiles.
+     * **Vendor & Admin Portals:** Tour Guides are managed as an independent directory with "Pre-Launch Staging (Phase 2)" badges.
+     * **Master Launchpad:** Displays "City Hotels" and "Resort Sanctuaries" with clean room discovery and instant checkout.
   2. **Phase 2 Feature Archive (`feature/guide-bundling-active`):**
      * Preserves the fully active, un-gated Guide Bundling engine, dual line-item checkout, and active booking tests. When physical guide onboarding and licensing complete for Phase 2, this branch provides the baseline for activating live guide bookings.
   3. **Deployment Branch (`production`):**

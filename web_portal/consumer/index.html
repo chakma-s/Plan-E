@@ -370,12 +370,12 @@
       </div>
     </nav>
 
-    <!-- MODAL: LOCAL GUIDE BUNDLING SHEET (COMING SOON PREVIEW) -->
+    <!-- MODAL: LOCAL TOUR GUIDE SHEET (COMING SOON PREVIEW) -->
     <div id="guideModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
       <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">
           <div class="flex items-center space-x-2">
-            <span class="text-[10px] font-black uppercase tracking-wider text-amber-500">Resident Local Guide Profile</span>
+            <span class="text-[10px] font-black uppercase tracking-wider text-amber-500">Certified Local Tour Guide</span>
             <span class="text-[9px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase">Coming Soon (Phase 2)</span>
           </div>
           <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
@@ -422,7 +422,7 @@
         <div class="pt-2">
           <button id="guideBundleBtn" onclick="handleGuideWaitlist()" class="w-full bg-slate-100 dark:bg-slate-800 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-bold py-3 rounded-xl shadow-xs text-xs transition flex items-center justify-center space-x-2">
             <i class="fa-solid fa-bell"></i>
-            <span id="guideBundleBtnText">Guide Bundling Coming Soon — Join VIP Waitlist</span>
+            <span id="guideBundleBtnText">Local Tour Guides Coming Soon — Join VIP Waitlist</span>
           </button>
           <button onclick="closeGuideModal()" class="w-full mt-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-medium py-1.5">Close</button>
         </div>
@@ -2868,25 +2868,6 @@
                     <i class="fa-solid fa-location-dot text-slate-400 mr-1"></i>${r.city}, ${r.country}
                   </p>
                 </div>
-
-                <!-- LOCAL GUIDE BUNDLING SECTION (COMING SOON) -->
-                <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 rounded-xl p-2.5">
-                  <div class="flex justify-between items-center text-[11px] font-bold text-amber-800 dark:text-amber-400 mb-1.5 gap-2">
-                    <span class="truncate"><i class="fa-solid fa-compass text-amber-500 mr-1"></i> Certified Resident Guides</span>
-                    <span class="text-[9px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase">Coming Soon</span>
-                  </div>
-                  <div class="flex space-x-2 overflow-x-auto pb-1 scrollbar-none">
-                    ${(r.featured_guides || []).map(g => `
-                      <div onclick="showGuideModal('${g.id}')" class="flex items-center space-x-1.5 bg-white dark:bg-darkbg border border-amber-500/40 rounded-full py-0.5 px-2 cursor-pointer shadow-xs hover:border-amber-500 transition shrink-0">
-                        <img src="${g.profile_photo_url}" class="w-5 h-5 rounded-full object-cover shrink-0">
-                        <div class="text-[10px] whitespace-nowrap">
-                          <span class="font-bold text-slate-900 dark:text-white">${g.full_name.split(' ')[0]}</span>
-                          <span class="text-amber-600 dark:text-amber-400 font-extrabold ml-1">$${g.daily_rate}/d</span>
-                        </div>
-                      </div>
-                    `).join('')}
-                  </div>
-                </div>
               </div>
 
               <div class="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-darkborder gap-2">
@@ -2926,7 +2907,7 @@
         document.getElementById('guideModalBio').innerText = g.bio;
         document.getElementById('guideModalSpecs').innerHTML = g.specialties.map(s => `<span class="bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${s}</span>`).join('');
         
-        document.getElementById('guideBundleBtnText').innerText = "Guide Bundling Coming Soon — Join VIP Waitlist";
+        document.getElementById('guideBundleBtnText').innerText = "Local Tour Guides Coming Soon — Join VIP Waitlist";
         document.getElementById('guideBundleBtn').className = "w-full bg-slate-100 dark:bg-slate-800 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-bold py-3 rounded-xl shadow-xs text-xs transition flex items-center justify-center space-x-2";
 
         document.getElementById('guideModal').classList.remove('hidden');
@@ -2940,9 +2921,9 @@
     }
 
     function handleGuideWaitlist() {
-      const email = prompt("Enter your email address to receive early-access notification when Guide Bundling launches in Production v1.1:", "traveler@example.com");
+      const email = prompt("Enter your email address to receive early-access notification when Local Tour Guides launch in Production v1.1:", "traveler@example.com");
       if (email && email.trim()) {
-        showToast("🎉 You're on the VIP Waitlist! We'll notify you as soon as Guide Bundling launches.");
+        showToast("🎉 You're on the VIP Waitlist! We'll notify you as soon as Local Tour Guides launch.");
       }
     }
 
@@ -3025,43 +3006,11 @@
         // Render Available Rooms
         renderDetailRoomsList();
 
-        // Render Guides (if resort)
+        // Guides section decoupled from property details
         const guideSec = document.getElementById('detailGuideSection');
-        if (isResort && prop.associated_guides && prop.associated_guides.length > 0) {
-          guideSec.classList.remove('hidden');
-          guideSec.innerHTML = `
-            <div class="bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <h4 class="font-extrabold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
-                    <i class="fa-solid fa-compass text-amber-500"></i>
-                    <span>Resident Local Guides</span>
-                  </h4>
-                  <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-0.5">Attach a certified expert for private excursions — launching in Production v1.1.</p>
-                </div>
-                <span class="text-[10px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">Coming Soon</span>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                ${prop.associated_guides.map(g => `
-                  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex items-center justify-between gap-3 shadow-xs">
-                    <div class="flex items-center space-x-3 min-w-0 cursor-pointer" onclick="showGuideModal('${g.id}')">
-                      <img src="${g.profile_photo_url}" class="w-11 h-11 rounded-full object-cover shrink-0 border border-amber-500/40">
-                      <div class="min-w-0">
-                        <h5 class="font-bold text-xs text-slate-900 dark:text-white truncate">${g.full_name}</h5>
-                        <p class="text-[10px] text-slate-500 dark:text-gray-400 truncate">${g.headline}</p>
-                        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400">Rate: $${g.daily_rate}/day (Preview)</span>
-                      </div>
-                    </div>
-                    <button onclick="handleGuideWaitlist()" class="px-3 py-1.5 rounded-xl text-[11px] font-bold transition shrink-0 bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                      Notify Me
-                    </button>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        } else {
+        if (guideSec) {
           guideSec.classList.add('hidden');
+          guideSec.innerHTML = '';
         }
 
         // Update Bottom Sticky Bar
