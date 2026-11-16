@@ -32,6 +32,7 @@ class PropertyBase(BaseModel):
 
 
 class PropertyUpdate(BaseModel):
+    property_type: Optional[PropertyType] = None
     name: Optional[str] = None
     description: Optional[str] = None
     tagline: Optional[str] = None

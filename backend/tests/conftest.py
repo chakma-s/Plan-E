@@ -39,11 +39,7 @@ TestingSessionLocal = async_sessionmaker(
 )
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+# Removed deprecated session event_loop fixture to allow pytest-asyncio to handle loop per function
 
 
 @pytest_asyncio.fixture(scope="function")

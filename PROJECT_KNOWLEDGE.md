@@ -146,6 +146,13 @@ flowchart TD
   3. **Deployment Branch (`production`):**
      * Tracks `main` directly for live production deployment pipelines.
 
+### ADR-017: Platform Administrator Comprehensive Property & Rate Management (Full Admin CRUD)
+* **Status:** Accepted
+* **Decision:** Grant platform administrators platform-wide CRUD authority over all Hotels, Resorts, Room Types, and Nightly Pricing:
+  1. **Backend Endpoints (`admin.py`):** Added `GET/POST/PATCH/DELETE /api/v1/admin/properties` and `POST/PATCH/DELETE /api/v1/admin/rooms` protected by `get_current_active_admin`. Enables updating any property field (name, type, tagline, description, coordinates, star rating, cover image, gallery, amenities, operational times, policies, published state) and every room field (especially nightly base price `base_price_per_night`, occupancy, bed configuration, amenities, images, and active status).
+  2. **Automated Inventory Seeding:** When administrators add a new room type to any property via `POST /api/v1/admin/properties/{id}/rooms`, the engine automatically seeds 90 days of room allocations (`total_allocated=10`, `rate_multiplier=1.00`) making it instantly searchable and bookable by travelers.
+  3. **Admin Portal UI (`web_portal/admin/index.html`):** Built an intuitive Property Inventory Management dashboard featuring real-time search, category tabs (`All`, `Hotels`, `Resorts`), status filters (`Published`, `Drafts`), a Property Form Modal with 1-click test presets, and a dedicated Rooms & Rates Modal with prominent base price inputs for instant updates.
+
 ---
 
 ## 5. Complete Milestone Checklist & Verification
