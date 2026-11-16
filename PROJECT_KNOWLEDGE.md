@@ -131,19 +131,21 @@ flowchart TD
 * **Status:** Accepted
 * **Decision:** Fully decouple the reservation engine from single-vendor payment solutions. Establish an abstract `PaymentGatewayInterface` and factory (`PaymentGatewayFactory`) allowing plug-and-play regional payment providers (bKash, Razorpay, Adyen, Pix, M-Pesa, etc.) without altering core transactional booking or room allocation logic.
 
-### ADR-016: Dual-Branch Release Strategy & Phased Guide Feature Rollout
-* **Status:** Accepted
+### ADR-016: Primary Trunk Strategy with Phased Guide Feature Rollout
+* **Status:** Accepted (Updated)
 * **Context:** The platform contains a fully developed Local Guide Bundling engine, composite checkout, and vendor/admin guide management. For initial commercial launch (Production v1.0), the business strategy requires deploying the primary hotel and resort booking engine first, while gating the guide bundling flow as "Coming Soon (Phase 2)" to finalize physical guide licensing, background checks, and resident partner onboarding.
 * **Decision:**
-  1. **Branch Topology:**
-     * **`main` (Active Feature Branch):** Maintains the full, un-gated ecosystem including end-to-end Guide Bundling, dual line-item checkout commit, and all active development updates.
-     * **`production` (Release Branch):** Targets live deployment where the Local Tour Guide feature is presented as "Coming Soon / Phase 2" with VIP early-access waitlist capture, while core hotel and resort bookings operate with 100% functionality and zero guide dependency.
-  2. **Release Branch UI/UX Specifications (`production`):**
+  1. **Primary Development & Release Trunk (`main`):**
+     * Serves as the primary branch where all active development happens and from which production releases are deployed.
+     * The Local Tour Guide feature is actively maintained as **"Coming Soon (Phase 2)"** with VIP early-access waitlist capture, while hotel and resort room reservations operate with 100% velocity and zero external guide dependency.
      * **Consumer Portal:** Guides tab displays a prominent "Coming Soon to Production v1.1" banner with an interactive VIP waitlist prompt (`handleGuideWaitlist()`). Guide cards display "Preview Profile", and resort cards display "Certified Resident Guides • Coming Soon". Resort room booking proceeds seamlessly with `selectedGuide = null`.
      * **Vendor Portal:** Guide Roster Linker displays a "Pre-Launch Staging (Phase 2)" badge, enabling hosts to pre-register guides ahead of the public launch.
      * **Admin Portal:** Guide Verification Queue displays a "Pre-Launch Staging" badge, allowing administrators to audit credentials in advance.
      * **Master Launchpad:** Displays "Guides Soon" badges on the hero search ribbon and card descriptions.
-  3. **Synchronization & Maintenance Policy:** General bug fixes, core engine enhancements, and database migrations are developed on `main` and selectively merged/cherry-picked into `production` without disturbing the production release feature gate.
+  2. **Phase 2 Feature Archive (`feature/guide-bundling-active`):**
+     * Preserves the fully active, un-gated Guide Bundling engine, dual line-item checkout, and active booking tests. When physical guide onboarding and licensing complete for Phase 2, this branch provides the baseline for activating live guide bookings.
+  3. **Deployment Branch (`production`):**
+     * Tracks `main` directly for live production deployment pipelines.
 
 ---
 
@@ -405,16 +407,17 @@ To ensure elements never move, shift, or jump during theme toggling between ligh
      - Statutory GDPR Article 20 Personal Data Export -> `HTTP 200`
 
 
-### D. Git Branching Architecture & Dual-Branch Strategy (ADR-016)
-To balance rapid ongoing engineering with commercial market readiness, the repository employs a two-tier release topology:
-1. **`main` Branch (Active Feature & Innovation Pipeline):**
-   - Contains all bleeding-edge features, including live Local Guide Bundling, dual line-item composite checkout, guide review aggregation, and active partner integrations.
-   - All shared enhancements, platform scalability updates, and new endpoints originate here.
-2. **`production` Branch (Commercial Launch & Gated Release):**
-   - Deployed directly to production infrastructure.
-   - Gates the Local Guide feature as **"Coming Soon (Phase 2)"** with early-access VIP waitlist capture across the web portals.
+### D. Git Branching Architecture & Phased Rollout Topology (ADR-016)
+To balance rapid ongoing engineering with commercial market readiness, the repository employs a clear branch structure:
+1. **`main` Branch (Active Development & Primary Trunk):**
+   - Serves as the primary active branch where ongoing work takes place.
+   - The Local Guide feature is configured as **"Coming Soon (Phase 2)"** with early-access VIP waitlist capture across the web portals.
    - Core hotel and resort reservations operate with 100% velocity and zero external guide dependency.
-   - Hosts and admins can still utilize pre-launch staging to register and audit guides in advance.
+   - Hosts and admins utilize pre-launch staging to register and audit guides in advance.
+2. **`feature/guide-bundling-active` Branch (Phase 2 Archive):**
+   - Preserves the fully developed active Guide Bundling engine, dual line-item composite checkout, and active booking tests for Phase 2 activation.
+3. **`production` Branch (Live Deployment Tracking):**
+   - Mirrors `main` directly for automated CI/CD and live production deployment pipelines.
 
 ### E. Host Environment Integrity & Execution Rules (Windows / SAC)
 - **Windows 11 Smart App Control (SAC):** In active enforcement mode. Pip-generated wrappers in `Scripts/` (e.g., `uvicorn.exe`, `pytest.exe`) are blocked by SAC policy.
