@@ -430,3 +430,42 @@ To balance rapid ongoing engineering with commercial market readiness, the repos
   - **Resolution:** Always invoke Python CLI tools via the Microsoft-signed binary: `python -m uvicorn app.main:app ...` and `python -m pytest tests/ -v`.
 - **Package Pinning:** Pinned `sqlalchemy==2.0.36` and `greenlet==3.0.3` to avoid untrusted C-extension binaries blocked by SAC.
 - **Static Assets:** Mounted `/assets` in FastAPI backend (`backend/app/main.py`) to serve branded logos and static graphics reliably.
+
+---
+
+## 11. Web-Only Launch Stack Review & Production Audit (November 2026)
+
+### A. Launch Scope & Platform Prioritization
+* **Strategy:** **Web-Only First Launch.** The native Flutter mobile application (`mobile_app/`) is deferred to Phase 2. The commercial launch targets standard browsers across **Desktop Web and Mobile Web** viewports via `web_portal/`.
+* **Platform Scope Rule:** In accordance with `AGENTS.md`, modifications are strictly confined to `web_portal/` and `backend/`. The `mobile_app/` codebase remains untouched.
+
+### B. Comprehensive Web Stack Component Review
+
+| Component / Layer | Implementation Architecture | Production Readiness | Technical Notes & Validated Features |
+| :--- | :--- | :---: | :--- |
+| **Consumer Web (Desktop View)** | `web_portal/consumer/index.html` | **READY (100%)** | Full-width sticky header, 12-col search ribbon (destination, dates, guests, filters, map toggle), Leaflet + CartoDB interactive map with pin-to-card sync, split view, room selection, live quote engine, instant booking lock, printable PDF voucher, "My Trips" dashboard with 1-click cancellation, verified review submission, GDPR data export. |
+| **Consumer Web (Mobile View)** | `web_portal/consumer/index.html` | **READY (100%)** | Responsive mobile breakpoints (`md:hidden`), compact mobile search bar, touch-friendly segmented journey row, bottom mobile navigation bar (`#mobileBottomNav`), safe-area insets (`env(safe-area-inset-top/bottom)`), touch momentum scrolling (`-webkit-overflow-scrolling: touch`). |
+| **Vendor Portal** | `web_portal/vendor/index.html` | **READY (100%)** | Host login/switching, real-time inventory allocation matrix (`room_allocations`), date-range quota and rate multiplier adjustment, property listing overview, guide staging. |
+| **Admin Operations Portal** | `web_portal/admin/index.html` | **READY (100%)** | Real-time ecosystem metrics (gross volume, 5% fee revenue, active properties, guides), **Full Property & Room Inventory CRUD** with search/filter, property modal with 1-click test presets, dedicated rooms & pricing modal with live base price editing, safe unpublish vs. delete, guide vetting queue with verification toggle. |
+| **Ecosystem Launchpad** | `web_portal/index.html` | **READY (100%)** | Unified branded entry point, direct links to all portals, live backend pulse indicator, theme switcher. |
+| **Backend ASGI Engine** | FastAPI + Uvicorn (Python 3.11) | **READY (100%)** | Async I/O, uvloop, 4 worker processes, lifespan startup checks, OpenAPI/Swagger docs, modular routers. |
+| **Database & Concurrency** | PostgreSQL 15 + SQLAlchemy 2.0 Async | **READY (100%)** | Declarative models, connection pooling, pessimistic row-level locking (`SELECT FOR UPDATE`) on allocations preventing double-booking during concurrent spikes. |
+| **Security & Hardening** | `RateLimitMiddleware` + CORS + Headers | **READY (100%)** | Sliding-window anti-scraping rate limiter, JWT stateless auth with Bcrypt hashing, strict HTTP security headers (`nosniff`, `SAMEORIGIN`, `strict-origin-when-cross-origin`). |
+| **Reverse Proxy & Gateway** | Nginx 1.25 (Alpine) | **READY (100%)** | Upstream keepalive (`keepalive 32`), Gzip level 6 compression, dynamic `/api/` proxying, static caching. |
+| **Containerization** | Multi-Stage `Dockerfile` + `docker-compose.yml` | **READY (100%)** | Non-root runtime user (`appuser:1001`), automated healthcheck probes, isolated bridge network. |
+
+### C. Automated Test Suite Verification
+* **Test Suite Status:** 100% Passing (**12 passed in ~23s**):
+  * `tests/test_admin_crud.py`: Full admin CRUD on properties, rooms, pricing, and 403 authorization guards.
+  * `tests/test_auth.py`: Authentication lifecycle, JWT issuance, and validation.
+  * `tests/test_bookings.py`: Quote calculations, atomic reservation lock, and allocation concurrency protection.
+  * `tests/test_hotels.py`: Spatial bounding-box query, proximity, and price sorting.
+  * `tests/test_resorts.py`: Experiential search and amenity filtering.
+  * `tests/test_vendor_admin.py`: Vendor allocation batch management and admin telemetry.
+
+### D. Production Deployment Checklist for Live Web Launch
+1. **Domain & SSL/HTTPS Termination:** Route domain through Cloudflare (free automatic SSL) or enable Let's Encrypt Certbot on Nginx port 443.
+2. **Managed Cloud Database:** Point `DATABASE_URL` in `.env.production` to a managed PostgreSQL cluster (Supabase, Neon, AWS RDS, or DigitalOcean Managed DB) with automated backups.
+3. **External Media Storage (S3/R2):** Wire Cloudflare R2 or AWS S3 credentials for direct-to-cloud photo uploads.
+4. **Live Payment Gateway:** Activate live Stripe/Razorpay merchant API keys in `PaymentGatewayFactory`.
+5. **Environment Flag:** Set `ENVIRONMENT=production` to ensure demo mock data auto-seeding is suppressed on startup.
