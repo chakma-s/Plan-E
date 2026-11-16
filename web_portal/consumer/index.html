@@ -156,8 +156,8 @@
             </a>
           </div>
 
-          <!-- DUAL / TRIPLE-JOURNEY SEGMENTED CONTROL: Centered for Desktop Web (lg:flex) -->
-          <div id="desktopJourneySwitcher" class="hidden lg:flex bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-2xl border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-[340px] shrink-0">
+          <!-- DUAL / TRIPLE-JOURNEY SEGMENTED CONTROL: Centered for Desktop Web (md:flex) -->
+          <div id="desktopJourneySwitcher" class="hidden md:flex bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-2xl border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-[340px] shrink-0">
             <button id="tab-hotel" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-sm">
               <i class="fa-solid fa-hotel text-xs"></i>
               <span class="tracking-wide">HOTELS</span>
@@ -181,7 +181,7 @@
             </button>
 
             <!-- Desktop My Trips Button (Hidden on Mobile) -->
-            <button id="desktopTripsBtn" onclick="navTo('trips')" class="hidden lg:flex h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="My Reservations">
+            <button id="desktopTripsBtn" onclick="navTo('trips')" class="hidden md:flex h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="My Reservations">
               <i class="fa-regular fa-bookmark text-xs text-brand"></i>
               <span>My Trips</span>
             </button>
@@ -195,7 +195,7 @@
         </div>
 
         <!-- SEGMENTED CONTROL: Row for Mobile & Phone Simulation -->
-        <div id="mobileJourneySwitcherRow" class="lg:hidden mt-1 mb-[1px] bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-xl flex border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-full">
+        <div id="mobileJourneySwitcherRow" class="md:hidden mt-1 mb-[1px] bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-xl flex border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-full">
           <button id="tab-hotel-mobile" onclick="switchJourney('hotel')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 bg-brand text-black active-tab shadow-sm">
             <i class="fa-solid fa-hotel text-xs"></i>
             <span class="tracking-wide text-[11px]">HOTELS</span>
@@ -221,8 +221,8 @@
         <!-- SEARCH & FILTER BAR (Responsive Desktop Ribbon + Mobile Chips) - LOCKED AT TOP -->
         <div id="searchBarContainer" class="shrink-0 mt-0 mb-[1px] sm:mb-2 bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#2a2a2a] rounded-xl px-2 py-1 sm:p-3 shadow-sm transition-all z-10">
           
-          <!-- DESKTOP SEARCH RIBBON (Shown on lg: and when not in mobile simulation) -->
-          <div id="desktopSearchRibbon" class="hidden lg:grid grid-cols-12 gap-3 items-center">
+          <!-- DESKTOP SEARCH RIBBON (Shown on md: and when not in mobile simulation) -->
+          <div id="desktopSearchRibbon" class="hidden md:grid grid-cols-12 gap-3 items-center">
             <!-- Search input -->
             <div class="col-span-5 flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs">
               <i class="fa-solid fa-magnifying-glass text-brand text-sm shrink-0"></i>
@@ -257,8 +257,8 @@
             </button>
           </div>
 
-          <!-- MOBILE SEARCH BAR (Shown on < lg and in mobile simulation) -->
-          <div id="mobileSearchRibbon" class="lg:hidden space-y-1">
+          <!-- MOBILE SEARCH BAR (Shown on < md and in mobile simulation) -->
+          <div id="mobileSearchRibbon" class="md:hidden space-y-1">
             <!-- Search input with green icon -->
             <div class="flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-lg px-3 py-1.5 text-xs">
               <i class="fa-solid fa-magnifying-glass text-brand text-xs shrink-0"></i>
@@ -1626,6 +1626,15 @@
 
       const urlParams = new URLSearchParams(window.location.search);
       const initialJourney = urlParams.get('journey') || localStorage.getItem('plane_active_journey') || 'hotel';
+      const initialQuery = urlParams.get('destination') || urlParams.get('city') || '';
+      if (initialQuery) {
+        const mobInput = document.getElementById('destinationInput');
+        const deskInput = document.getElementById('destinationInputDesktop');
+        if (mobInput) mobInput.value = initialQuery;
+        if (deskInput) deskInput.value = initialQuery;
+        const clearBtn = document.getElementById('clearSearchBtn');
+        if (clearBtn) clearBtn.classList.remove('hidden');
+      }
       switchJourney(initialJourney);
 
       // Restore persisted Map view mode (Default: list view like Flutter app)
@@ -2433,25 +2442,26 @@
 
       const destInput = document.getElementById('destinationInput');
       const destInputDesk = document.getElementById('destinationInputDesktop');
+      const currentQuery = (destInputDesk && destInputDesk.value) || (destInput && destInput.value) || '';
 
       if (type === 'hotel') {
         if (hotelBtn) hotelBtn.className = activeClass;
         if (hotelMobBtn) hotelMobBtn.className = activeClass;
         if (destInput) destInput.placeholder = "Where to? (e.g. Bangalore, San Francisco)";
         if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Bangalore, San Francisco)";
-        loadHotels();
+        loadHotels(currentQuery);
       } else if (type === 'resort') {
         if (resortBtn) resortBtn.className = activeClass;
         if (resortMobBtn) resortMobBtn.className = activeClass;
         if (destInput) destInput.placeholder = "Where to? (e.g. Bali, Phuket)";
         if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Bali, Phuket)";
-        loadResorts();
+        loadResorts(currentQuery);
       } else if (type === 'guide') {
         if (guideBtn) guideBtn.className = activeClass;
         if (guideMobBtn) guideMobBtn.className = activeClass;
         if (destInput) destInput.placeholder = "Search guides by specialty (Snorkeling, Hiking) or language...";
         if (destInputDesk) destInputDesk.placeholder = "Search guides by specialty (Snorkeling, Hiking) or language...";
-        loadGuides();
+        loadGuides(currentQuery);
       }
 
       if (isMapView && type !== 'guide') {

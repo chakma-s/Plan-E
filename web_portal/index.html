@@ -52,8 +52,8 @@
     <div class="w-full px-6 sm:px-8 lg:px-10 xl:px-14 2xl:px-16 h-20 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="relative w-[175.5px] h-10 shrink-0">
-          <img src="assets/logo_light.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain dark:hidden">
-          <img src="assets/logo_dark.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain hidden dark:block">
+          <img src="/assets/logo_light.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain dark:hidden">
+          <img src="/assets/logo_dark.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain hidden dark:block">
         </div>
         <span class="ml-2.5 text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">OTA 500-User Beta Stack</span>
       </div>
@@ -78,6 +78,59 @@
       <p class="text-base text-slate-600 dark:text-slate-400 leading-relaxed">
         High-performance OTA architecture engineered with strict dual-path search (Hotels vs. Resorts), Local Guide Bundling, and zero-overbooking allocation locks.
       </p>
+    </div>
+
+    <!-- HERO SEARCH & JOURNEY EXPLORER -->
+    <div class="max-w-4xl mx-auto bg-white dark:bg-[#121212] rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-[#2a2a2a] space-y-4">
+      <!-- Dual-Journey Segmented Tabs -->
+      <div class="flex items-center space-x-2 bg-slate-100 dark:bg-[#1a1a1a] p-1.5 rounded-2xl w-full sm:w-fit border border-slate-200 dark:border-[#333]">
+        <button id="heroTabHotel" onclick="setHeroJourney('hotel')" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-black shadow-sm">
+          <i class="fa-solid fa-hotel text-xs"></i>
+          <span>City Hotels</span>
+        </button>
+        <button id="heroTabResort" onclick="setHeroJourney('resort')" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white">
+          <i class="fa-solid fa-umbrella-beach text-xs"></i>
+          <span>Resorts & Local Guides</span>
+        </button>
+      </div>
+
+      <!-- Search Ribbon Fields -->
+      <form onsubmit="handleHeroSearch(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+        <!-- Destination -->
+        <div class="sm:col-span-5 flex items-center space-x-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] focus-within:border-brand rounded-2xl px-4 py-3 transition">
+          <i class="fa-solid fa-magnifying-glass text-brand text-sm shrink-0"></i>
+          <div class="flex-1 min-w-0">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</label>
+            <input type="text" id="heroDestinationInput" placeholder="Where to? (e.g. San Francisco, Miami, Bali)" class="w-full bg-transparent outline-none text-slate-900 dark:text-white font-bold text-xs placeholder-slate-400">
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="sm:col-span-4 flex items-center space-x-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-2xl px-4 py-3">
+          <i class="fa-regular fa-calendar text-brand text-sm shrink-0"></i>
+          <div class="flex-1 min-w-0">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dates (3 Nights)</label>
+            <span class="block text-slate-800 dark:text-gray-200 font-bold text-xs truncate">Nov 10 - Nov 13, 2026</span>
+          </div>
+        </div>
+
+        <!-- Search Action -->
+        <div class="sm:col-span-3">
+          <button type="submit" class="w-full bg-brand hover:bg-[#68c918] text-black font-black py-4 px-6 rounded-2xl text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-brand/20 active:scale-95">
+            <i class="fa-solid fa-compass text-sm"></i>
+            <span id="heroSearchBtnLabel">Search Hotels</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Quick Destination Suggestions -->
+      <div class="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 pt-1 flex-wrap gap-y-1">
+        <span class="text-[11px] font-semibold">Popular:</span>
+        <button type="button" onclick="quickFillHero('San Francisco')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-brand/20 hover:text-emerald-700 dark:hover:text-brand transition text-[11px] font-medium">San Francisco</button>
+        <button type="button" onclick="quickFillHero('Miami Beach')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-brand/20 hover:text-emerald-700 dark:hover:text-brand transition text-[11px] font-medium">Miami Beach</button>
+        <button type="button" onclick="quickFillHero('Bali')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-brand/20 hover:text-emerald-700 dark:hover:text-brand transition text-[11px] font-medium">Bali</button>
+        <button type="button" onclick="quickFillHero('Phuket')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-brand/20 hover:text-emerald-700 dark:hover:text-brand transition text-[11px] font-medium">Phuket</button>
+      </div>
     </div>
 
     <!-- FAST AUTHENTICATION & DEMO ACCOUNTS DIRECTORY -->
@@ -309,6 +362,46 @@
           htmlEl.classList.remove('theme-transitioning');
         });
       });
+    }
+
+    // Hero Search & Journey Navigation
+    let activeHeroJourney = 'hotel';
+
+    function setHeroJourney(journey) {
+      activeHeroJourney = journey;
+      const hotelBtn = document.getElementById('heroTabHotel');
+      const resortBtn = document.getElementById('heroTabResort');
+      const label = document.getElementById('heroSearchBtnLabel');
+      const input = document.getElementById('heroDestinationInput');
+
+      if (journey === 'hotel') {
+        hotelBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-black shadow-sm";
+        resortBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white";
+        if (label) label.innerText = "Search Hotels";
+        if (input) input.placeholder = "Where to? (e.g. San Francisco, Miami Beach)";
+      } else {
+        resortBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-black shadow-sm";
+        hotelBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white";
+        if (label) label.innerText = "Search Resorts & Guides";
+        if (input) input.placeholder = "Where to? (e.g. Bali, Phuket, Costa Rica)";
+      }
+    }
+
+    function quickFillHero(dest) {
+      const input = document.getElementById('heroDestinationInput');
+      if (input) input.value = dest;
+    }
+
+    function handleHeroSearch(e) {
+      e.preventDefault();
+      const input = document.getElementById('heroDestinationInput');
+      const query = input ? input.value.trim() : '';
+      const params = new URLSearchParams();
+      params.set('journey', activeHeroJourney);
+      if (query) {
+        params.set('destination', query);
+      }
+      window.location.href = `/consumer?${params.toString()}`;
     }
 
     // Sync icon with current theme on load

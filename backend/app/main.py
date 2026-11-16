@@ -88,9 +88,13 @@ async def add_security_headers(request, call_next):
 # Include API Router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# Mount Static UI Assets
+# Mount Static UI Assets & Canonical Brand Assets
 if PORTAL_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(PORTAL_DIR)), name="static")
+    assets_dir = PORTAL_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
 
 
 # -----------------------------------------------------------------------------
