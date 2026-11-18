@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Brand Palette - Signature Colors matching Web Portal
-  static const Color brandColor = Color(0xFF110F87); // Deep Sapphire / Midnight Navy (#110F87)
+  static const Color brandColor = Color(0xFF4A062E); // Royal Burgundy / Deep Plum (#4A062E)
   static const Color blackColor = Color(0xFF000000);
   static const Color logoAccent = Color(0xFFF2C48C); // Warm caramel/amber for -E
   static const Color logoDark = Color(0xFF0B1324);   // Deep slate/navy for Light mode logo
@@ -17,13 +17,13 @@ class AppTheme {
 
   // Map accents to brand color
   static const Color hotelAccent = brandColor;
-  static const Color hotelLight = Color(0x33110F87); // 20% opacity brand
+  static const Color hotelLight = Color(0x334A062E); // 20% opacity brand
 
   static const Color resortAccent = brandColor;
-  static const Color resortLight = Color(0x33110F87); // 20% opacity brand
+  static const Color resortLight = Color(0x334A062E); // 20% opacity brand
 
   static const Color guideGold = brandColor;
-  static const Color guideLight = Color(0x33110F87);
+  static const Color guideLight = Color(0x334A062E);
 
   // Text Colors adapted for dark mode
   static const Color textPrimary = Colors.white;

@@ -245,7 +245,8 @@ Per the Master Specification, the following operational decisions are tracked fo
   * Aligned the color palette across both the Flutter mobile/web app (`mobile_app`) and the Web Portal (`web_portal/consumer/index.html`):
     * Dark scaffold background: Pure Black (`#000000`).
     * Card surfaces: Dark neutral `#121212`.
-    * Interactive buttons / active pill: Deep sapphire / midnight navy brand accent (`#110F87`) with high-contrast text (`#FFFFFF`) and refined borders (`rgba(255,255,255,0.2)`), updated from previous `#7DE720`.
+    * Interactive buttons / active pill: Royal burgundy / deep plum brand accent (`#4A062E`) with high-contrast text (`#FFFFFF`) and refined borders (`rgba(255,255,255,0.2)`), updated from previous `#7DE720`.
+    * Amenity chips & Map actions: Light/dark adaptive styling with high-contrast readable text (black in light mode, white in dark mode for "Show on Map").
     * Borders / Dividers: `#2A2A2A` and `#333333`.
   * Typography: Standardized on **Google Fonts Plus Jakarta Sans** across Flutter (`GoogleFonts.plusJakartaSansTextTheme`) and Web CSS (`font-family: 'Plus Jakarta Sans', sans-serif`).
 * **Locked Header/Search/Map with Independent Vertical Scroll:**
