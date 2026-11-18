@@ -465,9 +465,23 @@ To balance rapid ongoing engineering with commercial market readiness, the repos
   * `tests/test_resorts.py`: Experiential search and amenity filtering.
   * `tests/test_vendor_admin.py`: Vendor allocation batch management and admin telemetry.
 
-### D. Production Deployment Checklist for Live Web Launch
-1. **Domain & SSL/HTTPS Termination:** Route domain through Cloudflare (free automatic SSL) or enable Let's Encrypt Certbot on Nginx port 443.
-2. **Managed Cloud Database:** Point `DATABASE_URL` in `.env.production` to a managed PostgreSQL cluster (Supabase, Neon, AWS RDS, or DigitalOcean Managed DB) with automated backups.
-3. **External Media Storage (S3/R2):** Wire Cloudflare R2 or AWS S3 credentials for direct-to-cloud photo uploads.
-4. **Live Payment Gateway:** Activate live Stripe/Razorpay merchant API keys in `PaymentGatewayFactory`.
+### D. Production Deployment Architecture & Selected Hosting Platform (Railway)
+* **Selected Hosting Platform:** **Railway** (`railway.com`)
+  * **Unified Multi-Service Topology:** Single project housing:
+    1. **Managed PostgreSQL Service:** 1-click provisioned PostgreSQL 15/16 database with automated connection string injection (`DATABASE_URL`), automated daily backups, and SSL enforcement.
+    2. **FastAPI + Web Portal Full-Stack Service:** Runs the containerized Python 3.11 ASGI engine serving both the `/api/v1` backend endpoints and the mounted static web portal interfaces (`/`, `/consumer`, `/vendor`, `/admin`, `/assets`).
+    3. **Future Extension (Phase 2):** Native support for Flutter web hosting, background workers (Celery/Redis), and external storage pipelines within the same unified project dashboard.
+  * **Custom Domain & SSL Architecture:**
+    * Automatic custom domain provisioning with free managed TLS/SSL certificates (`Let's Encrypt`) and zero-downtime automated certificate renewal.
+    * Route apex (`yourdomain.com`) or subdomains (`app.yourdomain.com`, `api.yourdomain.com`) directly via standard CNAME / ALIAS DNS records.
+  * **CI/CD & Git Deployment Workflow:**
+    * Seamless automated deployment triggered on every push to the `production` or `main` branches on GitHub.
+    * Instant rollback capability, environment variable isolation (`SECRET_KEY`, `DATABASE_URL`, `ENVIRONMENT=production`), and health check validation before traffic routing.
+
+### E. Production Deployment Checklist for Live Web Launch
+1. **Railway Project Setup:** Link GitHub repository `chakma-s/Plan-E` to a new Railway project and add a Railway PostgreSQL database plugin.
+2. **Environment Variables Configuration:** Set `DATABASE_URL` (auto-wired by Railway), `SECRET_KEY`, `ENVIRONMENT=production`, and `BACKEND_CORS_ORIGINS`.
+3. **Domain & SSL/HTTPS Termination:** Add your custom domain in Railway's service settings and configure your registrar's DNS records.
+4. **External Media Storage (S3/R2):** Wire Cloudflare R2 or AWS S3 credentials for direct-to-cloud photo uploads.
+5. **Live Payment Gateway:** Activate live Stripe/Razorpay merchant API keys in `PaymentGatewayFactory`.
 5. **Environment Flag:** Set `ENVIRONMENT=production` to ensure demo mock data auto-seeding is suppressed on startup.
