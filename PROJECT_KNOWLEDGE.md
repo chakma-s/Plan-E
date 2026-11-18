@@ -246,7 +246,8 @@ Per the Master Specification, the following operational decisions are tracked fo
     * Dark scaffold background: Pure Black (`#000000`).
     * Card surfaces: Dark neutral `#121212`.
     * Interactive buttons / active pill: Royal burgundy / deep plum brand accent (`#4A062E`) with high-contrast text (`#FFFFFF`) and refined borders (`rgba(255,255,255,0.2)`), updated from previous `#7DE720`.
-    * Amenity chips & Map actions: Light/dark adaptive styling with high-contrast readable text (black in light mode, white in dark mode for "Show on Map").
+    * Amenity chips, Search & Filter Components: Light/dark adaptive styling with high-contrast readable text and icons (pure black in light mode, pure white in dark mode for Search ribbon inputs, Date picker, Filters, Map toggle, and Modals).
+    * Display Cards Preserved: Hotel and resort showcase cards retain their polished contrast and styling.
     * Borders / Dividers: `#2A2A2A` and `#333333`.
   * Typography: Standardized on **Google Fonts Plus Jakarta Sans** across Flutter (`GoogleFonts.plusJakartaSansTextTheme`) and Web CSS (`font-family: 'Plus Jakarta Sans', sans-serif`).
 * **Locked Header/Search/Map with Independent Vertical Scroll:**

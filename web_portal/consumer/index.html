@@ -242,24 +242,24 @@
 
             <!-- Theme Toggle -->
             <button onclick="toggleTheme()"
-              class="w-9 h-9 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] flex items-center justify-center text-brand hover:opacity-80 transition shadow-xs shrink-0"
+              class="w-9 h-9 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] flex items-center justify-center text-black dark:text-white hover:opacity-80 transition shadow-xs shrink-0"
               title="Toggle Theme">
               <i id="themeIcon"
-                class="fa-solid fa-moon text-base text-brand w-5 text-center flex items-center justify-center"></i>
+                class="fa-solid fa-moon text-base text-black dark:text-white w-5 text-center flex items-center justify-center"></i>
             </button>
 
             <!-- Desktop My Trips Button (Hidden on Mobile) -->
             <button id="desktopTripsBtn" onclick="navTo('trips')"
-              class="hidden md:flex h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0"
+              class="hidden md:flex h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] items-center space-x-1.5 text-xs font-bold text-black dark:text-white hover:border-slate-400 dark:hover:border-slate-500 transition shadow-xs shrink-0"
               title="My Reservations">
-              <i class="fa-regular fa-bookmark text-xs text-brand"></i>
+              <i class="fa-regular fa-bookmark text-xs text-black dark:text-white"></i>
               <span>My Trips</span>
             </button>
 
             <!-- Account / Profile Button -->
             <button onclick="openAuthModal()" id="authHeaderBtn"
-              class="h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] text-slate-700 dark:text-white hover:border-brand flex items-center space-x-2 text-xs font-bold transition shadow-xs shrink-0">
-              <i id="authHeaderIcon" class="fa-regular fa-circle-user text-base text-brand"></i>
+              class="h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] text-black dark:text-white hover:border-slate-400 dark:hover:border-slate-500 flex items-center space-x-2 text-xs font-bold transition shadow-xs shrink-0">
+              <i id="authHeaderIcon" class="fa-regular fa-circle-user text-base text-black dark:text-white"></i>
               <span id="authHeaderLabel" class="hidden sm:inline">Profile</span>
             </button>
           </div>
@@ -305,10 +305,10 @@
             <!-- Search input -->
             <div
               class="col-span-5 flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs">
-              <i class="fa-solid fa-magnifying-glass text-brand text-sm shrink-0"></i>
+              <i class="fa-solid fa-magnifying-glass text-black dark:text-white text-sm shrink-0"></i>
               <input type="text" id="destinationInputDesktop" oninput="handleDestinationSearch(this.value)"
                 placeholder="Where to? (e.g. Bangalore, San Francisco)"
-                class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
+                class="flex-1 bg-transparent outline-none text-black dark:text-white font-medium placeholder-slate-400 min-w-0">
               <button onclick="clearSearchInput()" class="text-slate-400 hover:text-slate-600 text-xs hidden">
                 <i class="fa-solid fa-circle-xmark"></i>
               </button>
@@ -316,30 +316,30 @@
 
             <!-- Date Picker Button -->
             <button onclick="openItineraryModal()"
-              class="col-span-3 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
-              <i class="fa-regular fa-calendar text-brand shrink-0 text-sm"></i>
-              <span id="dateRangeTextDesktop" class="truncate font-bold">Sep 28 - Oct 1, 2026</span>
+              class="col-span-3 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 rounded-xl text-xs font-semibold text-black dark:text-white transition truncate shadow-xs">
+              <i class="fa-regular fa-calendar text-black dark:text-white shrink-0 text-sm"></i>
+              <span id="dateRangeTextDesktop" class="truncate font-bold text-black dark:text-white">Sep 28 - Oct 1, 2026</span>
             </button>
 
             <!-- Guests Button -->
             <button onclick="openItineraryModal()"
-              class="col-span-2 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
-              <i class="fa-solid fa-user-group text-slate-400 text-xs shrink-0"></i>
-              <span id="guestsCountText" class="truncate font-medium">2 Guests</span>
+              class="col-span-2 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 rounded-xl text-xs font-semibold text-black dark:text-white transition truncate shadow-xs">
+              <i class="fa-solid fa-user-group text-black dark:text-white text-xs shrink-0"></i>
+              <span id="guestsCountText" class="truncate font-medium text-black dark:text-white">2 Guests</span>
             </button>
 
             <!-- Filters Button -->
             <button onclick="openFiltersModal()"
-              class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
-              <i class="fa-solid fa-sliders text-brand text-xs"></i>
-              <span>Filters</span>
+              class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 rounded-xl text-xs font-bold text-black dark:text-white transition shadow-xs">
+              <i class="fa-solid fa-sliders text-black dark:text-white text-xs"></i>
+              <span class="text-black dark:text-white">Filters</span>
             </button>
 
             <!-- Map View Button -->
             <button id="mapToggleBtnDesktop" onclick="toggleMapView()"
-              class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
-              <i id="mapToggleIconDesktop" class="fa-solid fa-map text-brand text-xs"></i>
-              <span id="mapToggleTextDesktop">Map</span>
+              class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 rounded-xl text-xs font-bold text-black dark:text-white transition shadow-xs">
+              <i id="mapToggleIconDesktop" class="fa-solid fa-map text-black dark:text-white text-xs"></i>
+              <span id="mapToggleTextDesktop" class="text-black dark:text-white">Map</span>
             </button>
           </div>
 
@@ -348,10 +348,10 @@
             <!-- Search input with green icon -->
             <div
               class="flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-lg px-3 py-1.5 text-xs">
-              <i class="fa-solid fa-magnifying-glass text-brand text-xs shrink-0"></i>
+              <i class="fa-solid fa-magnifying-glass text-black dark:text-white text-xs shrink-0"></i>
               <input type="text" id="destinationInput" oninput="handleDestinationSearch(this.value)"
                 placeholder="Where to? (e.g. Bangalore, San Francisco)"
-                class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
+                class="flex-1 bg-transparent outline-none text-black dark:text-white font-medium placeholder-slate-400 min-w-0">
               <button id="clearSearchBtn" onclick="clearSearchInput()"
                 class="hidden text-slate-400 hover:text-slate-600 text-xs">
                 <i class="fa-solid fa-circle-xmark"></i>
@@ -361,21 +361,21 @@
             <!-- 3 Filter Buttons Row: Date Picker, Filters, Map Toggle -->
             <div class="grid grid-cols-12 gap-1.5">
               <button onclick="openItineraryModal()"
-                class="col-span-6 flex items-center justify-center space-x-1.5 py-1.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
-                <i class="fa-regular fa-calendar text-brand shrink-0 text-xs"></i>
-                <span id="dateRangeText" class="truncate text-[11px] font-medium">Sep 28 - Oct 1, 2026</span>
+                class="col-span-6 flex items-center justify-center space-x-1.5 py-1.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 rounded-lg text-xs font-semibold text-black dark:text-white transition truncate shadow-xs">
+                <i class="fa-regular fa-calendar text-black dark:text-white shrink-0 text-xs"></i>
+                <span id="dateRangeText" class="truncate text-[11px] font-medium text-black dark:text-white">Sep 28 - Oct 1, 2026</span>
               </button>
 
               <button onclick="openFiltersModal()"
-                class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
-                <i class="fa-solid fa-sliders text-brand text-xs"></i>
-                <span class="text-[11px]">Filters</span>
+                class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 rounded-lg text-xs font-semibold text-black dark:text-white transition shadow-xs">
+                <i class="fa-solid fa-sliders text-black dark:text-white text-xs"></i>
+                <span class="text-[11px] text-black dark:text-white">Filters</span>
               </button>
 
               <button id="mapToggleBtn" onclick="toggleMapView()"
-                class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
-                <i id="mapToggleIcon" class="fa-solid fa-map text-brand text-xs"></i>
-                <span id="mapToggleText" class="text-[11px]">Map</span>
+                class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 rounded-lg text-xs font-semibold text-black dark:text-white transition shadow-xs">
+                <i id="mapToggleIcon" class="fa-solid fa-map text-black dark:text-white text-xs"></i>
+                <span id="mapToggleText" class="text-[11px] text-black dark:text-white">Map</span>
               </button>
             </div>
           </div>
@@ -397,23 +397,23 @@
             </div>
             <div class="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
               <label
-                class="flex items-center space-x-1 px-1.5 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] cursor-pointer hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs shrink-0 whitespace-nowrap"
+                class="flex items-center space-x-1 px-1.5 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] cursor-pointer hover:border-slate-400 dark:hover:border-slate-500 text-[10px] font-bold text-black dark:text-white transition shadow-xs shrink-0 whitespace-nowrap"
                 title="Search as map moves">
                 <input type="checkbox" id="searchAsMapMovesCb" onchange="toggleSearchAsMapMoves(this.checked)"
-                  class="rounded text-brand focus:ring-0 w-3 h-3">
-                <span class="text-[10px] whitespace-nowrap">Auto-search</span>
+                  class="rounded accent-[#4A062E] focus:ring-0 w-3 h-3">
+                <span class="text-[10px] whitespace-nowrap text-black dark:text-white">Auto-search</span>
               </label>
               <button onclick="resetMapBounds()"
-                class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap"
+                class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 text-[10px] font-bold text-black dark:text-white transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap"
                 title="Fit all property markers into view">
-                <i class="fa-solid fa-arrows-to-eye text-brand text-[9px]"></i>
-                <span class="whitespace-nowrap">Fit</span>
+                <i class="fa-solid fa-arrows-to-eye text-black dark:text-white text-[9px]"></i>
+                <span class="whitespace-nowrap text-black dark:text-white">Fit</span>
               </button>
               <button onclick="toggleMapView()"
-                class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap"
+                class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-slate-400 dark:hover:border-slate-500 text-[10px] font-bold text-black dark:text-white transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap"
                 title="Hide map view">
-                <i class="fa-solid fa-eye-slash text-brand text-[9px]"></i>
-                <span class="whitespace-nowrap">Hide</span>
+                <i class="fa-solid fa-eye-slash text-black dark:text-white text-[9px]"></i>
+                <span class="whitespace-nowrap text-black dark:text-white">Hide</span>
               </button>
             </div>
           </div>
@@ -434,12 +434,12 @@
       <!-- VIEW 2: MY TRIPS SECTION (Toggled via Bottom Nav or Header) -->
       <div id="myTripsSection" class="hidden w-full flex-1 min-h-0 flex flex-col overflow-hidden space-y-4">
         <div class="shrink-0 flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#2a2a2a]">
-          <h3 class="font-extrabold text-lg text-slate-900 dark:text-white flex items-center space-x-2.5">
-            <i class="fa-solid fa-suitcase-rolling text-brand"></i>
+          <h3 class="font-extrabold text-lg text-black dark:text-white flex items-center space-x-2.5">
+            <i class="fa-solid fa-suitcase-rolling text-black dark:text-white"></i>
             <span>My Reservations & Vouchers</span>
           </h3>
           <button onclick="navTo('explore')"
-            class="text-xs text-brand font-bold flex items-center space-x-1 hover:underline">
+            class="text-xs text-black dark:text-white font-bold flex items-center space-x-1 hover:underline">
             <i class="fa-solid fa-arrow-left text-[11px]"></i>
             <span>Back to Explore</span>
           </button>
@@ -447,7 +447,7 @@
         <div class="flex-1 min-h-0 overflow-y-auto pr-1 pb-24 custom-scrollbar scroll-contained">
           <div id="tripsListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="col-span-full flex justify-center py-12"><i
-                class="fa-solid fa-circle-notch fa-spin text-brand text-2xl"></i></div>
+                class="fa-solid fa-circle-notch fa-spin text-black dark:text-white text-2xl"></i></div>
           </div>
         </div>
       </div>
@@ -460,21 +460,21 @@
       <div class="max-w-xl mx-auto flex items-center justify-around h-16 px-4">
         <!-- Tab 1: Explore -->
         <button id="nav-explore" onclick="navTo('explore')"
-          class="flex flex-col items-center justify-center space-y-1 text-brand font-bold transition flex-1">
+          class="flex flex-col items-center justify-center space-y-1 text-black dark:text-white font-extrabold transition flex-1">
           <i class="fa-solid fa-compass text-lg"></i>
           <span class="text-[10px]">Explore</span>
         </button>
 
         <!-- Tab 2: My Trips -->
         <button id="nav-trips" onclick="navTo('trips')"
-          class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
+          class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-black dark:hover:text-white font-medium transition flex-1">
           <i class="fa-regular fa-bookmark text-lg"></i>
           <span class="text-[10px]">My Trips</span>
         </button>
 
         <!-- Tab 3: Profile -->
         <button id="nav-profile" onclick="navTo('profile')"
-          class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
+          class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-black dark:hover:text-white font-medium transition flex-1">
           <i class="fa-regular fa-user text-lg"></i>
           <span class="text-[10px]">Profile</span>
         </button>
@@ -914,11 +914,11 @@
         class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div class="flex items-center space-x-2">
-            <i class="fa-regular fa-calendar text-brand text-base"></i>
-            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Select Itinerary Dates</h3>
+            <i class="fa-regular fa-calendar text-black dark:text-white text-base"></i>
+            <h3 class="font-extrabold text-base text-black dark:text-white">Select Itinerary Dates</h3>
           </div>
           <button onclick="closeItineraryModal()"
-            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+            class="text-black dark:text-white hover:opacity-80 text-base"><i
               class="fa-solid fa-xmark"></i></button>
         </div>
 
@@ -926,64 +926,64 @@
           <div class="space-y-3">
             <div>
               <label
-                class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-In
+                class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white mb-1">Check-In
                 Date</label>
               <input type="date" id="itineraryCheckInInput" onchange="updateItineraryNightsCount()" required
-                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-black dark:text-white font-medium focus:border-slate-400 dark:focus:border-slate-500 transition">
             </div>
             <div>
               <label
-                class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-Out
+                class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white mb-1">Check-Out
                 Date</label>
               <input type="date" id="itineraryCheckOutInput" onchange="updateItineraryNightsCount()" required
-                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-black dark:text-white font-medium focus:border-slate-400 dark:focus:border-slate-500 transition">
             </div>
 
             <!-- Guest Count Controls -->
             <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
               <label
-                class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Guests</label>
+                class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white">Guests</label>
               <div
                 class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div>
-                  <span class="text-xs font-bold text-slate-900 dark:text-white block">Adults</span>
+                  <span class="text-xs font-bold text-black dark:text-white block">Adults</span>
                   <span class="text-[10px] text-slate-400">Ages 13+</span>
                 </div>
                 <div class="flex items-center space-x-2">
                   <button type="button" onclick="changeGuestCount('adults', -1)"
-                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">−</button>
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-black dark:text-white transition">−</button>
                   <span id="itineraryAdultsCount"
-                    class="w-6 text-center text-xs font-black text-slate-900 dark:text-white">2</span>
+                    class="w-6 text-center text-xs font-black text-black dark:text-white">2</span>
                   <button type="button" onclick="changeGuestCount('adults', 1)"
-                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">+</button>
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-black dark:text-white transition">+</button>
                 </div>
               </div>
               <div
                 class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div>
-                  <span class="text-xs font-bold text-slate-900 dark:text-white block">Children</span>
+                  <span class="text-xs font-bold text-black dark:text-white block">Children</span>
                   <span class="text-[10px] text-slate-400">Ages 0–12</span>
                 </div>
                 <div class="flex items-center space-x-2">
                   <button type="button" onclick="changeGuestCount('children', -1)"
-                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">−</button>
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-black dark:text-white transition">−</button>
                   <span id="itineraryChildrenCount"
-                    class="w-6 text-center text-xs font-black text-slate-900 dark:text-white">0</span>
+                    class="w-6 text-center text-xs font-black text-black dark:text-white">0</span>
                   <button type="button" onclick="changeGuestCount('children', 1)"
-                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">+</button>
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-black dark:text-white transition">+</button>
                 </div>
               </div>
             </div>
           </div>
 
           <div id="itineraryNightsSummary"
-            class="text-xs text-center font-bold text-brand bg-brand/10 py-2.5 rounded-xl border border-brand/20">
+            class="text-xs text-center font-bold text-black dark:text-white bg-slate-100 dark:bg-white/10 py-2.5 rounded-xl border border-slate-200 dark:border-white/15">
             3 Nights Selected • 2 Guests
           </div>
 
           <div class="flex space-x-2 pt-2">
             <button type="button" onclick="closeItineraryModal()"
-              class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
+              class="w-1/2 bg-slate-100 dark:bg-slate-800 text-black dark:text-white font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
             <button type="submit"
               class="w-1/2 bg-brand text-white border border-white/20 font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#66093F] transition shadow-md">Apply
               Itinerary</button>
@@ -999,21 +999,21 @@
         class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-sliders text-brand text-base"></i>
-            <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Filters & Sorting</h3>
+            <i class="fa-solid fa-sliders text-black dark:text-white text-base"></i>
+            <h3 class="font-extrabold text-base text-black dark:text-white">Filters & Sorting</h3>
           </div>
           <button onclick="closeFiltersModal()"
-            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+            class="text-black dark:text-white hover:opacity-80 text-base"><i
               class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form onsubmit="handleFiltersSubmit(event)" class="space-y-4">
           <div>
             <label
-              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Sort
+              class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white mb-1.5">Sort
               Properties</label>
             <select id="filterSortSelect"
-              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-black dark:text-white font-medium focus:border-slate-400 dark:focus:border-slate-500 transition">
               <option value="recommended">Recommended</option>
               <option value="price_low">Price: Low to High</option>
               <option value="price_high">Price: High to Low</option>
@@ -1023,75 +1023,75 @@
 
           <div>
             <label
-              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Max
+              class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white mb-1.5">Max
               Price Per Night ($)</label>
             <input type="number" id="filterMaxPriceInput" placeholder="No limit" min="50" max="2000"
-              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-black dark:text-white font-medium focus:border-slate-400 dark:focus:border-slate-500 transition">
           </div>
 
           <div>
             <label
-              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Minimum
+              class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white mb-1.5">Minimum
               Rating</label>
             <div class="grid grid-cols-4 gap-2 text-xs font-bold text-center">
               <button type="button" onclick="selectMinRating(0)" id="ratingBtn-0"
-                class="py-2 rounded-xl border border-brand bg-brand/10 text-brand">All</button>
+                class="py-2 rounded-xl border border-slate-800 dark:border-white bg-slate-200 dark:bg-white/20 text-black dark:text-white font-extrabold">All</button>
               <button type="button" onclick="selectMinRating(3)" id="ratingBtn-3"
-                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">3★+</button>
+                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-black dark:text-white">3★+</button>
               <button type="button" onclick="selectMinRating(4)" id="ratingBtn-4"
-                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4★+</button>
+                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-black dark:text-white">4★+</button>
               <button type="button" onclick="selectMinRating(4.5)" id="ratingBtn-4.5"
-                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4.5★+</button>
+                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-black dark:text-white">4.5★+</button>
             </div>
           </div>
 
           <div>
             <label
-              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Amenities
+              class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white mb-1.5">Amenities
               & Highlights</label>
             <div class="grid grid-cols-2 gap-2 text-xs">
               <label
-                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
-                <input type="checkbox" id="amenity-pool" value="Pool" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
-                    class="fa-solid fa-water-ladder text-brand mr-1"></i> Swimming Pool</span>
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-400 dark:hover:border-slate-500">
+                <input type="checkbox" id="amenity-pool" value="Pool" class="rounded accent-[#4A062E] focus:ring-0">
+                <span class="text-black dark:text-white text-[11px] font-semibold"><i
+                    class="fa-solid fa-water-ladder text-black dark:text-white mr-1"></i> Swimming Pool</span>
               </label>
               <label
-                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
-                <input type="checkbox" id="amenity-beach" value="Beach" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
-                    class="fa-solid fa-umbrella-beach text-brand mr-1"></i> Beach Access</span>
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-400 dark:hover:border-slate-500">
+                <input type="checkbox" id="amenity-beach" value="Beach" class="rounded accent-[#4A062E] focus:ring-0">
+                <span class="text-black dark:text-white text-[11px] font-semibold"><i
+                    class="fa-solid fa-umbrella-beach text-black dark:text-white mr-1"></i> Beach Access</span>
               </label>
               <label
-                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
-                <input type="checkbox" id="amenity-spa" value="Spa" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
-                    class="fa-solid fa-spa text-brand mr-1"></i> Spa & Wellness</span>
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-400 dark:hover:border-slate-500">
+                <input type="checkbox" id="amenity-spa" value="Spa" class="rounded accent-[#4A062E] focus:ring-0">
+                <span class="text-black dark:text-white text-[11px] font-semibold"><i
+                    class="fa-solid fa-spa text-black dark:text-white mr-1"></i> Spa & Wellness</span>
               </label>
               <label
-                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
-                <input type="checkbox" id="amenity-wifi" value="WiFi" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
-                    class="fa-solid fa-wifi text-brand mr-1"></i> High-Speed Wi-Fi</span>
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-400 dark:hover:border-slate-500">
+                <input type="checkbox" id="amenity-wifi" value="WiFi" class="rounded accent-[#4A062E] focus:ring-0">
+                <span class="text-black dark:text-white text-[11px] font-semibold"><i
+                    class="fa-solid fa-wifi text-black dark:text-white mr-1"></i> High-Speed Wi-Fi</span>
               </label>
               <label
-                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
-                <input type="checkbox" id="amenity-gym" value="Gym" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
-                    class="fa-solid fa-dumbbell text-brand mr-1"></i> Fitness Center</span>
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-400 dark:hover:border-slate-500">
+                <input type="checkbox" id="amenity-gym" value="Gym" class="rounded accent-[#4A062E] focus:ring-0">
+                <span class="text-black dark:text-white text-[11px] font-semibold"><i
+                    class="fa-solid fa-dumbbell text-black dark:text-white mr-1"></i> Fitness Center</span>
               </label>
               <label
-                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
-                <input type="checkbox" id="amenity-breakfast" value="Dining" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
-                    class="fa-solid fa-utensils text-brand mr-1"></i> Fine Dining</span>
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-400 dark:hover:border-slate-500">
+                <input type="checkbox" id="amenity-breakfast" value="Dining" class="rounded accent-[#4A062E] focus:ring-0">
+                <span class="text-black dark:text-white text-[11px] font-semibold"><i
+                    class="fa-solid fa-utensils text-black dark:text-white mr-1"></i> Fine Dining</span>
               </label>
             </div>
           </div>
 
           <div class="flex space-x-2 pt-2">
             <button type="button" onclick="resetFilters()"
-              class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Reset</button>
+              class="w-1/2 bg-slate-100 dark:bg-slate-800 text-black dark:text-white font-bold py-2.5 rounded-xl text-xs transition">Reset</button>
             <button type="submit"
               class="w-1/2 bg-brand text-white border border-white/20 font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#66093F] transition shadow-md">Apply
               Filters</button>
@@ -2071,7 +2071,7 @@
       if (errOtpVerify) errOtpVerify.classList.add('hidden');
 
       const activeTab = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-brand text-white border border-white/20 shadow-xs transition flex items-center justify-center space-x-1";
-      const inactiveTab = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition flex items-center justify-center space-x-1";
+      const inactiveTab = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition flex items-center justify-center space-x-1";
 
       if (tabOtp) tabOtp.className = inactiveTab;
       if (tabLogin) tabLogin.className = inactiveTab;
@@ -2343,19 +2343,19 @@
       const iconDesk = document.getElementById('mapToggleIconDesktop');
       const textDesk = document.getElementById('mapToggleTextDesktop');
 
-      const activeBtnClasses = ['bg-brand/10', 'border-brand', 'text-brand', 'font-bold'];
-      const inactiveBtnClasses = ['bg-slate-50', 'dark:bg-[#1a1a1a]', 'border-slate-200', 'dark:border-[#333]', 'text-slate-700', 'dark:text-gray-300'];
+      const activeBtnClasses = ['bg-slate-200', 'dark:bg-white/20', 'border-slate-800', 'dark:border-white', 'text-black', 'dark:text-white', 'font-extrabold'];
+      const inactiveBtnClasses = ['bg-slate-50', 'dark:bg-[#1a1a1a]', 'border-slate-200', 'dark:border-[#333]', 'text-black', 'dark:text-white', 'font-semibold'];
 
       if (isMapView) {
         // Button shows "List" with active highlight
-        if (icon) icon.className = 'fa-solid fa-list text-brand text-xs';
+        if (icon) icon.className = 'fa-solid fa-list text-black dark:text-white text-xs';
         if (text) text.innerText = 'List';
         if (btn) {
           inactiveBtnClasses.forEach(c => btn.classList.remove(c));
           activeBtnClasses.forEach(c => btn.classList.add(c));
         }
 
-        if (iconDesk) iconDesk.className = 'fa-solid fa-list text-brand text-xs';
+        if (iconDesk) iconDesk.className = 'fa-solid fa-list text-black dark:text-white text-xs';
         if (textDesk) textDesk.innerText = 'List';
         if (btnDesk) {
           inactiveBtnClasses.forEach(c => btnDesk.classList.remove(c));
@@ -2379,14 +2379,14 @@
         }
       } else {
         // Button shows "Map" with inactive style
-        if (icon) icon.className = 'fa-solid fa-map text-brand text-xs';
+        if (icon) icon.className = 'fa-solid fa-map text-black dark:text-white text-xs';
         if (text) text.innerText = 'Map';
         if (btn) {
           activeBtnClasses.forEach(c => btn.classList.remove(c));
           inactiveBtnClasses.forEach(c => btn.classList.add(c));
         }
 
-        if (iconDesk) iconDesk.className = 'fa-solid fa-map text-brand text-xs';
+        if (iconDesk) iconDesk.className = 'fa-solid fa-map text-black dark:text-white text-xs';
         if (textDesk) textDesk.innerText = 'Map';
         if (btnDesk) {
           activeBtnClasses.forEach(c => btnDesk.classList.remove(c));
@@ -2691,9 +2691,9 @@
         const view = document.getElementById(`payForm${m.charAt(0).toUpperCase() + m.slice(1)}`);
         if (btn) {
           if (m === method) {
-            btn.className = "py-2.5 px-2 rounded-xl border border-brand bg-brand/10 text-brand flex flex-col items-center justify-center space-y-1 transition";
+            btn.className = "py-2.5 px-2 rounded-xl border border-slate-800 dark:border-white bg-slate-200 dark:bg-white/20 text-black dark:text-white font-extrabold flex flex-col items-center justify-center space-y-1 transition";
           } else {
-            btn.className = "py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand flex flex-col items-center justify-center space-y-1 transition";
+            btn.className = "py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-black dark:text-white hover:border-slate-400 dark:hover:border-slate-500 flex flex-col items-center justify-center space-y-1 transition";
           }
         }
         if (view) {
@@ -2726,9 +2726,9 @@
         const btn = document.getElementById(`ratingBtn-${val}`);
         if (!btn) return;
         if (val === r) {
-          btn.className = "py-2 rounded-xl border border-brand bg-brand/10 text-brand font-bold";
+          btn.className = "py-2 rounded-xl border border-slate-800 dark:border-white bg-slate-200 dark:bg-white/20 text-black dark:text-white font-extrabold";
         } else {
-          btn.className = "py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300";
+          btn.className = "py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-black dark:text-white";
         }
       });
     }
@@ -2781,7 +2781,7 @@
       const guideMobBtn = document.getElementById('tab-guide-mobile');
 
       const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-white border border-white/20 active-tab shadow-sm";
-      const inactiveClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white";
+      const inactiveClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white";
 
       [hotelBtn, resortBtn, guideBtn, hotelMobBtn, resortMobBtn, guideMobBtn].forEach(b => {
         if (b) b.className = inactiveClass;
@@ -3819,15 +3819,15 @@
       const explorerSection = document.getElementById('explorerSection');
       const myTripsSection = document.getElementById('myTripsSection');
 
-      const activeNav = "flex flex-col items-center justify-center space-y-1 text-brand font-bold transition flex-1";
-      const inactiveNav = "flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1";
+      const activeNav = "flex flex-col items-center justify-center space-y-1 text-black dark:text-white font-extrabold transition flex-1";
+      const inactiveNav = "flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-black dark:hover:text-white font-medium transition flex-1";
 
       if (tab === 'explore') {
         if (exploreBtn) exploreBtn.className = activeNav;
         if (tripsBtn) tripsBtn.className = inactiveNav;
         if (profileBtn) profileBtn.className = inactiveNav;
         if (desktopTripsBtn) {
-          desktopTripsBtn.classList.remove('border-brand', 'text-brand', 'bg-brand/10');
+          desktopTripsBtn.classList.remove('border-slate-800', 'dark:border-white', 'text-black', 'dark:text-white', 'bg-slate-200', 'dark:bg-white/20');
         }
         if (explorerSection) explorerSection.classList.remove('hidden');
         if (myTripsSection) myTripsSection.classList.add('hidden');
@@ -3836,7 +3836,7 @@
         if (tripsBtn) tripsBtn.className = activeNav;
         if (profileBtn) profileBtn.className = inactiveNav;
         if (desktopTripsBtn) {
-          desktopTripsBtn.classList.add('border-brand', 'text-brand', 'bg-brand/10');
+          desktopTripsBtn.classList.add('border-slate-800', 'dark:border-white', 'text-black', 'dark:text-white', 'bg-slate-200', 'dark:bg-white/20');
         }
         if (explorerSection) explorerSection.classList.add('hidden');
         if (myTripsSection) myTripsSection.classList.remove('hidden');
