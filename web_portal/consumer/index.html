@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -11,7 +12,7 @@
       theme: {
         extend: {
           colors: {
-            brand: '#7de720',
+            brand: '#110F87',
             darkbg: '#000000',
             darkcard: '#121212',
             darkborder: '#2a2a2a'
@@ -26,7 +27,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-    html, body {
+
+    html,
+    body {
       height: 100%;
       height: 100dvh;
       margin: 0;
@@ -34,58 +37,100 @@
       overflow: hidden;
       overscroll-behavior: none;
     }
+
     header {
       padding-top: max(env(safe-area-inset-top, 0px), 0px);
     }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .active-tab { box-shadow: 0 4px 14px 0 rgba(125, 231, 32, 0.3); }
-    .leaflet-pane { z-index: 10 !important; }
-    .leaflet-top, .leaflet-bottom { z-index: 11 !important; }
-    .custom-map-pin { background: none; border: none; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .active-tab {
+      box-shadow: 0 4px 14px 0 rgba(17, 15, 135, 0.45);
+    }
+
+    .leaflet-pane {
+      z-index: 10 !important;
+    }
+
+    .leaflet-top,
+    .leaflet-bottom {
+      z-index: 11 !important;
+    }
+
+    .custom-map-pin {
+      background: none;
+      border: none;
+    }
+
     /* Sleek scrollbar matching locked layout */
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
+
     .custom-scrollbar::-webkit-scrollbar-track {
       background: transparent;
     }
+
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: rgba(156, 163, 175, 0.35);
       border-radius: 9999px;
     }
+
     .dark .custom-scrollbar::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.16);
     }
+
     html {
       scrollbar-gutter: stable;
     }
+
     .scroll-contained {
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: contain;
     }
+
     @keyframes splashProgress {
-      0% { transform: translateX(-100%); width: 30%; }
-      50% { transform: translateX(50%); width: 60%; }
-      100% { transform: translateX(200%); width: 30%; }
+      0% {
+        transform: translateX(-100%);
+        width: 30%;
+      }
+
+      50% {
+        transform: translateX(50%);
+        width: 60%;
+      }
+
+      100% {
+        transform: translateX(200%);
+        width: 30%;
+      }
     }
+
     .splash-progress-bar {
       animation: splashProgress 1.4s ease-in-out infinite;
     }
+
     .theme-transitioning,
     .theme-transitioning *,
     .theme-transitioning *::before,
     .theme-transitioning *::after {
       transition: none !important;
     }
+
     /* Official Printable Voucher Stylesheet */
     @media print {
       body * {
         visibility: hidden !important;
       }
-      #voucherModal, #voucherModal * {
+
+      #voucherModal,
+      #voucherModal * {
         visibility: visible !important;
       }
+
       #voucherModal {
         position: absolute !important;
         left: 0 !important;
@@ -97,40 +142,45 @@
         margin: 0 !important;
         backdrop-filter: none !important;
       }
+
       .no-print {
         display: none !important;
       }
     }
   </style>
   <script>
-    (function() {
-      const savedTheme = localStorage.getItem('plane_theme');
-      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    })();
+      (function () {
+        const savedTheme = localStorage.getItem('plane_theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
   </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-full h-[100dvh] overflow-hidden flex flex-col transition-colors">
+
+<body
+  class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-full h-[100dvh] overflow-hidden flex flex-col transition-colors">
 
   <!-- Full-Screen Branded Initial Splash / Loading Screen -->
-  <div id="appSplashScreen" class="fixed inset-0 z-[200] bg-slate-50 dark:bg-[#0d0d0d] flex flex-col items-center justify-center p-6 transition-opacity duration-500 select-none">
+  <div id="appSplashScreen"
+    class="fixed inset-0 z-[200] bg-slate-50 dark:bg-[#0d0d0d] flex flex-col items-center justify-center p-6 transition-opacity duration-500 select-none">
     <div class="flex flex-col items-center max-w-xs w-full text-center">
       <!-- Branded Logo with subtle pulse -->
       <div class="relative w-44 sm:w-52 h-12 mb-6">
         <img src="/assets/logo_light.svg" alt="Plan-E" class="w-full h-full object-contain dark:hidden">
         <img src="/assets/logo_dark.svg" alt="Plan-E" class="w-full h-full object-contain hidden dark:block">
       </div>
-      
+
       <!-- Sleek Lime Brand Progress Track -->
       <div class="w-48 sm:w-56 h-1.5 bg-slate-200 dark:bg-[#222] rounded-full overflow-hidden relative shadow-inner">
         <div class="splash-progress-bar h-full bg-brand rounded-full"></div>
       </div>
-      
+
       <!-- Status Indicator -->
-      <p id="splashStatusText" class="mt-4 text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase flex items-center">
+      <p id="splashStatusText"
+        class="mt-4 text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase flex items-center">
         <span class="inline-block w-1.5 h-1.5 rounded-full bg-brand animate-ping mr-2"></span>
         <span>Loading Traveler Ecosystem...</span>
       </p>
@@ -138,38 +188,52 @@
   </div>
 
   <!-- Main Application Container: Fixed full-screen viewport ensuring Header, Search Bar & Map stay pinned -->
-  <div id="appShell" class="fixed inset-0 flex flex-col bg-slate-50 dark:bg-black text-slate-900 dark:text-white transition-all overflow-hidden">
-    
+  <div id="appShell"
+    class="fixed inset-0 flex flex-col bg-slate-50 dark:bg-black text-slate-900 dark:text-white transition-all overflow-hidden">
+
 
     <!-- App Header: Pinned at top, not scrollable -->
-    <header class="shrink-0 z-40 bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-b border-slate-200 dark:border-[#2a2a2a] transition-colors shadow-xs">
-      <div id="headerContainer" class="w-full px-3 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 pt-2 pb-1 sm:py-2 lg:py-2.5 transition-all">
+    <header
+      class="shrink-0 z-40 bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-b border-slate-200 dark:border-[#2a2a2a] transition-colors shadow-xs">
+      <div id="headerContainer"
+        class="w-full px-3 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 pt-2 pb-1 sm:py-2 lg:py-2.5 transition-all">
         <div class="flex items-center justify-between gap-2 sm:gap-3">
           <!-- Brand -->
           <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            <a href="/" title="Back to Ecosystem Launchpad" class="flex items-center space-x-2 group hover:opacity-90 transition shrink-0">
-              <div class="relative w-[130px] sm:w-[140.4px] h-7 sm:h-8 shrink-0 group-hover:scale-105 transition-transform">
-                <img src="/assets/logo_light.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain dark:hidden">
-                <img src="/assets/logo_dark.svg" alt="Plan-E" class="absolute inset-0 w-full h-full object-contain hidden dark:block">
+            <a href="/" title="Back to Ecosystem Launchpad"
+              class="flex items-center space-x-2 group hover:opacity-90 transition shrink-0">
+              <div
+                class="relative w-[130px] sm:w-[140.4px] h-7 sm:h-8 shrink-0 group-hover:scale-105 transition-transform">
+                <img src="/assets/logo_light.svg" alt="Plan-E"
+                  class="absolute inset-0 w-full h-full object-contain dark:hidden">
+                <img src="/assets/logo_dark.svg" alt="Plan-E"
+                  class="absolute inset-0 w-full h-full object-contain hidden dark:block">
               </div>
-              <span id="travelerWebBadge" class="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand border border-brand/30">Traveler Web</span>
+              <span id="travelerWebBadge"
+                class="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand border border-brand/30">Traveler
+                Web</span>
             </a>
           </div>
 
           <!-- DUAL / TRIPLE-JOURNEY SEGMENTED CONTROL: Centered for Desktop Web (md:flex) -->
-          <div id="desktopJourneySwitcher" class="hidden md:flex bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-2xl border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-[340px] shrink-0">
-            <button id="tab-hotel" onclick="switchJourney('hotel')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-sm">
+          <div id="desktopJourneySwitcher"
+            class="hidden md:flex bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-2xl border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-[340px] shrink-0">
+            <button id="tab-hotel" onclick="switchJourney('hotel')"
+              class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-white border border-white/20 active-tab shadow-sm">
               <i class="fa-solid fa-hotel text-xs"></i>
               <span class="tracking-wide">HOTELS</span>
             </button>
-            <button id="tab-resort" onclick="switchJourney('resort')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
+            <button id="tab-resort" onclick="switchJourney('resort')"
+              class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
               <i class="fa-solid fa-umbrella-beach text-xs"></i>
               <span class="tracking-wide">RESORTS</span>
             </button>
-            <button id="tab-guide" onclick="switchJourney('guide')" class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
+            <button id="tab-guide" onclick="switchJourney('guide')"
+              class="flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
               <i class="fa-solid fa-person-hiking text-xs"></i>
               <span class="tracking-wide">GUIDES</span>
-              <span class="text-[9px] bg-amber-500/20 text-amber-500 dark:text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded-full font-extrabold uppercase">Soon</span>
+              <span
+                class="text-[9px] bg-amber-500/20 text-amber-500 dark:text-amber-300 border border-amber-500/40 px-1.5 py-0.5 rounded-full font-extrabold uppercase">Soon</span>
             </button>
           </div>
 
@@ -177,18 +241,24 @@
           <div class="flex items-center space-x-2 sm:space-x-2.5 shrink-0">
 
             <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" class="w-9 h-9 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] flex items-center justify-center text-brand hover:opacity-80 transition shadow-xs shrink-0" title="Toggle Theme">
-              <i id="themeIcon" class="fa-solid fa-moon text-base text-brand w-5 text-center flex items-center justify-center"></i>
+            <button onclick="toggleTheme()"
+              class="w-9 h-9 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] flex items-center justify-center text-brand hover:opacity-80 transition shadow-xs shrink-0"
+              title="Toggle Theme">
+              <i id="themeIcon"
+                class="fa-solid fa-moon text-base text-brand w-5 text-center flex items-center justify-center"></i>
             </button>
 
             <!-- Desktop My Trips Button (Hidden on Mobile) -->
-            <button id="desktopTripsBtn" onclick="navTo('trips')" class="hidden md:flex h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0" title="My Reservations">
+            <button id="desktopTripsBtn" onclick="navTo('trips')"
+              class="hidden md:flex h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-gray-300 hover:text-brand hover:border-brand transition shadow-xs shrink-0"
+              title="My Reservations">
               <i class="fa-regular fa-bookmark text-xs text-brand"></i>
               <span>My Trips</span>
             </button>
 
             <!-- Account / Profile Button -->
-            <button onclick="openAuthModal()" id="authHeaderBtn" class="h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] text-slate-700 dark:text-white hover:border-brand flex items-center space-x-2 text-xs font-bold transition shadow-xs shrink-0">
+            <button onclick="openAuthModal()" id="authHeaderBtn"
+              class="h-9 px-3 rounded-xl border border-slate-200 dark:border-[#333] bg-slate-50 dark:bg-[#1a1a1a] text-slate-700 dark:text-white hover:border-brand flex items-center space-x-2 text-xs font-bold transition shadow-xs shrink-0">
               <i id="authHeaderIcon" class="fa-regular fa-circle-user text-base text-brand"></i>
               <span id="authHeaderLabel" class="hidden sm:inline">Profile</span>
             </button>
@@ -196,64 +266,78 @@
         </div>
 
         <!-- SEGMENTED CONTROL: Row for Mobile & Phone Simulation -->
-        <div id="mobileJourneySwitcherRow" class="md:hidden mt-1 mb-[1px] bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-xl flex border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-full">
-          <button id="tab-hotel-mobile" onclick="switchJourney('hotel')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 bg-brand text-black active-tab shadow-sm">
+        <div id="mobileJourneySwitcherRow"
+          class="md:hidden mt-1 mb-[1px] bg-slate-100 dark:bg-[#1a1a1a] p-1 rounded-xl flex border border-slate-200 dark:border-[#2a2a2a] shadow-inner w-full">
+          <button id="tab-hotel-mobile" onclick="switchJourney('hotel')"
+            class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 bg-brand text-white border border-white/20 active-tab shadow-sm">
             <i class="fa-solid fa-hotel text-xs"></i>
             <span class="tracking-wide text-[11px]">HOTELS</span>
           </button>
-          <button id="tab-resort-mobile" onclick="switchJourney('resort')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
+          <button id="tab-resort-mobile" onclick="switchJourney('resort')"
+            class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
             <i class="fa-solid fa-umbrella-beach text-xs"></i>
             <span class="tracking-wide text-[11px]">RESORTS</span>
           </button>
-          <button id="tab-guide-mobile" onclick="switchJourney('guide')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
+          <button id="tab-guide-mobile" onclick="switchJourney('guide')"
+            class="flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white">
             <i class="fa-solid fa-person-hiking text-xs"></i>
             <span class="tracking-wide text-[11px]">GUIDES</span>
-            <span class="text-[8px] bg-amber-500/20 text-amber-500 dark:text-amber-300 border border-amber-500/40 px-1 py-0.2 rounded font-extrabold uppercase">Soon</span>
+            <span
+              class="text-[8px] bg-amber-500/20 text-amber-500 dark:text-amber-300 border border-amber-500/40 px-1 py-0.2 rounded font-extrabold uppercase">Soon</span>
           </button>
         </div>
       </div>
     </header>
 
     <!-- App Main Body: Non-scrollable flex container taking remaining screen space -->
-    <main id="appBody" class="w-full px-3 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 pt-0 sm:pt-2 lg:pt-3 pb-2 flex-1 min-h-0 flex flex-col overflow-hidden transition-all">
-      
+    <main id="appBody"
+      class="w-full px-3 sm:px-6 lg:px-10 xl:px-14 2xl:px-16 pt-0 sm:pt-2 lg:pt-3 pb-2 flex-1 min-h-0 flex flex-col overflow-hidden transition-all">
+
       <!-- VIEW 1: EXPLORE FEED (Default) -->
       <div id="explorerSection" class="w-full flex-1 min-h-0 flex flex-col overflow-hidden">
 
         <!-- SEARCH & FILTER BAR (Responsive Desktop Ribbon + Mobile Chips) - LOCKED AT TOP -->
-        <div id="searchBarContainer" class="shrink-0 mt-0 mb-[1px] sm:mb-2 bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#2a2a2a] rounded-xl px-2 py-1 sm:p-3 shadow-sm transition-all z-10">
-          
+        <div id="searchBarContainer"
+          class="shrink-0 mt-0 mb-[1px] sm:mb-2 bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#2a2a2a] rounded-xl px-2 py-1 sm:p-3 shadow-sm transition-all z-10">
+
           <!-- DESKTOP SEARCH RIBBON (Shown on md: and when not in mobile simulation) -->
           <div id="desktopSearchRibbon" class="hidden md:grid grid-cols-12 gap-3 items-center">
             <!-- Search input -->
-            <div class="col-span-5 flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs">
+            <div
+              class="col-span-5 flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs">
               <i class="fa-solid fa-magnifying-glass text-brand text-sm shrink-0"></i>
-              <input type="text" id="destinationInputDesktop" oninput="handleDestinationSearch(this.value)" placeholder="Where to? (e.g. Bangalore, San Francisco)" class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
+              <input type="text" id="destinationInputDesktop" oninput="handleDestinationSearch(this.value)"
+                placeholder="Where to? (e.g. Bangalore, San Francisco)"
+                class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
               <button onclick="clearSearchInput()" class="text-slate-400 hover:text-slate-600 text-xs hidden">
                 <i class="fa-solid fa-circle-xmark"></i>
               </button>
             </div>
 
             <!-- Date Picker Button -->
-            <button onclick="openItineraryModal()" class="col-span-3 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
+            <button onclick="openItineraryModal()"
+              class="col-span-3 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
               <i class="fa-regular fa-calendar text-brand shrink-0 text-sm"></i>
               <span id="dateRangeTextDesktop" class="truncate font-bold">Sep 28 - Oct 1, 2026</span>
             </button>
 
             <!-- Guests Button -->
-            <button onclick="openItineraryModal()" class="col-span-2 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
+            <button onclick="openItineraryModal()"
+              class="col-span-2 flex items-center justify-center space-x-2 py-2.5 px-3 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
               <i class="fa-solid fa-user-group text-slate-400 text-xs shrink-0"></i>
               <span id="guestsCountText" class="truncate font-medium">2 Guests</span>
             </button>
 
             <!-- Filters Button -->
-            <button onclick="openFiltersModal()" class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
+            <button onclick="openFiltersModal()"
+              class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
               <i class="fa-solid fa-sliders text-brand text-xs"></i>
               <span>Filters</span>
             </button>
 
             <!-- Map View Button -->
-            <button id="mapToggleBtnDesktop" onclick="toggleMapView()" class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
+            <button id="mapToggleBtnDesktop" onclick="toggleMapView()"
+              class="col-span-1 flex items-center justify-center space-x-1.5 py-2.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-xl text-xs font-bold text-slate-700 dark:text-gray-300 transition shadow-xs">
               <i id="mapToggleIconDesktop" class="fa-solid fa-map text-brand text-xs"></i>
               <span id="mapToggleTextDesktop">Map</span>
             </button>
@@ -262,27 +346,34 @@
           <!-- MOBILE SEARCH BAR (Shown on < md and in mobile simulation) -->
           <div id="mobileSearchRibbon" class="md:hidden space-y-1">
             <!-- Search input with green icon -->
-            <div class="flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-lg px-3 py-1.5 text-xs">
+            <div
+              class="flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-lg px-3 py-1.5 text-xs">
               <i class="fa-solid fa-magnifying-glass text-brand text-xs shrink-0"></i>
-              <input type="text" id="destinationInput" oninput="handleDestinationSearch(this.value)" placeholder="Where to? (e.g. Bangalore, San Francisco)" class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
-              <button id="clearSearchBtn" onclick="clearSearchInput()" class="hidden text-slate-400 hover:text-slate-600 text-xs">
+              <input type="text" id="destinationInput" oninput="handleDestinationSearch(this.value)"
+                placeholder="Where to? (e.g. Bangalore, San Francisco)"
+                class="flex-1 bg-transparent outline-none text-slate-800 dark:text-gray-200 font-medium placeholder-slate-400 min-w-0">
+              <button id="clearSearchBtn" onclick="clearSearchInput()"
+                class="hidden text-slate-400 hover:text-slate-600 text-xs">
                 <i class="fa-solid fa-circle-xmark"></i>
               </button>
             </div>
 
             <!-- 3 Filter Buttons Row: Date Picker, Filters, Map Toggle -->
             <div class="grid grid-cols-12 gap-1.5">
-              <button onclick="openItineraryModal()" class="col-span-6 flex items-center justify-center space-x-1.5 py-1.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
+              <button onclick="openItineraryModal()"
+                class="col-span-6 flex items-center justify-center space-x-1.5 py-1.5 px-2 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition truncate shadow-xs">
                 <i class="fa-regular fa-calendar text-brand shrink-0 text-xs"></i>
                 <span id="dateRangeText" class="truncate text-[11px] font-medium">Sep 28 - Oct 1, 2026</span>
               </button>
 
-              <button onclick="openFiltersModal()" class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
+              <button onclick="openFiltersModal()"
+                class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
                 <i class="fa-solid fa-sliders text-brand text-xs"></i>
                 <span class="text-[11px]">Filters</span>
               </button>
 
-              <button id="mapToggleBtn" onclick="toggleMapView()" class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
+              <button id="mapToggleBtn" onclick="toggleMapView()"
+                class="col-span-3 flex items-center justify-center space-x-1 py-1.5 px-1.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand rounded-lg text-xs font-semibold text-slate-700 dark:text-gray-300 transition shadow-xs">
                 <i id="mapToggleIcon" class="fa-solid fa-map text-brand text-xs"></i>
                 <span id="mapToggleText" class="text-[11px]">Map</span>
               </button>
@@ -291,24 +382,36 @@
         </div>
 
         <!-- LOCKED INTERACTIVE MAP SECTION (Expandable/Collapsible) - LOCKED UNDER SEARCH BAR -->
-        <div id="mapViewContainer" class="hidden shrink-0 mt-0 mb-[1px] sm:mb-2 w-full rounded-xl overflow-hidden border border-slate-200 dark:border-[#2a2a2a] shadow-md relative z-0 transition-all duration-300">
-          <div class="bg-white dark:bg-[#121212] px-2.5 sm:px-4 py-1.5 border-b border-slate-200 dark:border-[#2a2a2a] flex items-center justify-between text-xs shrink-0 gap-1.5">
+        <div id="mapViewContainer"
+          class="hidden shrink-0 mt-0 mb-[1px] sm:mb-2 w-full rounded-xl overflow-hidden border border-slate-200 dark:border-[#2a2a2a] shadow-md relative z-0 transition-all duration-300">
+          <div
+            class="bg-white dark:bg-[#121212] px-2.5 sm:px-4 py-1.5 border-b border-slate-200 dark:border-[#2a2a2a] flex items-center justify-between text-xs shrink-0 gap-1.5">
             <div class="flex items-center space-x-1.5 shrink-0 min-w-0">
-              <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-brand/20 text-emerald-800 dark:text-brand whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-brand/20 text-emerald-800 dark:text-brand whitespace-nowrap">
                 <i class="fa-solid fa-location-dot mr-1 text-[9px]"></i>Map
               </span>
-              <span id="mapPropertiesCount" class="hidden sm:inline text-slate-500 dark:text-gray-400 font-medium text-[11px] truncate">Interactive property pins</span>
+              <span id="mapPropertiesCount"
+                class="hidden sm:inline text-slate-500 dark:text-gray-400 font-medium text-[11px] truncate">Interactive
+                property pins</span>
             </div>
             <div class="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
-              <label class="flex items-center space-x-1 px-1.5 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] cursor-pointer hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs shrink-0 whitespace-nowrap" title="Search as map moves">
-                <input type="checkbox" id="searchAsMapMovesCb" onchange="toggleSearchAsMapMoves(this.checked)" class="rounded text-brand focus:ring-0 w-3 h-3">
+              <label
+                class="flex items-center space-x-1 px-1.5 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] cursor-pointer hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs shrink-0 whitespace-nowrap"
+                title="Search as map moves">
+                <input type="checkbox" id="searchAsMapMovesCb" onchange="toggleSearchAsMapMoves(this.checked)"
+                  class="rounded text-brand focus:ring-0 w-3 h-3">
                 <span class="text-[10px] whitespace-nowrap">Auto-search</span>
               </label>
-              <button onclick="resetMapBounds()" class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap" title="Fit all property markers into view">
+              <button onclick="resetMapBounds()"
+                class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap"
+                title="Fit all property markers into view">
                 <i class="fa-solid fa-arrows-to-eye text-brand text-[9px]"></i>
                 <span class="whitespace-nowrap">Fit</span>
               </button>
-              <button onclick="toggleMapView()" class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap" title="Hide map view">
+              <button onclick="toggleMapView()"
+                class="px-2 py-1 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] hover:border-brand text-[10px] font-bold text-slate-700 dark:text-gray-200 transition shadow-xs flex items-center space-x-1 shrink-0 whitespace-nowrap"
+                title="Hide map view">
                 <i class="fa-solid fa-eye-slash text-brand text-[9px]"></i>
                 <span class="whitespace-nowrap">Hide</span>
               </button>
@@ -318,9 +421,11 @@
         </div>
 
         <!-- SCROLLABLE FEED CONTAINER: Only the hotel, resort, and guide cards scroll up & down! -->
-        <div id="resultsScrollContainer" class="flex-1 min-h-0 overflow-y-auto pr-1 pb-24 lg:pb-8 custom-scrollbar scroll-contained">
+        <div id="resultsScrollContainer"
+          class="flex-1 min-h-0 overflow-y-auto pr-1 pb-24 lg:pb-8 custom-scrollbar scroll-contained">
           <!-- RESULTS FEED (Hotel / Resort Cards) -->
-          <div id="resultsFeed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6 transition-all">
+          <div id="resultsFeed"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6 transition-all">
             <!-- Dynamically populated cards matching Left Image -->
           </div>
         </div>
@@ -333,14 +438,16 @@
             <i class="fa-solid fa-suitcase-rolling text-brand"></i>
             <span>My Reservations & Vouchers</span>
           </h3>
-          <button onclick="navTo('explore')" class="text-xs text-brand font-bold flex items-center space-x-1 hover:underline">
+          <button onclick="navTo('explore')"
+            class="text-xs text-brand font-bold flex items-center space-x-1 hover:underline">
             <i class="fa-solid fa-arrow-left text-[11px]"></i>
             <span>Back to Explore</span>
           </button>
         </div>
         <div class="flex-1 min-h-0 overflow-y-auto pr-1 pb-24 custom-scrollbar scroll-contained">
           <div id="tripsListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="col-span-full flex justify-center py-12"><i class="fa-solid fa-circle-notch fa-spin text-brand text-2xl"></i></div>
+            <div class="col-span-full flex justify-center py-12"><i
+                class="fa-solid fa-circle-notch fa-spin text-brand text-2xl"></i></div>
           </div>
         </div>
       </div>
@@ -348,22 +455,26 @@
     </main>
 
     <!-- PERSISTENT BOTTOM NAVIGATION BAR (Visible on Mobile / Phone Simulation, Hidden on Desktop) -->
-    <nav id="bottomNav" class="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-t border-slate-200 dark:border-[#2a2a2a] z-40 lg:hidden transition-all">
+    <nav id="bottomNav"
+      class="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#121212]/95 backdrop-blur border-t border-slate-200 dark:border-[#2a2a2a] z-40 lg:hidden transition-all">
       <div class="max-w-xl mx-auto flex items-center justify-around h-16 px-4">
         <!-- Tab 1: Explore -->
-        <button id="nav-explore" onclick="navTo('explore')" class="flex flex-col items-center justify-center space-y-1 text-brand font-bold transition flex-1">
+        <button id="nav-explore" onclick="navTo('explore')"
+          class="flex flex-col items-center justify-center space-y-1 text-brand font-bold transition flex-1">
           <i class="fa-solid fa-compass text-lg"></i>
           <span class="text-[10px]">Explore</span>
         </button>
 
         <!-- Tab 2: My Trips -->
-        <button id="nav-trips" onclick="navTo('trips')" class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
+        <button id="nav-trips" onclick="navTo('trips')"
+          class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
           <i class="fa-regular fa-bookmark text-lg"></i>
           <span class="text-[10px]">My Trips</span>
         </button>
 
         <!-- Tab 3: Profile -->
-        <button id="nav-profile" onclick="navTo('profile')" class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
+        <button id="nav-profile" onclick="navTo('profile')"
+          class="flex flex-col items-center justify-center space-y-1 text-slate-400 hover:text-brand font-medium transition flex-1">
           <i class="fa-regular fa-user text-lg"></i>
           <span class="text-[10px]">Profile</span>
         </button>
@@ -371,14 +482,21 @@
     </nav>
 
     <!-- MODAL: LOCAL TOUR GUIDE SHEET (COMING SOON PREVIEW) -->
-    <div id="guideModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+    <div id="guideModal"
+      class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">
           <div class="flex items-center space-x-2">
-            <span class="text-[10px] font-black uppercase tracking-wider text-amber-500">Certified Local Tour Guide</span>
-            <span class="text-[9px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase">Coming Soon (Phase 2)</span>
+            <span class="text-[10px] font-black uppercase tracking-wider text-amber-500">Certified Local Tour
+              Guide</span>
+            <span
+              class="text-[9px] font-extrabold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase">Coming
+              Soon (Phase 2)</span>
           </div>
-          <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="closeGuideModal()"
+            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+              class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="flex items-center space-x-4">
           <img id="guideModalPhoto" src="" class="w-16 h-16 rounded-2xl object-cover border-2 border-amber-400 shadow">
@@ -392,7 +510,8 @@
           </div>
         </div>
 
-        <div class="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200 dark:border-slate-700 flex justify-around text-center">
+        <div
+          class="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200 dark:border-slate-700 flex justify-around text-center">
           <div>
             <div class="text-[10px] text-slate-400 font-bold">EXPERIENCE</div>
             <div id="guideModalExp" class="text-xs font-bold text-slate-800 dark:text-gray-200"></div>
@@ -410,7 +529,8 @@
         </div>
 
         <div>
-          <h4 class="text-xs font-bold text-slate-800 dark:text-gray-200 uppercase tracking-wider mb-1.5">Curated Specialties</h4>
+          <h4 class="text-xs font-bold text-slate-800 dark:text-gray-200 uppercase tracking-wider mb-1.5">Curated
+            Specialties</h4>
           <div id="guideModalSpecs" class="flex flex-wrap gap-1.5"></div>
         </div>
 
@@ -420,25 +540,34 @@
         </div>
 
         <div class="pt-2">
-          <button id="guideBundleBtn" onclick="handleGuideWaitlist()" class="w-full bg-slate-100 dark:bg-slate-800 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-bold py-3 rounded-xl shadow-xs text-xs transition flex items-center justify-center space-x-2">
+          <button id="guideBundleBtn" onclick="handleGuideWaitlist()"
+            class="w-full bg-slate-100 dark:bg-slate-800 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-bold py-3 rounded-xl shadow-xs text-xs transition flex items-center justify-center space-x-2">
             <i class="fa-solid fa-bell"></i>
             <span id="guideBundleBtnText">Local Tour Guides Coming Soon — Join VIP Waitlist</span>
           </button>
-          <button onclick="closeGuideModal()" class="w-full mt-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-medium py-1.5">Close</button>
+          <button onclick="closeGuideModal()"
+            class="w-full mt-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-medium py-1.5">Close</button>
         </div>
       </div>
     </div>
 
     <!-- MODAL: DESTINATION & ROOM DETAILS (Hotels & Resorts) -->
-    <div id="propertyDetailModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 sm:p-5 backdrop-blur-md overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col my-6 max-h-[92vh] animate-slide-up relative">
+    <div id="propertyDetailModal"
+      class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-3 sm:p-5 backdrop-blur-md overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-4xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col my-6 max-h-[92vh] animate-slide-up relative">
         <!-- Sticky Modal Header -->
-        <div class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm sticky top-0 z-20">
+        <div
+          class="px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm sticky top-0 z-20">
           <div class="flex items-center space-x-2.5 min-w-0">
-            <span id="detailBadge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-brand text-black uppercase tracking-wider shrink-0">Resort Sanctuary</span>
-            <h3 id="detailTitle" class="font-extrabold text-base text-slate-900 dark:text-white truncate">The Grand Metropolis Hotel</h3>
+            <span id="detailBadge"
+              class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-brand text-white border border-white/20 uppercase tracking-wider shrink-0">Resort
+              Sanctuary</span>
+            <h3 id="detailTitle" class="font-extrabold text-base text-slate-900 dark:text-white truncate">The Grand
+              Metropolis Hotel</h3>
           </div>
-          <button onclick="closePropertyDetailModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition shrink-0 ml-2">
+          <button onclick="closePropertyDetailModal()"
+            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition shrink-0 ml-2">
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
@@ -448,30 +577,42 @@
           <!-- 1. HERO PHOTO GALLERY & EXTRA IMAGES VIEWER -->
           <div class="space-y-3">
             <!-- Main Large Photo Display -->
-            <div class="relative h-60 sm:h-84 md:h-96 rounded-2xl overflow-hidden bg-slate-950 group shadow-md select-none">
-              <img id="detailHeroImage" src="" alt="Property" class="w-full h-full object-cover transition-all duration-300">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none"></div>
-              
+            <div
+              class="relative h-60 sm:h-84 md:h-96 rounded-2xl overflow-hidden bg-slate-950 group shadow-md select-none">
+              <img id="detailHeroImage" src="" alt="Property"
+                class="w-full h-full object-cover transition-all duration-300">
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none">
+              </div>
+
               <!-- Prev / Next Controls -->
-              <button onclick="prevGalleryImage()" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition backdrop-blur-xs shadow-md z-10" title="Previous image">
+              <button onclick="prevGalleryImage()"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition backdrop-blur-xs shadow-md z-10"
+                title="Previous image">
                 <i class="fa-solid fa-chevron-left text-xs"></i>
               </button>
-              <button onclick="nextGalleryImage()" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition backdrop-blur-xs shadow-md z-10" title="Next image">
+              <button onclick="nextGalleryImage()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition backdrop-blur-xs shadow-md z-10"
+                title="Next image">
                 <i class="fa-solid fa-chevron-right text-xs"></i>
               </button>
 
               <!-- Top-right: Fullscreen Lightbox trigger -->
-              <button onclick="openLightboxFromDetail()" class="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-white text-xs font-semibold px-3 py-1.5 rounded-xl backdrop-blur-xs transition flex items-center space-x-1.5 shadow z-10">
+              <button onclick="openLightboxFromDetail()"
+                class="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-white text-xs font-semibold px-3 py-1.5 rounded-xl backdrop-blur-xs transition flex items-center space-x-1.5 shadow z-10">
                 <i class="fa-solid fa-expand text-[11px]"></i>
                 <span>View Fullscreen</span>
               </button>
 
               <!-- Bottom: Photo Counter & Extra Images Count Pill -->
-              <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white pointer-events-none z-10">
-                <span id="detailPhotoCounter" class="bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-lg text-xs font-bold pointer-events-auto">
+              <div
+                class="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white pointer-events-none z-10">
+                <span id="detailPhotoCounter"
+                  class="bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-lg text-xs font-bold pointer-events-auto">
                   Photo 1 of 5
                 </span>
-                <span class="bg-brand text-black text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm pointer-events-auto flex items-center space-x-1.5">
+                <span
+                  class="bg-brand text-white border border-white/20 text-[11px] font-extrabold px-2.5 py-1 rounded-lg shadow-sm pointer-events-auto flex items-center space-x-1.5">
                   <i class="fa-solid fa-images"></i>
                   <span id="detailExtraImagesCount">5 Extra Images Provided</span>
                 </span>
@@ -480,7 +621,8 @@
 
             <!-- Extra Images Thumbnails Ribbon -->
             <div>
-              <div class="flex items-center justify-between text-xs text-slate-500 dark:text-gray-400 mb-1.5 font-semibold">
+              <div
+                class="flex items-center justify-between text-xs text-slate-500 dark:text-gray-400 mb-1.5 font-semibold">
                 <span>Extra Images & Photo Roster</span>
                 <span class="text-[11px]">Click thumbnail to preview</span>
               </div>
@@ -492,14 +634,17 @@
 
           <!-- 2. DESTINATION DETAILS & HIGHLIGHTS -->
           <div class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div
+              class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div>
                 <div class="flex items-center space-x-2">
-                  <span id="detailRating" class="text-xs font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 px-2 py-0.5 rounded-md flex items-center space-x-1">
+                  <span id="detailRating"
+                    class="text-xs font-bold text-amber-500 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 px-2 py-0.5 rounded-md flex items-center space-x-1">
                     <i class="fa-solid fa-star"></i>
                     <span id="detailRatingVal">4.9</span>
                   </span>
-                  <span id="detailReviewsCount" class="text-xs text-slate-500 dark:text-gray-400 font-medium">312 verified guest reviews</span>
+                  <span id="detailReviewsCount" class="text-xs text-slate-500 dark:text-gray-400 font-medium">312
+                    verified guest reviews</span>
                 </div>
                 <p id="detailAddress" class="text-xs text-slate-600 dark:text-gray-300 mt-1.5 flex items-center">
                   <i class="fa-solid fa-location-dot text-brand mr-1.5 shrink-0"></i>
@@ -508,7 +653,8 @@
               </div>
 
               <div class="flex items-center space-x-2 shrink-0">
-                <button onclick="locateFromDetail()" class="text-xs font-bold text-brand bg-brand/10 hover:bg-brand/20 border border-brand/30 px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5">
+                <button onclick="locateFromDetail()"
+                  class="text-xs font-bold text-brand bg-brand/10 hover:bg-brand/20 border border-brand/30 px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1.5">
                   <i class="fa-solid fa-location-crosshairs"></i>
                   <span>Locate on Map</span>
                 </button>
@@ -519,11 +665,13 @@
             <div class="space-y-1.5">
               <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">About this Destination</h4>
               <p id="detailTagline" class="text-xs font-medium text-brand italic hidden"></p>
-              <p id="detailDescription" class="text-xs sm:text-sm text-slate-700 dark:text-gray-300 leading-relaxed"></p>
+              <p id="detailDescription" class="text-xs sm:text-sm text-slate-700 dark:text-gray-300 leading-relaxed">
+              </p>
             </div>
 
             <!-- Timing & Policies Row -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs">
+            <div
+              class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs">
               <div>
                 <span class="text-[10px] uppercase font-bold text-slate-400 block">Check-In</span>
                 <span id="detailCheckIn" class="font-bold text-slate-800 dark:text-gray-200">3:00 PM</span>
@@ -534,7 +682,9 @@
               </div>
               <div class="col-span-2 sm:col-span-1">
                 <span class="text-[10px] uppercase font-bold text-slate-400 block">Cancellation</span>
-                <span id="detailPolicy" class="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] truncate block">Free Cancellation 48h</span>
+                <span id="detailPolicy"
+                  class="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] truncate block">Free Cancellation
+                  48h</span>
               </div>
             </div>
 
@@ -555,9 +705,12 @@
                   <i class="fa-solid fa-bed text-brand"></i>
                   <span>Available Rooms & Suites</span>
                 </h4>
-                <p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Explore room specifications, photos, and live stay rates.</p>
+                <p class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Explore room specifications, photos, and
+                  live stay rates.</p>
               </div>
-              <span id="detailRoomsCountBadge" class="text-xs font-bold bg-brand/10 text-brand px-2.5 py-1 rounded-xl border border-brand/20">2 Room Types</span>
+              <span id="detailRoomsCountBadge"
+                class="text-xs font-bold bg-brand/10 text-brand px-2.5 py-1 rounded-xl border border-brand/20">2 Room
+                Types</span>
             </div>
 
             <!-- Rooms List -->
@@ -573,11 +726,13 @@
         </div>
 
         <!-- Sticky Bottom Selection & Reserve Bar -->
-        <div class="p-4 sm:px-6 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky bottom-0 z-20">
+        <div
+          class="p-4 sm:px-6 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky bottom-0 z-20">
           <div class="min-w-0">
             <span class="text-[10px] uppercase font-extrabold text-slate-400 block tracking-wider">Selected Room</span>
             <div class="flex items-center space-x-2">
-              <h4 id="detailSelectedRoomName" class="font-extrabold text-sm text-slate-900 dark:text-white truncate">Select a room</h4>
+              <h4 id="detailSelectedRoomName" class="font-extrabold text-sm text-slate-900 dark:text-white truncate">
+                Select a room</h4>
               <span id="detailSelectedRoomRate" class="text-xs font-bold text-brand shrink-0"></span>
             </div>
             <p id="detailSelectedStaySummary" class="text-[11px] text-slate-500 dark:text-gray-400 truncate"></p>
@@ -588,7 +743,8 @@
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Total Stay</span>
               <span id="detailTotalEstimate" class="font-extrabold text-lg text-brand leading-none">$0</span>
             </div>
-            <button id="detailReserveBtn" onclick="proceedToCheckoutFromDetail()" class="bg-brand text-black hover:bg-[#68c918] font-extrabold px-6 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition flex items-center space-x-2">
+            <button id="detailReserveBtn" onclick="proceedToCheckoutFromDetail()"
+              class="bg-brand text-white border border-white/20 hover:bg-[#18159e] font-extrabold px-6 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition flex items-center space-x-2">
               <span>Reserve Selected Room</span>
               <i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
@@ -598,23 +754,30 @@
     </div>
 
     <!-- MODAL: FULLSCREEN LIGHTBOX -->
-    <div id="lightboxModal" class="hidden fixed inset-0 bg-black/95 z-[70] flex flex-col justify-between p-4 backdrop-blur-lg select-none">
+    <div id="lightboxModal"
+      class="hidden fixed inset-0 bg-black/95 z-[70] flex flex-col justify-between p-4 backdrop-blur-lg select-none">
       <div class="flex items-center justify-between text-white p-2">
         <span id="lightboxCaption" class="text-xs sm:text-sm font-bold text-gray-200 truncate"></span>
         <div class="flex items-center space-x-3">
           <span id="lightboxCounter" class="text-xs text-gray-400 font-mono">1 / 5</span>
-          <button onclick="closeLightbox()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+          <button onclick="closeLightbox()"
+            class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
       </div>
 
       <div class="flex-1 flex items-center justify-center relative min-h-0 py-2">
-        <button onclick="prevLightboxImage()" class="absolute left-2 sm:left-6 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition shadow-lg z-10" title="Previous photo">
+        <button onclick="prevLightboxImage()"
+          class="absolute left-2 sm:left-6 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition shadow-lg z-10"
+          title="Previous photo">
           <i class="fa-solid fa-chevron-left text-sm"></i>
         </button>
-        <img id="lightboxImage" src="" alt="Fullscreen view" class="max-h-full max-w-full object-contain rounded-xl shadow-2xl transition-all duration-300">
-        <button onclick="nextLightboxImage()" class="absolute right-2 sm:right-6 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition shadow-lg z-10" title="Next photo">
+        <img id="lightboxImage" src="" alt="Fullscreen view"
+          class="max-h-full max-w-full object-contain rounded-xl shadow-2xl transition-all duration-300">
+        <button onclick="nextLightboxImage()"
+          class="absolute right-2 sm:right-6 w-11 h-11 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition shadow-lg z-10"
+          title="Next photo">
           <i class="fa-solid fa-chevron-right text-sm"></i>
         </button>
       </div>
@@ -625,11 +788,15 @@
     </div>
 
     <!-- MODAL: CHECKOUT & RECEIPT -->
-    <div id="checkoutModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up flex flex-col relative my-8">
+    <div id="checkoutModal"
+      class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up flex flex-col relative my-8">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Confirm Reservation</h3>
-          <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="closeCheckoutModal()"
+            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+              class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div id="checkoutSummary" class="space-y-3">
@@ -638,17 +805,21 @@
 
         <!-- PAYMENT METHOD SELECTION (Phase 3 Polish) -->
         <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Payment Method</label>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Payment
+            Method</label>
           <div class="grid grid-cols-3 gap-2 text-xs font-bold text-center">
-            <button type="button" onclick="selectPaymentMethod('card')" id="payMethod-card" class="py-2.5 px-2 rounded-xl border border-brand bg-brand/10 text-brand flex flex-col items-center justify-center space-y-1 transition">
+            <button type="button" onclick="selectPaymentMethod('card')" id="payMethod-card"
+              class="py-2.5 px-2 rounded-xl border border-brand bg-brand/10 text-brand flex flex-col items-center justify-center space-y-1 transition">
               <i class="fa-regular fa-credit-card text-sm"></i>
               <span class="text-[10px]">Card</span>
             </button>
-            <button type="button" onclick="selectPaymentMethod('wallet')" id="payMethod-wallet" class="py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand flex flex-col items-center justify-center space-y-1 transition">
+            <button type="button" onclick="selectPaymentMethod('wallet')" id="payMethod-wallet"
+              class="py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand flex flex-col items-center justify-center space-y-1 transition">
               <i class="fa-brands fa-apple text-sm"></i>
               <span class="text-[10px]">Apple/Google</span>
             </button>
-            <button type="button" onclick="selectPaymentMethod('regional')" id="payMethod-regional" class="py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand flex flex-col items-center justify-center space-y-1 transition">
+            <button type="button" onclick="selectPaymentMethod('regional')" id="payMethod-regional"
+              class="py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-brand flex flex-col items-center justify-center space-y-1 transition">
               <i class="fa-solid fa-bolt text-sm"></i>
               <span class="text-[10px]">Instant Pay</span>
             </button>
@@ -657,17 +828,22 @@
           <!-- Card Form View -->
           <div id="payFormCard" class="space-y-2 pt-1 text-xs">
             <div class="relative">
-              <input type="text" id="checkoutCardNumber" placeholder="4242 •••• •••• 4242" value="4242 8890 1234 5678" maxlength="19" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand font-mono transition">
+              <input type="text" id="checkoutCardNumber" placeholder="4242 •••• •••• 4242" value="4242 8890 1234 5678"
+                maxlength="19"
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand font-mono transition">
               <i class="fa-brands fa-cc-visa absolute right-3.5 top-3 text-slate-400 text-base"></i>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <input type="text" id="checkoutCardExpiry" placeholder="MM/YY" value="12/28" maxlength="5" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand font-mono transition">
-              <input type="password" id="checkoutCardCvc" placeholder="CVC" value="888" maxlength="4" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand font-mono transition">
+              <input type="text" id="checkoutCardExpiry" placeholder="MM/YY" value="12/28" maxlength="5"
+                class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand font-mono transition">
+              <input type="password" id="checkoutCardCvc" placeholder="CVC" value="888" maxlength="4"
+                class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand font-mono transition">
             </div>
           </div>
 
           <!-- Digital Wallet View -->
-          <div id="payFormWallet" class="hidden py-3 text-center bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700/60 space-y-1 text-xs">
+          <div id="payFormWallet"
+            class="hidden py-3 text-center bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700/60 space-y-1 text-xs">
             <div class="flex items-center justify-center space-x-2 text-slate-900 dark:text-white font-extrabold">
               <i class="fa-brands fa-apple text-base"></i>
               <span>Apple Pay / Google Pay Ready</span>
@@ -676,7 +852,8 @@
           </div>
 
           <!-- Instant Regional View -->
-          <div id="payFormRegional" class="hidden py-3 text-center bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700/60 space-y-1 text-xs">
+          <div id="payFormRegional"
+            class="hidden py-3 text-center bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700/60 space-y-1 text-xs">
             <div class="flex items-center justify-center space-x-1.5 text-emerald-600 dark:text-brand font-extrabold">
               <i class="fa-solid fa-bolt text-xs"></i>
               <span>Regional Instant Gateway (ADR-015)</span>
@@ -686,25 +863,31 @@
         </div>
 
         <div class="pt-4 mt-auto">
-          <button id="payBtn" onclick="submitBooking()" class="w-full bg-brand text-black hover:bg-[#68c918] font-extrabold py-3.5 rounded-2xl shadow-lg text-sm transition flex items-center justify-center space-x-2">
+          <button id="payBtn" onclick="submitBooking()"
+            class="w-full bg-brand text-white border border-white/20 hover:bg-[#18159e] font-extrabold py-3.5 rounded-2xl shadow-lg text-sm transition flex items-center justify-center space-x-2">
             <i class="fa-solid fa-lock text-xs"></i>
             <span id="payBtnText">Confirm & Pay</span>
           </button>
-          <p class="text-[10px] text-center text-slate-400 mt-2">Zero-overbooking guaranteed via database allocation lock.</p>
+          <p class="text-[10px] text-center text-slate-400 mt-2">Zero-overbooking guaranteed via database allocation
+            lock.</p>
         </div>
       </div>
     </div>
 
     <!-- MODAL: BOOKING CONFIRMATION SUCCESS -->
-    <div id="successModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-4 animate-slide-up relative my-8">
-        <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shadow-inner mx-auto">
+    <div id="successModal"
+      class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl text-center space-y-4 animate-slide-up relative my-8">
+        <div
+          class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shadow-inner mx-auto">
           <i class="fa-solid fa-check"></i>
         </div>
         <h3 class="font-extrabold text-xl text-slate-900 dark:text-white">Booking Confirmed!</h3>
         <p class="text-xs text-slate-500 dark:text-gray-400">Your room allocation has been atomically reserved.</p>
-        
-        <div class="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left space-y-2 text-xs">
+
+        <div
+          class="w-full bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-left space-y-2 text-xs">
           <div class="flex justify-between">
             <span class="text-slate-400">Reservation Code:</span>
             <strong id="successResCode" class="text-slate-900 dark:text-white font-mono">OTA-2026-X8B2</strong>
@@ -719,86 +902,118 @@
           </div>
         </div>
 
-        <button onclick="dismissSuccess()" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-3 rounded-xl text-xs transition">Return to Explorer</button>
+        <button onclick="dismissSuccess()"
+          class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-3 rounded-xl text-xs transition">Return
+          to Explorer</button>
       </div>
     </div>
     <!-- MODAL: ITINERARY / DATE RANGE PICKER -->
-    <div id="itineraryModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+    <div id="itineraryModal"
+      class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div class="flex items-center space-x-2">
             <i class="fa-regular fa-calendar text-brand text-base"></i>
             <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Select Itinerary Dates</h3>
           </div>
-          <button onclick="closeItineraryModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="closeItineraryModal()"
+            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+              class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form onsubmit="handleItinerarySubmit(event)" class="space-y-4">
           <div class="space-y-3">
             <div>
-              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-In Date</label>
-              <input type="date" id="itineraryCheckInInput" onchange="updateItineraryNightsCount()" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+              <label
+                class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-In
+                Date</label>
+              <input type="date" id="itineraryCheckInInput" onchange="updateItineraryNightsCount()" required
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
             </div>
             <div>
-              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-Out Date</label>
-              <input type="date" id="itineraryCheckOutInput" onchange="updateItineraryNightsCount()" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+              <label
+                class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Check-Out
+                Date</label>
+              <input type="date" id="itineraryCheckOutInput" onchange="updateItineraryNightsCount()" required
+                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
             </div>
 
             <!-- Guest Count Controls -->
             <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
-              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Guests</label>
-              <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <label
+                class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">Guests</label>
+              <div
+                class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div>
                   <span class="text-xs font-bold text-slate-900 dark:text-white block">Adults</span>
                   <span class="text-[10px] text-slate-400">Ages 13+</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <button type="button" onclick="changeGuestCount('adults', -1)" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">−</button>
-                  <span id="itineraryAdultsCount" class="w-6 text-center text-xs font-black text-slate-900 dark:text-white">2</span>
-                  <button type="button" onclick="changeGuestCount('adults', 1)" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">+</button>
+                  <button type="button" onclick="changeGuestCount('adults', -1)"
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">−</button>
+                  <span id="itineraryAdultsCount"
+                    class="w-6 text-center text-xs font-black text-slate-900 dark:text-white">2</span>
+                  <button type="button" onclick="changeGuestCount('adults', 1)"
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">+</button>
                 </div>
               </div>
-              <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div
+                class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div>
                   <span class="text-xs font-bold text-slate-900 dark:text-white block">Children</span>
                   <span class="text-[10px] text-slate-400">Ages 0–12</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <button type="button" onclick="changeGuestCount('children', -1)" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">−</button>
-                  <span id="itineraryChildrenCount" class="w-6 text-center text-xs font-black text-slate-900 dark:text-white">0</span>
-                  <button type="button" onclick="changeGuestCount('children', 1)" class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">+</button>
+                  <button type="button" onclick="changeGuestCount('children', -1)"
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">−</button>
+                  <span id="itineraryChildrenCount"
+                    class="w-6 text-center text-xs font-black text-slate-900 dark:text-white">0</span>
+                  <button type="button" onclick="changeGuestCount('children', 1)"
+                    class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-white transition">+</button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div id="itineraryNightsSummary" class="text-xs text-center font-bold text-brand bg-brand/10 py-2.5 rounded-xl border border-brand/20">
+          <div id="itineraryNightsSummary"
+            class="text-xs text-center font-bold text-brand bg-brand/10 py-2.5 rounded-xl border border-brand/20">
             3 Nights Selected • 2 Guests
           </div>
 
           <div class="flex space-x-2 pt-2">
-            <button type="button" onclick="closeItineraryModal()" class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
-            <button type="submit" class="w-1/2 bg-brand text-black font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#68c918] transition shadow-md">Apply Itinerary</button>
+            <button type="button" onclick="closeItineraryModal()"
+              class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
+            <button type="submit"
+              class="w-1/2 bg-brand text-white border border-white/20 font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#18159e] transition shadow-md">Apply
+              Itinerary</button>
           </div>
         </form>
       </div>
     </div>
 
     <!-- MODAL: FILTERS & SORT (Matching Flutter Filters) -->
-    <div id="filtersModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+    <div id="filtersModal"
+      class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div class="flex items-center space-x-2">
             <i class="fa-solid fa-sliders text-brand text-base"></i>
             <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Filters & Sorting</h3>
           </div>
-          <button onclick="closeFiltersModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="closeFiltersModal()"
+            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+              class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form onsubmit="handleFiltersSubmit(event)" class="space-y-4">
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Sort Properties</label>
-            <select id="filterSortSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Sort
+              Properties</label>
+            <select id="filterSortSelect"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
               <option value="recommended">Recommended</option>
               <option value="price_low">Price: Low to High</option>
               <option value="price_high">Price: High to Low</option>
@@ -807,63 +1022,92 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Max Price Per Night ($)</label>
-            <input type="number" id="filterMaxPriceInput" placeholder="No limit" min="50" max="2000" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Max
+              Price Per Night ($)</label>
+            <input type="number" id="filterMaxPriceInput" placeholder="No limit" min="50" max="2000"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Minimum Rating</label>
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Minimum
+              Rating</label>
             <div class="grid grid-cols-4 gap-2 text-xs font-bold text-center">
-              <button type="button" onclick="selectMinRating(0)" id="ratingBtn-0" class="py-2 rounded-xl border border-brand bg-brand/10 text-brand">All</button>
-              <button type="button" onclick="selectMinRating(3)" id="ratingBtn-3" class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">3★+</button>
-              <button type="button" onclick="selectMinRating(4)" id="ratingBtn-4" class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4★+</button>
-              <button type="button" onclick="selectMinRating(4.5)" id="ratingBtn-4.5" class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4.5★+</button>
+              <button type="button" onclick="selectMinRating(0)" id="ratingBtn-0"
+                class="py-2 rounded-xl border border-brand bg-brand/10 text-brand">All</button>
+              <button type="button" onclick="selectMinRating(3)" id="ratingBtn-3"
+                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">3★+</button>
+              <button type="button" onclick="selectMinRating(4)" id="ratingBtn-4"
+                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4★+</button>
+              <button type="button" onclick="selectMinRating(4.5)" id="ratingBtn-4.5"
+                class="py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">4.5★+</button>
             </div>
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Amenities & Highlights</label>
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1.5">Amenities
+              & Highlights</label>
             <div class="grid grid-cols-2 gap-2 text-xs">
-              <label class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
+              <label
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
                 <input type="checkbox" id="amenity-pool" value="Pool" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i class="fa-solid fa-water-ladder text-brand mr-1"></i> Swimming Pool</span>
+                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
+                    class="fa-solid fa-water-ladder text-brand mr-1"></i> Swimming Pool</span>
               </label>
-              <label class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
+              <label
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
                 <input type="checkbox" id="amenity-beach" value="Beach" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i class="fa-solid fa-umbrella-beach text-brand mr-1"></i> Beach Access</span>
+                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
+                    class="fa-solid fa-umbrella-beach text-brand mr-1"></i> Beach Access</span>
               </label>
-              <label class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
+              <label
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
                 <input type="checkbox" id="amenity-spa" value="Spa" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i class="fa-solid fa-spa text-brand mr-1"></i> Spa & Wellness</span>
+                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
+                    class="fa-solid fa-spa text-brand mr-1"></i> Spa & Wellness</span>
               </label>
-              <label class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
+              <label
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
                 <input type="checkbox" id="amenity-wifi" value="WiFi" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i class="fa-solid fa-wifi text-brand mr-1"></i> High-Speed Wi-Fi</span>
+                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
+                    class="fa-solid fa-wifi text-brand mr-1"></i> High-Speed Wi-Fi</span>
               </label>
-              <label class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
+              <label
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
                 <input type="checkbox" id="amenity-gym" value="Gym" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i class="fa-solid fa-dumbbell text-brand mr-1"></i> Fitness Center</span>
+                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
+                    class="fa-solid fa-dumbbell text-brand mr-1"></i> Fitness Center</span>
               </label>
-              <label class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
+              <label
+                class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-brand">
                 <input type="checkbox" id="amenity-breakfast" value="Dining" class="rounded text-brand focus:ring-0">
-                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i class="fa-solid fa-utensils text-brand mr-1"></i> Fine Dining</span>
+                <span class="text-slate-700 dark:text-slate-300 text-[11px] font-semibold"><i
+                    class="fa-solid fa-utensils text-brand mr-1"></i> Fine Dining</span>
               </label>
             </div>
           </div>
 
           <div class="flex space-x-2 pt-2">
-            <button type="button" onclick="resetFilters()" class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Reset</button>
-            <button type="submit" class="w-1/2 bg-brand text-black font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#68c918] transition shadow-md">Apply Filters</button>
+            <button type="button" onclick="resetFilters()"
+              class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Reset</button>
+            <button type="submit"
+              class="w-1/2 bg-brand text-white border border-white/20 font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#18159e] transition shadow-md">Apply
+              Filters</button>
           </div>
         </form>
       </div>
     </div>
 
     <!-- MODAL: AUTHENTICATION (Login / Signup) -->
-    <div id="authModal" class="hidden fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+    <div id="authModal"
+      class="hidden fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex justify-end pb-2">
-          <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-lg"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-lg"><i
+              class="fa-solid fa-xmark"></i></button>
         </div>
 
         <!-- VIEW 1: LOGGED OUT (Login Form) -->
@@ -871,47 +1115,65 @@
           <div class="text-center space-y-1">
             <div class="w-14 h-14 mx-auto flex items-center justify-center text-[#0b1324] dark:text-white mb-2">
               <svg viewBox="0 0 160 160" class="w-14 h-14" fill="currentColor">
-                <path d="M 114 12 H 36 A 24 24 0 0 0 12 36 V 124 A 24 24 0 0 0 36 148 H 124 A 24 24 0 0 0 148 124 V 42" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M 142.00,7.00 C 145.42,7.17 149.25,7.92 151.00,9.00 C 151.83,9.83 152.00,12.83 152.00,16.00 C 151.17,19.33 149.83,23.50 147.50,26.75 C 144.00,31.75 137.50,38.25 133.00,43.25 C 127.75,49.25 122.50,54.75 121.00,56.00 C 122.50,71.00 124.50,91.00 127.00,106.00 C 127.17,111.17 126.17,115.83 125.00,117.00 C 122.67,120.00 120.33,122.33 119.00,123.00 C 117.83,122.83 116.83,122.17 116.00,121.00 C 113.17,112.50 109.83,103.50 106.00,93.00 C 103.83,87.33 101.50,83.17 100.00,82.00 C 97.67,80.17 96.67,79.50 96.00,79.00 C 85.00,88.50 74.00,98.50 68.00,103.00 C 68.67,109.83 69.67,117.83 70.00,124.00 C 69.17,126.67 67.17,128.00 65.00,128.00 C 62.17,125.17 58.83,118.83 55.00,111.00 C 51.50,111.67 49.17,112.67 48.00,113.00 C 46.83,112.67 46.17,111.67 46.00,111.00 C 46.67,108.33 47.67,106.33 48.00,105.00 C 40.00,100.50 32.50,95.50 29.00,94.00 C 31.00,91.83 33.67,90.17 36.00,89.00 C 43.17,89.83 50.50,90.50 55.00,91.00 C 63.83,81.17 72.83,71.17 79.00,63.00 C 76.50,60.17 73.83,57.83 71.00,56.00 C 58.50,51.50 46.00,47.00 38.00,44.00 C 35.83,42.83 35.17,41.83 35.00,41.00 C 37.67,37.33 41.00,34.33 44.00,33.00 C 62.67,34.83 82.33,37.17 102.00,39.00 C 111.17,29.83 120.33,20.67 126.00,15.00 C 131.83,11.50 137.67,8.67 141.00,8.00 Z" fill="currentColor" />
+                <path d="M 114 12 H 36 A 24 24 0 0 0 12 36 V 124 A 24 24 0 0 0 36 148 H 124 A 24 24 0 0 0 148 124 V 42"
+                  fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+                <path
+                  d="M 142.00,7.00 C 145.42,7.17 149.25,7.92 151.00,9.00 C 151.83,9.83 152.00,12.83 152.00,16.00 C 151.17,19.33 149.83,23.50 147.50,26.75 C 144.00,31.75 137.50,38.25 133.00,43.25 C 127.75,49.25 122.50,54.75 121.00,56.00 C 122.50,71.00 124.50,91.00 127.00,106.00 C 127.17,111.17 126.17,115.83 125.00,117.00 C 122.67,120.00 120.33,122.33 119.00,123.00 C 117.83,122.83 116.83,122.17 116.00,121.00 C 113.17,112.50 109.83,103.50 106.00,93.00 C 103.83,87.33 101.50,83.17 100.00,82.00 C 97.67,80.17 96.67,79.50 96.00,79.00 C 85.00,88.50 74.00,98.50 68.00,103.00 C 68.67,109.83 69.67,117.83 70.00,124.00 C 69.17,126.67 67.17,128.00 65.00,128.00 C 62.17,125.17 58.83,118.83 55.00,111.00 C 51.50,111.67 49.17,112.67 48.00,113.00 C 46.83,112.67 46.17,111.67 46.00,111.00 C 46.67,108.33 47.67,106.33 48.00,105.00 C 40.00,100.50 32.50,95.50 29.00,94.00 C 31.00,91.83 33.67,90.17 36.00,89.00 C 43.17,89.83 50.50,90.50 55.00,91.00 C 63.83,81.17 72.83,71.17 79.00,63.00 C 76.50,60.17 73.83,57.83 71.00,56.00 C 58.50,51.50 46.00,47.00 38.00,44.00 C 35.83,42.83 35.17,41.83 35.00,41.00 C 37.67,37.33 41.00,34.33 44.00,33.00 C 62.67,34.83 82.33,37.17 102.00,39.00 C 111.17,29.83 120.33,20.67 126.00,15.00 C 131.83,11.50 137.67,8.67 141.00,8.00 Z"
+                  fill="currentColor" />
               </svg>
             </div>
-            <h3 class="font-black text-2xl text-slate-900 dark:text-white">Welcome to PLAN<span class="text-[#f2c48c]">-E</span></h3>
+            <h3 class="font-black text-2xl text-slate-900 dark:text-white">Welcome to PLAN<span
+                class="text-[#f2c48c]">-E</span></h3>
             <p class="text-xs text-slate-500 dark:text-gray-400">Log in or sign up to unlock frictionless travel.</p>
           </div>
-          
+
           <div class="space-y-2.5 pt-1">
-            <button onclick="handleDemoQuickLogin()" class="w-full bg-brand text-black font-extrabold py-3 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-md hover:scale-[1.02] transition">
+            <button onclick="handleDemoQuickLogin()"
+              class="w-full bg-brand text-white border border-white/20 font-extrabold py-3 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-md hover:scale-[1.02] transition">
               <i class="fa-solid fa-bolt text-sm"></i>
               <span>One-Click Demo Login (John Doe)</span>
             </button>
-            <button onclick="handleSocialLogin('Apple')" class="w-full bg-black text-white font-semibold py-2.5 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-sm hover:scale-[1.01] transition">
+            <button onclick="handleSocialLogin('Apple')"
+              class="w-full bg-black text-white font-semibold py-2.5 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-sm hover:scale-[1.01] transition">
               <i class="fa-brands fa-apple text-base"></i>
               <span>Continue with Apple</span>
             </button>
-            <button onclick="handleSocialLogin('Google')" class="w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-700 font-semibold py-2.5 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+            <button onclick="handleSocialLogin('Google')"
+              class="w-full bg-white dark:bg-slate-800 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-700 font-semibold py-2.5 rounded-xl flex items-center justify-center space-x-2 text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition">
               <i class="fa-brands fa-google text-blue-500 text-sm"></i>
               <span>Continue with Google</span>
             </button>
           </div>
 
           <!-- Auth Mode Toggle: Instant OTP vs Sign In vs Create Account -->
-          <div class="bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl flex border border-slate-200 dark:border-slate-700">
-            <button type="button" id="authTabOtp" onclick="switchAuthMode('otp')" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-brand text-black shadow-xs transition flex items-center justify-center space-x-1">
+          <div
+            class="bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl flex border border-slate-200 dark:border-slate-700">
+            <button type="button" id="authTabOtp" onclick="switchAuthMode('otp')"
+              class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-brand text-white border border-white/20 shadow-xs transition flex items-center justify-center space-x-1">
               <i class="fa-solid fa-mobile-screen-button text-[11px]"></i>
               <span>Instant OTP</span>
             </button>
-            <button type="button" id="authTabLogin" onclick="switchAuthMode('login')" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition">Sign In</button>
-            <button type="button" id="authTabRegister" onclick="switchAuthMode('register')" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition">Create Account</button>
+            <button type="button" id="authTabLogin" onclick="switchAuthMode('login')"
+              class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition">Sign
+              In</button>
+            <button type="button" id="authTabRegister" onclick="switchAuthMode('register')"
+              class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition">Create
+              Account</button>
           </div>
 
           <!-- FORM 1: INSTANT OTP AUTHENTICATION (Gmail or Phone) -->
           <div id="authOtpForm" class="space-y-3">
             <div id="otpStepSend">
-              <label class="block text-[11px] font-bold text-slate-600 dark:text-gray-300 mb-1">Gmail / Email or Mobile Phone</label>
+              <label class="block text-[11px] font-bold text-slate-600 dark:text-gray-300 mb-1">Gmail / Email or Mobile
+                Phone</label>
               <div class="space-y-2">
-                <input id="otpTargetInput" type="text" placeholder="e.g. traveler@gmail.com or +919876543210" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-                <div id="otpSendError" class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"></div>
-                <button type="button" id="otpSendBtn" onclick="requestOtpCode()" class="w-full bg-brand text-black hover:bg-[#68c918] font-extrabold py-2.5 rounded-xl shadow-lg text-xs transition flex items-center justify-center space-x-1.5">
+                <input id="otpTargetInput" type="text" placeholder="e.g. traveler@gmail.com or +919876543210"
+                  class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+                <div id="otpSendError"
+                  class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">
+                </div>
+                <button type="button" id="otpSendBtn" onclick="requestOtpCode()"
+                  class="w-full bg-brand text-white border border-white/20 hover:bg-[#18159e] font-extrabold py-2.5 rounded-xl shadow-lg text-xs transition flex items-center justify-center space-x-1.5">
                   <i class="fa-solid fa-paper-plane text-xs"></i>
                   <span>Send 6-Digit OTP</span>
                 </button>
@@ -920,12 +1182,18 @@
 
             <div id="otpStepVerify" class="hidden space-y-2.5 border-t border-slate-100 dark:border-slate-800 pt-3">
               <div class="flex items-center justify-between text-[11px]">
-                <span class="text-slate-500 dark:text-gray-400">Code sent to: <strong id="otpTargetDisplay" class="text-slate-900 dark:text-white font-mono"></strong></span>
-                <button type="button" onclick="resetOtpStep()" class="text-brand font-bold hover:underline">Change</button>
+                <span class="text-slate-500 dark:text-gray-400">Code sent to: <strong id="otpTargetDisplay"
+                    class="text-slate-900 dark:text-white font-mono"></strong></span>
+                <button type="button" onclick="resetOtpStep()"
+                  class="text-brand font-bold hover:underline">Change</button>
               </div>
-              <input id="otpCodeInput" type="text" maxlength="6" placeholder="Enter 6-Digit Code" class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-brand/60 rounded-xl px-4 py-2.5 text-center font-mono text-base tracking-widest outline-none text-slate-900 dark:text-white focus:border-brand font-black transition">
-              <div id="otpVerifyError" class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"></div>
-              <button type="button" id="otpVerifyBtn" onclick="submitOtpVerification()" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-2.5 rounded-xl shadow-lg text-xs transition flex items-center justify-center space-x-1.5">
+              <input id="otpCodeInput" type="text" maxlength="6" placeholder="Enter 6-Digit Code"
+                class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-brand/60 rounded-xl px-4 py-2.5 text-center font-mono text-base tracking-widest outline-none text-slate-900 dark:text-white focus:border-brand font-black transition">
+              <div id="otpVerifyError"
+                class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">
+              </div>
+              <button type="button" id="otpVerifyBtn" onclick="submitOtpVerification()"
+                class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-2.5 rounded-xl shadow-lg text-xs transition flex items-center justify-center space-x-1.5">
                 <i class="fa-solid fa-shield-check text-xs text-brand"></i>
                 <span>Verify & Continue</span>
               </button>
@@ -934,23 +1202,39 @@
 
           <!-- FORM 2: SIGN IN (Email & Password) -->
           <form id="authLoginForm" onsubmit="handleEmailLogin(event)" class="hidden space-y-2.5">
-            <input id="loginEmail" type="email" value="john.doe@example.com" required placeholder="Email address" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <input id="loginPassword" type="password" value="Password123!" required placeholder="Password" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <div id="loginError" class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"></div>
-            <button type="submit" id="loginSubmitBtn" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-2.5 rounded-xl shadow-lg text-xs transition mt-1">Sign In</button>
+            <input id="loginEmail" type="email" value="john.doe@example.com" required placeholder="Email address"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <input id="loginPassword" type="password" value="Password123!" required placeholder="Password"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <div id="loginError"
+              class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">
+            </div>
+            <button type="submit" id="loginSubmitBtn"
+              class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:opacity-90 font-bold py-2.5 rounded-xl shadow-lg text-xs transition mt-1">Sign
+              In</button>
             <div class="text-center pt-1">
-              <button type="button" onclick="startPasswordRecovery()" class="text-[11px] text-slate-500 dark:text-gray-400 hover:text-brand font-semibold transition">Forgot password? Reset via OTP</button>
+              <button type="button" onclick="startPasswordRecovery()"
+                class="text-[11px] text-slate-500 dark:text-gray-400 hover:text-brand font-semibold transition">Forgot
+                password? Reset via OTP</button>
             </div>
           </form>
 
           <!-- FORM 3: CREATE ACCOUNT -->
           <form id="authRegisterForm" onsubmit="handleRegister(event)" class="hidden space-y-2.5">
-            <input id="registerFullName" type="text" required placeholder="Full Name (e.g. Alex Rivera)" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <input id="registerEmail" type="email" required placeholder="Email address" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <input id="registerPassword" type="password" required minlength="6" placeholder="Password (min 6 characters)" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <input id="registerPhone" type="tel" placeholder="Phone number (optional)" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
-            <div id="registerError" class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"></div>
-            <button type="submit" id="registerSubmitBtn" class="w-full bg-brand text-black hover:bg-[#68c918] font-extrabold py-2.5 rounded-xl shadow-lg text-xs transition mt-1 flex items-center justify-center space-x-1.5">
+            <input id="registerFullName" type="text" required placeholder="Full Name (e.g. Alex Rivera)"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <input id="registerEmail" type="email" required placeholder="Email address"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <input id="registerPassword" type="password" required minlength="6"
+              placeholder="Password (min 6 characters)"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <input id="registerPhone" type="tel" placeholder="Phone number (optional)"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition">
+            <div id="registerError"
+              class="hidden text-rose-500 text-xs font-semibold text-center bg-rose-500/10 py-2 rounded-lg border border-rose-500/20">
+            </div>
+            <button type="submit" id="registerSubmitBtn"
+              class="w-full bg-brand text-white border border-white/20 hover:bg-[#18159e] font-extrabold py-2.5 rounded-xl shadow-lg text-xs transition mt-1 flex items-center justify-center space-x-1.5">
               <i class="fa-solid fa-user-plus text-xs"></i>
               <span>Create Account</span>
             </button>
@@ -959,16 +1243,20 @@
 
         <!-- VIEW 2: LOGGED IN (User Profile & Logout) -->
         <div id="authLoggedInView" class="hidden space-y-4 text-center py-4">
-          <div class="w-16 h-16 rounded-full bg-brand/15 border-2 border-brand flex items-center justify-center text-brand text-2xl shadow-sm mx-auto">
+          <div
+            class="w-16 h-16 rounded-full bg-brand/15 border-2 border-brand flex items-center justify-center text-brand text-2xl shadow-sm mx-auto">
             <i class="fa-solid fa-user-check"></i>
           </div>
           <div>
             <h3 id="loggedInUserName" class="font-black text-lg text-slate-900 dark:text-white">John Doe</h3>
             <p id="loggedInUserEmail" class="text-xs text-slate-500 dark:text-gray-400 mt-0.5">john.doe@example.com</p>
-            <span class="inline-block mt-2 text-[10px] uppercase tracking-wider font-extrabold px-3 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand">Active Traveler</span>
+            <span
+              class="inline-block mt-2 text-[10px] uppercase tracking-wider font-extrabold px-3 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand">Active
+              Traveler</span>
           </div>
           <div class="w-full space-y-2 pt-4">
-            <button onclick="closeAuthModal(); toggleMyTrips();" class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-gray-200 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
+            <button onclick="closeAuthModal(); toggleMyTrips();"
+              class="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-gray-200 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2">
               <i class="fa-solid fa-suitcase-rolling text-brand"></i>
               <span>View My Reservations</span>
             </button>
@@ -977,16 +1265,20 @@
             <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2 text-left">
               <div class="flex items-center justify-between">
                 <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Privacy & Compliance</span>
-                <span id="complianceRegionBadge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">Region: Global</span>
+                <span id="complianceRegionBadge"
+                  class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">Region:
+                  Global</span>
               </div>
-              <button onclick="exportMyUserData()" id="exportDataBtn" class="w-full bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-between">
+              <button onclick="exportMyUserData()" id="exportDataBtn"
+                class="w-full bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-between">
                 <span class="flex items-center space-x-2">
                   <i class="fa-solid fa-file-export text-brand"></i>
                   <span>Export My Data (GDPR JSON)</span>
                 </span>
                 <i class="fa-solid fa-download text-[11px] text-slate-400"></i>
               </button>
-              <button onclick="anonymizeMyAccount()" id="anonymizeAccountBtn" class="w-full bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-between">
+              <button onclick="anonymizeMyAccount()" id="anonymizeAccountBtn"
+                class="w-full bg-rose-50 dark:bg-rose-950/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 font-bold py-2 px-3 rounded-xl text-xs transition flex items-center justify-between">
                 <span class="flex items-center space-x-2">
                   <i class="fa-solid fa-user-slash text-rose-500"></i>
                   <span>Delete & Anonymize Account</span>
@@ -995,7 +1287,8 @@
               </button>
             </div>
 
-            <button onclick="handleLogout()" class="w-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 mt-2">
+            <button onclick="handleLogout()"
+              class="w-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-2 mt-2">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
               <span>Sign Out</span>
             </button>
@@ -1005,22 +1298,29 @@
     </div>
 
     <!-- MODAL: WRITE A TRAVELER REVIEW (POST /api/v1/reviews) -->
-    <div id="reviewModal" class="hidden fixed inset-0 bg-black/70 z-[65] flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
+    <div id="reviewModal"
+      class="hidden fixed inset-0 bg-black/70 z-[65] flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 space-y-4 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-8">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div class="flex items-center space-x-2">
             <i class="fa-solid fa-star text-amber-400 text-base"></i>
             <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Write a Review</h3>
           </div>
-          <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="closeReviewModal()"
+            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+              class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <div id="reviewPropertyHeader" class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center text-brand text-lg font-bold shrink-0">
+        <div id="reviewPropertyHeader"
+          class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center space-x-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-brand/20 flex items-center justify-center text-brand text-lg font-bold shrink-0">
             <i class="fa-solid fa-hotel"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <h4 id="reviewPropertyName" class="font-black text-xs text-slate-900 dark:text-white truncate">Property Name</h4>
+            <h4 id="reviewPropertyName" class="font-black text-xs text-slate-900 dark:text-white truncate">Property Name
+            </h4>
             <p id="reviewBookingCode" class="text-[10px] text-slate-400 font-mono mt-0.5">Ref: RES-12345</p>
           </div>
         </div>
@@ -1031,25 +1331,45 @@
           <input type="hidden" id="reviewGuideId">
 
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-2">Overall Rating</label>
-            <div class="flex items-center justify-center space-x-3 py-2 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-              <button type="button" onclick="setReviewRating(1)" onmouseenter="previewReviewRating(1)" onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110" id="star-1"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(2)" onmouseenter="previewReviewRating(2)" onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110" id="star-2"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(3)" onmouseenter="previewReviewRating(3)" onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110" id="star-3"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(4)" onmouseenter="previewReviewRating(4)" onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110" id="star-4"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(5)" onmouseenter="previewReviewRating(5)" onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110" id="star-5"><i class="fa-solid fa-star"></i></button>
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-2">Overall
+              Rating</label>
+            <div
+              class="flex items-center justify-center space-x-3 py-2 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+              <button type="button" onclick="setReviewRating(1)" onmouseenter="previewReviewRating(1)"
+                onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110"
+                id="star-1"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(2)" onmouseenter="previewReviewRating(2)"
+                onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110"
+                id="star-2"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(3)" onmouseenter="previewReviewRating(3)"
+                onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110"
+                id="star-3"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(4)" onmouseenter="previewReviewRating(4)"
+                onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110"
+                id="star-4"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(5)" onmouseenter="previewReviewRating(5)"
+                onmouseleave="resetPreviewReviewRating()" class="text-2xl text-amber-400 transition hover:scale-110"
+                id="star-5"><i class="fa-solid fa-star"></i></button>
             </div>
-            <p id="reviewRatingLabel" class="text-center text-[11px] font-bold text-amber-500 mt-1.5">5 - Exceptional Experience</p>
+            <p id="reviewRatingLabel" class="text-center text-[11px] font-bold text-amber-500 mt-1.5">5 - Exceptional
+              Experience</p>
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Your Feedback & Experience</label>
-            <textarea id="reviewCommentInput" rows="3" required placeholder="Share details about the room comfort, amenities, hospitality, or resident guide tour..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition"></textarea>
+            <label
+              class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-1">Your
+              Feedback & Experience</label>
+            <textarea id="reviewCommentInput" rows="3" required
+              placeholder="Share details about the room comfort, amenities, hospitality, or resident guide tour..."
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs outline-none text-slate-800 dark:text-gray-200 focus:border-brand transition"></textarea>
           </div>
 
           <div class="flex space-x-2 pt-2">
-            <button type="button" onclick="closeReviewModal()" class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
-            <button type="submit" id="reviewSubmitBtn" class="w-1/2 bg-brand text-black font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#68c918] transition shadow-md flex items-center justify-center space-x-1.5">
+            <button type="button" onclick="closeReviewModal()"
+              class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Cancel</button>
+            <button type="submit" id="reviewSubmitBtn"
+              class="w-1/2 bg-brand text-white border border-white/20 font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#18159e] transition shadow-md flex items-center justify-center space-x-1.5">
               <i class="fa-solid fa-paper-plane text-xs"></i>
               <span>Post Review</span>
             </button>
@@ -1059,62 +1379,75 @@
     </div>
 
     <!-- MODAL: OFFICIAL TRAVELER BOOKING VOUCHER (Printable / PDF) -->
-    <div id="voucherModal" class="hidden fixed inset-0 bg-black/80 z-[75] flex items-center justify-center p-3 sm:p-6 backdrop-blur-md overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-6">
-        
+    <div id="voucherModal"
+      class="hidden fixed inset-0 bg-black/80 z-[75] flex items-center justify-center p-3 sm:p-6 backdrop-blur-md overflow-y-auto">
+      <div
+        class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl animate-slide-up relative my-6">
+
         <!-- Header (Screen only) -->
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 no-print">
           <div class="flex items-center space-x-2">
             <i class="fa-solid fa-receipt text-brand text-base"></i>
             <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Travel Voucher & Front-Desk Pass</h3>
           </div>
-          <button onclick="closeVoucherModal()" class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="closeVoucherModal()"
+            class="text-slate-400 hover:text-slate-700 dark:text-gray-300 text-base"><i
+              class="fa-solid fa-xmark"></i></button>
         </div>
 
         <!-- Printable Document Body -->
-        <div id="printableVoucherBody" class="space-y-4 bg-white dark:bg-darkcard p-5 rounded-2xl border border-slate-200 dark:border-darkborder text-slate-900 dark:text-white">
+        <div id="printableVoucherBody"
+          class="space-y-4 bg-white dark:bg-darkcard p-5 rounded-2xl border border-slate-200 dark:border-darkborder text-slate-900 dark:text-white">
           <!-- Top Voucher Header -->
           <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-4">
             <div>
               <div class="flex items-center space-x-2">
-                <span class="font-black text-xl tracking-tight text-slate-900 dark:text-white">PLAN<span class="text-brand">-E</span></span>
-                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand">Official Pass</span>
+                <span class="font-black text-xl tracking-tight text-slate-900 dark:text-white">PLAN<span
+                    class="text-brand">-E</span></span>
+                <span
+                  class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-brand/20 text-emerald-800 dark:text-brand">Official
+                  Pass</span>
               </div>
               <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Automated Reservation & Inventory Voucher</p>
             </div>
             <div class="text-right">
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Status</span>
-              <span id="voucherStatusBadge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">CONFIRMED</span>
+              <span id="voucherStatusBadge"
+                class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">CONFIRMED</span>
             </div>
           </div>
 
           <!-- Code & QR Area -->
-          <div class="grid grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/60 items-center">
+          <div
+            class="grid grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/60 items-center">
             <div class="col-span-2 space-y-1">
-              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Reservation Reference</span>
-              <p id="voucherReservationCode" class="font-mono text-xl font-black text-brand tracking-wider">RES-000000</p>
-              <p class="text-[10px] text-slate-500 dark:text-gray-400">Scan at hotel reception desk or concierge terminal for instant key handover.</p>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Reservation
+                Reference</span>
+              <p id="voucherReservationCode" class="font-mono text-xl font-black text-brand tracking-wider">RES-000000
+              </p>
+              <p class="text-[10px] text-slate-500 dark:text-gray-400">Scan at hotel reception desk or concierge
+                terminal for instant key handover.</p>
             </div>
             <div class="col-span-1 flex justify-center">
               <div class="p-2 bg-white rounded-xl shadow-xs border border-slate-200">
                 <!-- SVG QR Code Icon Simulation -->
                 <svg viewBox="0 0 100 100" class="w-16 h-16 text-black fill-current">
-                  <rect x="10" y="10" width="24" height="24" fill="none" stroke="currentColor" stroke-width="4"/>
-                  <rect x="17" y="17" width="10" height="10" fill="currentColor"/>
-                  <rect x="66" y="10" width="24" height="24" fill="none" stroke="currentColor" stroke-width="4"/>
-                  <rect x="73" y="17" width="10" height="10" fill="currentColor"/>
-                  <rect x="10" y="66" width="24" height="24" fill="none" stroke="currentColor" stroke-width="4"/>
-                  <rect x="17" y="73" width="10" height="10" fill="currentColor"/>
-                  <rect x="42" y="10" width="16" height="8" fill="currentColor"/>
-                  <rect x="42" y="26" width="8" height="16" fill="currentColor"/>
-                  <rect x="58" y="26" width="8" height="8" fill="currentColor"/>
-                  <rect x="10" y="42" width="16" height="8" fill="currentColor"/>
-                  <rect x="26" y="42" width="16" height="8" fill="currentColor"/>
-                  <rect x="50" y="42" width="16" height="16" fill="currentColor"/>
-                  <rect x="74" y="42" width="16" height="8" fill="currentColor"/>
-                  <rect x="42" y="66" width="8" height="24" fill="currentColor"/>
-                  <rect x="58" y="74" width="16" height="8" fill="currentColor"/>
-                  <rect x="82" y="66" width="8" height="16" fill="currentColor"/>
+                  <rect x="10" y="10" width="24" height="24" fill="none" stroke="currentColor" stroke-width="4" />
+                  <rect x="17" y="17" width="10" height="10" fill="currentColor" />
+                  <rect x="66" y="10" width="24" height="24" fill="none" stroke="currentColor" stroke-width="4" />
+                  <rect x="73" y="17" width="10" height="10" fill="currentColor" />
+                  <rect x="10" y="66" width="24" height="24" fill="none" stroke="currentColor" stroke-width="4" />
+                  <rect x="17" y="73" width="10" height="10" fill="currentColor" />
+                  <rect x="42" y="10" width="16" height="8" fill="currentColor" />
+                  <rect x="42" y="26" width="8" height="16" fill="currentColor" />
+                  <rect x="58" y="26" width="8" height="8" fill="currentColor" />
+                  <rect x="10" y="42" width="16" height="8" fill="currentColor" />
+                  <rect x="26" y="42" width="16" height="8" fill="currentColor" />
+                  <rect x="50" y="42" width="16" height="16" fill="currentColor" />
+                  <rect x="74" y="42" width="16" height="8" fill="currentColor" />
+                  <rect x="42" y="66" width="8" height="24" fill="currentColor" />
+                  <rect x="58" y="74" width="16" height="8" fill="currentColor" />
+                  <rect x="82" y="66" width="8" height="16" fill="currentColor" />
                 </svg>
               </div>
             </div>
@@ -1125,7 +1458,8 @@
             <div class="flex justify-between items-start border-b border-slate-100 dark:border-slate-800 pb-2">
               <div>
                 <span class="text-[10px] text-slate-400 font-semibold block uppercase">Property</span>
-                <h4 id="voucherPropertyName" class="font-extrabold text-sm text-slate-900 dark:text-white">Property Name</h4>
+                <h4 id="voucherPropertyName" class="font-extrabold text-sm text-slate-900 dark:text-white">Property Name
+                </h4>
                 <p id="voucherPropertyType" class="text-[10px] text-brand font-bold mt-0.5">Sanctuary Resort</p>
               </div>
               <div class="text-right">
@@ -1148,11 +1482,14 @@
             </div>
 
             <!-- Bundled Guide Row (if present) -->
-            <div id="voucherGuideRow" class="hidden bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 flex items-center space-x-2.5">
+            <div id="voucherGuideRow"
+              class="hidden bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 flex items-center space-x-2.5">
               <img id="voucherGuidePhoto" src="" class="w-9 h-9 rounded-full object-cover">
               <div class="flex-1 min-w-0">
-                <p id="voucherGuideName" class="text-xs font-black text-slate-900 dark:text-white truncate">Bundled Local Guide</p>
-                <p id="voucherGuideDate" class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">Exclusivity Date Confirmed</p>
+                <p id="voucherGuideName" class="text-xs font-black text-slate-900 dark:text-white truncate">Bundled
+                  Local Guide</p>
+                <p id="voucherGuideDate" class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">
+                  Exclusivity Date Confirmed</p>
               </div>
             </div>
 
@@ -1160,7 +1497,8 @@
             <div class="flex justify-between items-center pt-2">
               <div>
                 <span class="text-[10px] text-slate-400 block font-semibold">Total Paid (Taxes & Fees Included)</span>
-                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Paid via Guaranteed Allocation Engine</span>
+                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Paid via Guaranteed
+                  Allocation Engine</span>
               </div>
               <div class="text-right">
                 <span id="voucherTotalPaid" class="font-black text-base text-slate-900 dark:text-white">$0.00 USD</span>
@@ -1169,16 +1507,20 @@
           </div>
 
           <!-- Statutory Notice -->
-          <div class="pt-3 border-t border-dashed border-slate-200 dark:border-slate-700 text-[10px] text-slate-400 space-y-1">
-            <p><strong>Check-In Instructions:</strong> Please present a valid government-issued photo ID along with this confirmation pass. Booking protected by Plan-E allocation locks.</p>
+          <div
+            class="pt-3 border-t border-dashed border-slate-200 dark:border-slate-700 text-[10px] text-slate-400 space-y-1">
+            <p><strong>Check-In Instructions:</strong> Please present a valid government-issued photo ID along with this
+              confirmation pass. Booking protected by Plan-E allocation locks.</p>
             <p>Customer Support: 24/7 Priority Travel Concierge • support@plan-e.travel</p>
           </div>
         </div>
 
         <!-- Action Buttons (Screen only) -->
         <div class="flex space-x-2 pt-2 no-print">
-          <button type="button" onclick="closeVoucherModal()" class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Close</button>
-          <button type="button" onclick="window.print()" class="w-1/2 bg-brand text-black font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#68c918] transition shadow-md flex items-center justify-center space-x-1.5">
+          <button type="button" onclick="closeVoucherModal()"
+            class="w-1/2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-gray-300 font-bold py-2.5 rounded-xl text-xs transition">Close</button>
+          <button type="button" onclick="window.print()"
+            class="w-1/2 bg-brand text-white border border-white/20 font-extrabold py-2.5 rounded-xl text-xs hover:bg-[#18159e] transition shadow-md flex items-center justify-center space-x-1.5">
             <i class="fa-solid fa-print text-xs"></i>
             <span>Print Voucher / Save PDF</span>
           </button>
@@ -1265,7 +1607,7 @@
     }
 
     function formatItineraryLabel(d1, d2) {
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const m1 = months[d1.getMonth()];
       const m2 = months[d2.getMonth()];
       const day1 = d1.getDate();
@@ -1541,7 +1883,7 @@
     // Production Environment: Natural responsive viewport
     try {
       localStorage.removeItem('plane_consumer_view_mode');
-    } catch (e) {}
+    } catch (e) { }
 
     function showToast(msg) {
       const existing = document.getElementById('planeToast');
@@ -1652,7 +1994,7 @@
       switchAuthMode('otp');
       document.getElementById('authModal').classList.remove('hidden');
     }
-    
+
     function closeAuthModal() {
       document.getElementById('authModal').classList.add('hidden');
     }
@@ -1728,7 +2070,7 @@
       if (errOtpSend) errOtpSend.classList.add('hidden');
       if (errOtpVerify) errOtpVerify.classList.add('hidden');
 
-      const activeTab = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-brand text-black shadow-xs transition flex items-center justify-center space-x-1";
+      const activeTab = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-brand text-white border border-white/20 shadow-xs transition flex items-center justify-center space-x-1";
       const inactiveTab = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition flex items-center justify-center space-x-1";
 
       if (tabOtp) tabOtp.className = inactiveTab;
@@ -2166,7 +2508,7 @@
       MapDock.createTileLayer().addTo(leafletMap);
 
       mapMarkersGroup = L.featureGroup().addTo(leafletMap);
-      
+
       // Real-time map viewport listener (Search as I move)
       leafletMap.on('moveend', () => {
         if (searchAsMapMoves) {
@@ -2243,7 +2585,7 @@
         const price = isResort
           ? `From $${item.starting_price_per_night}`
           : `$${item.min_price_per_night}`;
-        
+
         const badgeBg = isResort ? '#0d9488' : '#4f46e5';
 
         const customIcon = L.divIcon({
@@ -2438,7 +2780,7 @@
       const resortMobBtn = document.getElementById('tab-resort-mobile');
       const guideMobBtn = document.getElementById('tab-guide-mobile');
 
-      const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-black active-tab shadow-sm";
+      const activeClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 bg-brand text-white border border-white/20 active-tab shadow-sm";
       const inactiveClass = "flex-1 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white";
 
       [hotelBtn, resortBtn, guideBtn, hotelMobBtn, resortMobBtn, guideMobBtn].forEach(b => {
@@ -2532,7 +2874,7 @@
         // Text query search
         if (query) {
           const q = query.toLowerCase();
-          guides = guides.filter(g => 
+          guides = guides.filter(g =>
             (g.full_name && g.full_name.toLowerCase().includes(q)) ||
             (g.headline && g.headline.toLowerCase().includes(q)) ||
             (g.specialties && g.specialties.some(s => s.toLowerCase().includes(q))) ||
@@ -2734,8 +3076,8 @@
               <img src="${h.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'">
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
               
-              <!-- Top-Left Badge: Instant Hotel Booking (Lime green background, white bolt, white text) -->
-              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center space-x-1">
+              <!-- Top-Left Badge: Instant Hotel Booking (Brand background, white bolt, white text) -->
+              <span class="absolute top-2.5 left-2.5 bg-brand text-white border border-white/20 text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center space-x-1">
                 <i class="fa-solid fa-bolt text-white text-xs"></i>
                 <span class="text-white font-bold ml-1">Instant Hotel Booking</span>
               </span>
@@ -2771,7 +3113,7 @@
                   <i class="fa-solid fa-location-crosshairs text-xs"></i>
                   <span>Show on Map</span>
                 </button>
-                <button onclick="openPropertyDetail('${h.id}', 'hotel')" class="flex-1 py-2 px-3 bg-brand hover:bg-[#68c918] text-black font-extrabold rounded-xl text-xs transition flex items-center justify-center space-x-1 shadow-sm">
+                <button onclick="openPropertyDetail('${h.id}', 'hotel')" class="flex-1 py-2 px-3 bg-brand hover:bg-[#18159e] text-white border border-white/20 font-extrabold rounded-xl text-xs transition flex items-center justify-center space-x-1 shadow-sm">
                   <span>View Rooms</span>
                 </button>
               </div>
@@ -2845,7 +3187,7 @@
               <img src="${r.cover_image_url}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80'">
               <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/30 pointer-events-none"></div>
               
-              <span class="absolute top-2.5 left-2.5 bg-brand text-black text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center space-x-1">
+              <span class="absolute top-2.5 left-2.5 bg-brand text-white border border-white/20 text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm flex items-center space-x-1">
                 <i class="fa-solid fa-umbrella-beach text-white text-xs"></i>
                 <span class="text-white font-bold ml-1">Instant Resort Booking</span>
               </span>
@@ -2875,7 +3217,7 @@
                   <i class="fa-solid fa-location-crosshairs text-xs"></i>
                   <span>Show on Map</span>
                 </button>
-                <button onclick="openPropertyDetail('${r.id}', 'resort')" class="flex-1 py-2 px-3 bg-brand hover:bg-[#68c918] text-black font-extrabold rounded-xl text-xs transition flex items-center justify-center space-x-1 shadow-sm">
+                <button onclick="openPropertyDetail('${r.id}', 'resort')" class="flex-1 py-2 px-3 bg-brand hover:bg-[#18159e] text-white border border-white/20 font-extrabold rounded-xl text-xs transition flex items-center justify-center space-x-1 shadow-sm">
                   <span>View Rooms</span>
                 </button>
               </div>
@@ -2906,7 +3248,7 @@
         document.getElementById('guideModalLangs').innerText = g.languages.join(', ');
         document.getElementById('guideModalBio').innerText = g.bio;
         document.getElementById('guideModalSpecs').innerHTML = g.specialties.map(s => `<span class="bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${s}</span>`).join('');
-        
+
         document.getElementById('guideBundleBtnText').innerText = "Local Tour Guides Coming Soon — Join VIP Waitlist";
         document.getElementById('guideBundleBtn').className = "w-full bg-slate-100 dark:bg-slate-800 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-bold py-3 rounded-xl shadow-xs text-xs transition flex items-center justify-center space-x-2";
 
@@ -2966,8 +3308,8 @@
         const badgeEl = document.getElementById('detailBadge');
         if (badgeEl) {
           badgeEl.innerText = isResort ? 'Resort Sanctuary' : 'Instant City Hotel';
-          badgeEl.className = isResort 
-            ? 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-brand text-black uppercase tracking-wider shrink-0'
+          badgeEl.className = isResort
+            ? 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-brand text-white border border-white/20 uppercase tracking-wider shrink-0'
             : 'text-[10px] font-extrabold px-2.5 py-0.5 rounded-md bg-slate-900 dark:bg-slate-800 text-brand border border-brand/40 uppercase tracking-wider shrink-0';
         }
         document.getElementById('detailTitle').innerText = prop.name;
@@ -2986,8 +3328,8 @@
         document.getElementById('detailDescription').innerText = prop.description || '';
 
         // Times & policy
-        document.getElementById('detailCheckIn').innerText = prop.check_in_time ? prop.check_in_time.slice(0,5) : '3:00 PM';
-        document.getElementById('detailCheckOut').innerText = prop.check_out_time ? prop.check_out_time.slice(0,5) : '11:00 AM';
+        document.getElementById('detailCheckIn').innerText = prop.check_in_time ? prop.check_in_time.slice(0, 5) : '3:00 PM';
+        document.getElementById('detailCheckOut').innerText = prop.check_out_time ? prop.check_out_time.slice(0, 5) : '11:00 AM';
         document.getElementById('detailPolicy').innerText = prop.cancellation_policy || 'Free cancellation up to 48 hours';
 
         // Amenities
@@ -3152,8 +3494,8 @@
                 </div>
 
                 <div class="flex items-center space-x-2 shrink-0">
-                  <button onclick="event.stopPropagation(); selectRoomFromList('${r.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${isSelected ? 'bg-brand text-black font-extrabold' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-slate-600 hover:border-brand'}">
-                    <i class="fa-solid ${isSelected ? 'fa-circle-check text-black' : 'fa-circle text-slate-300'} text-xs"></i>
+                  <button onclick="event.stopPropagation(); selectRoomFromList('${r.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${isSelected ? 'bg-brand text-white border border-white/20 font-extrabold' : 'bg-white dark:bg-slate-700 text-slate-700 dark:text-gray-200 border border-slate-200 dark:border-slate-600 hover:border-brand'}">
+                    <i class="fa-solid ${isSelected ? 'fa-circle-check text-white' : 'fa-circle text-slate-300'} text-xs"></i>
                     <span>${isSelected ? 'Selected' : 'Select Room'}</span>
                   </button>
                 </div>
@@ -3427,7 +3769,7 @@
       document.getElementById('successModal').classList.add('hidden');
     }
 
-    
+
     function toggleTheme() {
       const htmlEl = document.documentElement;
       htmlEl.classList.add('theme-transitioning');
@@ -3533,7 +3875,7 @@
                 <h4 class="font-extrabold text-sm text-slate-900 dark:text-white">No active trips</h4>
                 <p class="text-[11px] text-slate-500 dark:text-gray-400 mt-1 max-w-[200px] mx-auto">Book your first sanctuary resort or city hotel stay.</p>
               </div>
-              <button onclick="restoreExploreFeed()" class="bg-brand text-black font-bold text-xs py-2 px-5 rounded-xl shadow hover:scale-105 transition">Explore Now</button>
+              <button onclick="restoreExploreFeed()" class="bg-brand text-white border border-white/20 font-bold text-xs py-2 px-5 rounded-xl shadow hover:bg-[#18159e] hover:scale-105 transition">Explore Now</button>
             </div>
           `;
           return;
@@ -3650,4 +3992,5 @@
     }
   </script>
 </body>
+
 </html>

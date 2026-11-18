@@ -11,7 +11,7 @@
       theme: {
         extend: {
           colors: {
-            brand: '#7de720',
+            brand: '#110F87',
             darkbg: '#000000',
             darkcard: '#121212',
             darkborder: '#2a2a2a'
@@ -84,7 +84,7 @@
     <div class="max-w-4xl mx-auto bg-white dark:bg-[#121212] rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-[#2a2a2a] space-y-4">
       <!-- Dual-Journey Segmented Tabs -->
       <div class="flex items-center space-x-2 bg-slate-100 dark:bg-[#1a1a1a] p-1.5 rounded-2xl w-full sm:w-fit border border-slate-200 dark:border-[#333]">
-        <button id="heroTabHotel" onclick="setHeroJourney('hotel')" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-black shadow-sm">
+        <button id="heroTabHotel" onclick="setHeroJourney('hotel')" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-white border border-white/20 shadow-sm">
           <i class="fa-solid fa-hotel text-xs"></i>
           <span>City Hotels</span>
         </button>
@@ -116,7 +116,7 @@
 
         <!-- Search Action -->
         <div class="sm:col-span-3">
-          <button type="submit" class="w-full bg-brand hover:bg-[#68c918] text-black font-black py-4 px-6 rounded-2xl text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-brand/20 active:scale-95">
+          <button type="submit" class="w-full bg-brand hover:bg-[#18159e] text-white border border-white/20 font-black py-4 px-6 rounded-2xl text-xs transition flex items-center justify-center space-x-2 shadow-lg shadow-brand/20 active:scale-95">
             <i class="fa-solid fa-compass text-sm"></i>
             <span id="heroSearchBtnLabel">Search Hotels</span>
           </button>
@@ -162,7 +162,7 @@
             <div class="font-bold text-sm text-white">John Doe</div>
             <div class="text-[11px] font-mono text-slate-300 truncate" title="john.doe@example.com">john.doe@example.com</div>
           </div>
-          <a href="/consumer" target="_blank" class="mt-4 w-full bg-brand text-black font-extrabold py-2 px-3 rounded-xl text-xs text-center flex items-center justify-center space-x-1 hover:bg-[#68c918] transition shadow-md">
+          <a href="/consumer" target="_blank" class="mt-4 w-full bg-brand text-white border border-white/20 font-extrabold py-2 px-3 rounded-xl text-xs text-center flex items-center justify-center space-x-1 hover:bg-[#18159e] transition shadow-md">
             <span>Open Traveler Web</span>
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </a>
@@ -375,12 +375,12 @@
       const input = document.getElementById('heroDestinationInput');
 
       if (journey === 'hotel') {
-        hotelBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-black shadow-sm";
+        hotelBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-white border border-white/20 shadow-sm";
         resortBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white";
         if (label) label.innerText = "Search Hotels";
         if (input) input.placeholder = "Where to? (e.g. San Francisco, Miami Beach)";
       } else {
-        resortBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-black shadow-sm";
+        resortBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-white border border-white/20 shadow-sm";
         hotelBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white";
         if (label) label.innerText = "Search Resorts & Guides";
         if (input) input.placeholder = "Where to? (e.g. Bali, Phuket, Costa Rica)";

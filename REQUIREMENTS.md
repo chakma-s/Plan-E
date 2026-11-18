@@ -290,7 +290,7 @@ Plan-E employs an intentional visual hierarchy separating corporate transit velo
 
 ```
 [ Signature Color Palette ]
-Primary Brand:  #7DE720  ██████████  (Neon/Lime Green - Accents, CTAs, Verified Badges)
+Primary Brand:  #110F87  ██████████  (Deep Sapphire / Midnight Navy - Accents, CTAs, Verified Badges)
 Dark Canvas:    #0F172A  ██████████  (Slate 900 - Web Background / Simulation Frame)
 Surface Dark:   #1A1A1A  ██████████  (Dark Surface / Card Containers)
 Hotel Accent:   #4F46E5  ██████████  (Indigo 600 - Business Stays, City Badges)
@@ -304,7 +304,7 @@ Error / Alert:  #EF4444  ██████████  (Rose 500 - Closed, Ove
 
 | Semantic Token | Light Mode Hex | Dark Mode Hex | Usage & Application |
 | :--- | :--- | :--- | :--- |
-| **`brandColor`** | `#7DE720` | `#7DE720` | Signature Neon Lime. Primary buttons, selected navigation icons, verified badges, interactive price tags. |
+| **`brandColor`** | `#110F87` | `#110F87` | Deep Sapphire / Midnight Navy. Primary buttons, selected navigation icons, verified badges, interactive price tags. |
 | **`hotelPrimary`** | `#4F46E5` (Indigo-600) | `#818CF8` (Indigo-400) | City hotel cards, hotel filter tags, hotel map pins, "+ Add Hotel" button. |
 | **`hotelBg`** | `#EEF2FF` (Indigo-50) | `#1E1B4B` (Indigo-950) | Background pill for Hotel badge, hotel room suite highlight borders. |
 | **`resortPrimary`** | `#0D9488` (Teal-600) | `#2DD4BF` (Teal-400) | Luxury resort cards, villa tags, resort map pins, "+ Add Resort" button. |
@@ -341,7 +341,7 @@ Error / Alert:  #EF4444  ██████████  (Rose 500 - Closed, Ove
 | **Map / List Toggle** | Tap floating toggle FAB | `HotelSearchScreen` | `Curves.fastOutSlowIn`, 250ms | Feed cross-fades with Mapbox vector map; FAB icon rotates between `fa-map` and `fa-list`. |
 | **Shimmer Loader** | During API query fetch | `SkeletonLoader` card | Linear continuous loop, 1200ms | 3-stop gradient (`#334155` → `#475569` → `#334155`) animates horizontally across placeholder boxes. |
 | **Lightbox Zoom** | Tap property/room photo | `PhotoGalleryDialog` | Scale transition, 200ms | Photo scales up from thumbnail to full-screen viewport; `InteractiveViewer` activates pinch-to-zoom (1.0x to 4.0x). |
-| **Ribbon Switch** | Tap thumbnail in ribbon | Detail Hero / Lightbox | Instant cross-fade, 120ms | Hero image replaces current frame; active thumbnail border illuminates with `#7DE720` neon green. |
+| **Ribbon Switch** | Tap thumbnail in ribbon | Detail Hero / Lightbox | Instant cross-fade, 120ms | Hero image replaces current frame; active thumbnail border illuminates with `#110F87` brand accent. |
 | **Guide Sheet Open** | Tap guide card in roster | `GuideBundleSheet` | `Curves.easeOutQuad`, 300ms | Sheet translates up from bottom edge (`animate-slide-up`); dark backdrop fades to 60% opacity with 4px blur. |
 | **Bundle Selection** | Tap `[Bundle Guide]` | Resort Detail Sticky Bar | Spring curve, 150ms | Guide card highlights with amber border; bottom sticky bar price tick-updates to include guide daily fee. |
 | **Button Tap Feedback** | Mouse hover / Mobile touch | All Action Buttons | Ease, 100ms | On hover: `scale(1.02)`. On active tap: `scale(0.98)`. On loading: opacity drops to `0.5` with spinning `fa-spin` icon. |

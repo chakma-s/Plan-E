@@ -213,7 +213,7 @@ class _MapboxMapViewState extends State<MapboxMapView> {
                 ? "#0F172A"
                 : (isResort ? "#0D9488" : "#4F46E5"),
             circleStrokeWidth: isSelected ? 3.5 : 2.0,
-            circleStrokeColor: isSelected ? "#7DE720" : "#FFFFFF",
+            circleStrokeColor: isSelected ? "#110F87" : "#FFFFFF",
           ),
           {'id': prop.id},
         );
@@ -224,7 +224,7 @@ class _MapboxMapViewState extends State<MapboxMapView> {
             geometry: LatLng(prop.latitude, prop.longitude),
             textField: price,
             textSize: isSelected ? 12.0 : 10.0,
-            textColor: isSelected ? "#7DE720" : "#FFFFFF",
+            textColor: isSelected ? "#110F87" : "#FFFFFF",
             textAnchor: "center",
           ),
           {'id': prop.id},

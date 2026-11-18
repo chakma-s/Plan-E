@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Brand Palette - Signature Colors matching Web Portal
-  static const Color brandColor = Color(0xFF7DE720); // Neon/Lime Green (#7de720)
+  static const Color brandColor = Color(0xFF110F87); // Deep Sapphire / Midnight Navy (#110F87)
   static const Color blackColor = Color(0xFF000000);
   static const Color logoAccent = Color(0xFFF2C48C); // Warm caramel/amber for -E
   static const Color logoDark = Color(0xFF0B1324);   // Deep slate/navy for Light mode logo
@@ -17,13 +17,13 @@ class AppTheme {
 
   // Map accents to brand color
   static const Color hotelAccent = brandColor;
-  static const Color hotelLight = Color(0x337DE720); // 20% opacity brand
+  static const Color hotelLight = Color(0x33110F87); // 20% opacity brand
 
   static const Color resortAccent = brandColor;
-  static const Color resortLight = Color(0x337DE720); // 20% opacity brand
+  static const Color resortLight = Color(0x33110F87); // 20% opacity brand
 
   static const Color guideGold = brandColor;
-  static const Color guideLight = Color(0x337DE720);
+  static const Color guideLight = Color(0x33110F87);
 
   // Text Colors adapted for dark mode
   static const Color textPrimary = Colors.white;
@@ -92,10 +92,13 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: brandColor,
-          foregroundColor: blackColor,
+          foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0x33FFFFFF)),
+          ),
           textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
         ),
       ),
@@ -154,10 +157,13 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: brandColor,
-          foregroundColor: blackColor,
+          foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0x33FFFFFF)),
+          ),
           textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
         ),
       ),
