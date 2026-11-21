@@ -33,6 +33,43 @@
     .theme-transitioning *::after {
       transition: none !important;
     }
+
+    /* =========================================================================
+       HIGH-CONTRAST BORDER LINES IN LIGHT THEME
+       Ensures every section, card, button, input, modal and chip is distinctly visible
+       in Light Theme. Dark theme is strictly preserved without any alteration.
+       ========================================================================= */
+    html:not(.dark) .border-slate-100,
+    html:not(.dark) .border-slate-200,
+    html:not(.dark) .border-slate-200\/60,
+    html:not(.dark) .border-slate-300,
+    html:not(.dark) .border-gray-100,
+    html:not(.dark) .border-gray-200,
+    html:not(.dark) .border-gray-300 {
+      border-color: #94a3b8 !important;
+    }
+
+    html:not(.dark) header {
+      border-bottom: 1.5px solid #94a3b8 !important;
+    }
+
+    html:not(.dark) .grid > a,
+    html:not(.dark) .grid > div {
+      border-color: #94a3b8 !important;
+    }
+
+    html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
+    html:not(.dark) select,
+    html:not(.dark) textarea {
+      border: 1.5px solid #94a3b8 !important;
+    }
+
+    html:not(.dark) input:focus,
+    html:not(.dark) select:focus,
+    html:not(.dark) textarea:focus {
+      border-color: #4A062e !important;
+      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.15) !important;
+    }
   </style>
   <script>
     (function() {
