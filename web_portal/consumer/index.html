@@ -131,27 +131,27 @@
        - Dark theme strictly preserved without any alteration.
        ========================================================================= */
 
-    /* 1. Search Bar & Filter Section (Light Theme: #fda894 background + #d1ffdb inner solid shade) */
+    /* 1. Search Bar Container (Exact Mirror of Dark Theme, Inverted for Light) */
     html:not(.dark) #searchBarContainer {
-      background-color: #fda894 !important;
-      border: 1.5px solid #f99079 !important;
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 16px !important;
       padding: 8px 12px !important;
-      box-shadow: 0 4px 14px rgba(253, 168, 148, 0.35), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03) !important;
     }
 
     html:not(.dark) #desktopSearchRibbon {
       gap: 10px !important;
     }
 
-    /* Inner Solid Shade of #d1ffdb in Search Bar & Filter Section */
+    /* Inner Segment Pills (Mirroring #1a1a1a with #333 border from dark theme) */
     html:not(.dark) #desktopSearchRibbon > div,
     html:not(.dark) #desktopSearchRibbon > button {
-      background-color: #d1ffdb !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 12px !important;
       color: #0f172a !important;
-      font-weight: 700 !important;
+      font-weight: 600 !important;
       transition: all 0.15s ease-in-out !important;
     }
 
@@ -166,7 +166,7 @@
       background: transparent !important;
       box-shadow: none !important;
       color: #0f172a !important;
-      font-weight: 700 !important;
+      font-weight: 600 !important;
       padding: 0 !important;
     }
 
@@ -180,32 +180,31 @@
 
     html:not(.dark) #desktopSearchRibbon input::placeholder,
     html:not(.dark) #mobileSearchRibbon input::placeholder {
-      color: #334155 !important;
+      color: #64748b !important;
       font-weight: 500 !important;
-      opacity: 0.8 !important;
     }
 
     html:not(.dark) #desktopSearchRibbon > div i,
     html:not(.dark) #desktopSearchRibbon > button i {
-      color: #0f172a !important;
+      color: #334155 !important;
     }
 
     html:not(.dark) #desktopSearchRibbon > button:hover {
-      background-color: #e2ffea !important;
-      border-color: rgba(0, 0, 0, 0.15) !important;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+      background-color: #ffffff !important;
+      border-color: #94a3b8 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
     }
 
     html:not(.dark) #desktopSearchRibbon > div:focus-within {
-      background-color: #e2ffea !important;
+      background-color: #ffffff !important;
       border-color: #4A062e !important;
-      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.2) !important;
+      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.12) !important;
     }
 
     /* View Toggle Button: Inactive state (Showing "Map") */
     html:not(.dark) #mapToggleBtnDesktop {
-      background-color: #d1ffdb !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
       color: #0f172a !important;
     }
 
@@ -238,8 +237,8 @@
     }
 
     html:not(.dark) #mobileSearchRibbon > div {
-      background-color: #d1ffdb !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 10px !important;
       color: #0f172a !important;
       margin-bottom: 6px !important;
@@ -247,26 +246,25 @@
 
     html:not(.dark) #mobileSearchRibbon input {
       color: #0f172a !important;
-      font-weight: 700 !important;
+      font-weight: 600 !important;
     }
 
     html:not(.dark) #mobileSearchRibbon input::placeholder {
-      color: #334155 !important;
+      color: #64748b !important;
       font-weight: 500 !important;
-      opacity: 0.8 !important;
     }
 
     html:not(.dark) #mobileSearchRibbon button {
-      background-color: #d1ffdb !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      background-color: #f8fafc !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 10px !important;
       color: #0f172a !important;
-      font-weight: 700 !important;
+      font-weight: 600 !important;
     }
 
     html:not(.dark) #mobileSearchRibbon button:hover {
-      background-color: #e2ffea !important;
-      border-color: rgba(0, 0, 0, 0.15) !important;
+      background-color: #ffffff !important;
+      border-color: #94a3b8 !important;
     }
 
     /* 2. Journey Segmented Switcher */
@@ -330,6 +328,7 @@
     html:not(.dark) #checkoutModal > div,
     html:not(.dark) #voucherModal > div,
     html:not(.dark) #itineraryModal > div,
+    html:not(.dark) #filtersModal > div,
     html:not(.dark) #guideModal > div,
     html:not(.dark) #authModal > div,
     html:not(.dark) #reviewModal > div,
@@ -337,50 +336,6 @@
     html:not(.dark) #lightboxModal > div {
       border: 1.5px solid #cbd5e1 !important;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    /* Filters Modal Window & Inner Controls (Light Theme: #fda894 background + #d1ffdb inner solid shade) */
-    html:not(.dark) #filtersModal > div {
-      background-color: #fda894 !important;
-      border: 1.5px solid #f99079 !important;
-      box-shadow: 0 20px 25px -5px rgba(253, 168, 148, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    html:not(.dark) #filtersModal .border-b {
-      border-color: rgba(0, 0, 0, 0.1) !important;
-    }
-
-    html:not(.dark) #filtersModal select,
-    html:not(.dark) #filtersModal input[type="number"],
-    html:not(.dark) #filtersModal .grid button,
-    html:not(.dark) #filtersModal label.cursor-pointer {
-      background-color: #d1ffdb !important;
-      border: 1px solid rgba(0, 0, 0, 0.1) !important;
-      color: #0f172a !important;
-      font-weight: 600 !important;
-    }
-
-    html:not(.dark) #filtersModal select:focus,
-    html:not(.dark) #filtersModal input[type="number"]:focus {
-      border-color: #4A062e !important;
-      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.2) !important;
-    }
-
-    html:not(.dark) #filtersModal .grid button:hover,
-    html:not(.dark) #filtersModal label.cursor-pointer:hover {
-      background-color: #e2ffea !important;
-      border-color: rgba(0, 0, 0, 0.2) !important;
-    }
-
-    html:not(.dark) #filtersModal button[type="button"][onclick*="resetFilters"] {
-      background-color: #d1ffdb !important;
-      border: 1px solid rgba(0, 0, 0, 0.1) !important;
-      color: #0f172a !important;
-      font-weight: 700 !important;
-    }
-
-    html:not(.dark) #filtersModal button[type="button"][onclick*="resetFilters"]:hover {
-      background-color: #e2ffea !important;
     }
 
     /* Room Cards inside Detail Modal */
