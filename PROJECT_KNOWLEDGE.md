@@ -485,4 +485,5 @@ To balance rapid ongoing engineering with commercial market readiness, the repos
 4. **External Media Storage (S3/R2):** Wire Cloudflare R2 or AWS S3 credentials for direct-to-cloud photo uploads.
 5. **Live Payment Gateway:** Activate live payment gateway merchant API keys (e.g., bKash, SSLCommerz, Stripe, Razorpay) in `PaymentGatewayFactory`.
 6. **Active Currency Configuration:** Bangladeshi Taka (`৳` / ISO code `BDT`) is configured as the active platform default currency across backend configuration (`config.py`), regional compliance policy (`regional_policy.py`), reservation data models, price quote calculations, and consumer/vendor/admin web portal UI interfaces.
-7. **Environment Flag:** Set `ENVIRONMENT=production` to ensure demo mock data auto-seeding is suppressed on startup.
+7. **Dhaka Regional Property Ecosystem:** All seed and demo accommodations, luxury retreats, and certified local guides are placed across premier business, diplomatic, and leisure destinations in Dhaka and Greater Dhaka (Gulshan-2 Diplomatic Zone, Banani Central, Ramna Heritage, Gazipur Bhawal Forest, and Mawa Padma Riverfront) with accurate GPS coordinates and localized descriptions.
+8. **Environment Flag:** Set `ENVIRONMENT=production` to ensure demo mock data auto-seeding is suppressed on startup.

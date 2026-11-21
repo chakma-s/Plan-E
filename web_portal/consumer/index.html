@@ -307,7 +307,7 @@
               class="col-span-5 flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-xl px-3.5 py-2.5 text-xs">
               <i class="fa-solid fa-magnifying-glass text-black dark:text-white text-sm shrink-0"></i>
               <input type="text" id="destinationInputDesktop" oninput="handleDestinationSearch(this.value)"
-                placeholder="Where to? (e.g. Bangalore, San Francisco)"
+                placeholder="Where to? (e.g. Dhaka, Gulshan, Gazipur)"
                 class="flex-1 bg-transparent outline-none text-black dark:text-white font-medium placeholder-slate-400 min-w-0">
               <button onclick="clearSearchInput()" class="text-slate-400 hover:text-slate-600 text-xs hidden">
                 <i class="fa-solid fa-circle-xmark"></i>
@@ -350,7 +350,7 @@
               class="flex items-center space-x-2.5 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-[#333] rounded-lg px-3 py-1.5 text-xs">
               <i class="fa-solid fa-magnifying-glass text-black dark:text-white text-xs shrink-0"></i>
               <input type="text" id="destinationInput" oninput="handleDestinationSearch(this.value)"
-                placeholder="Where to? (e.g. Bangalore, San Francisco)"
+                placeholder="Where to? (e.g. Dhaka, Gulshan, Gazipur)"
                 class="flex-1 bg-transparent outline-none text-black dark:text-white font-medium placeholder-slate-400 min-w-0">
               <button id="clearSearchBtn" onclick="clearSearchInput()"
                 class="hidden text-slate-400 hover:text-slate-600 text-xs">
@@ -2500,7 +2500,7 @@
 
       leafletMap = L.map('consumerMap', {
         zoomControl: false
-      }).setView([12.9716, 77.5946], 11);
+      }).setView([23.8103, 90.4125], 11);
 
       L.control.zoom({ position: 'bottomright' }).addTo(leafletMap);
 
@@ -2624,11 +2624,11 @@
       });
 
       try {
-        // Focus primarily on Bangalore / Indian destination
-        const bangaloreItems = items.filter(it => (it.city && it.city.toLowerCase().includes('bangalore')) || (it.country && it.country.toLowerCase().includes('india')));
-        if (bangaloreItems.length > 0) {
-          const bGroup = L.featureGroup(bangaloreItems.map(m => L.marker([m.latitude, m.longitude])));
-          leafletMap.fitBounds(bGroup.getBounds().pad(0.35), { maxZoom: 12 });
+        // Focus primarily on Dhaka / Bangladesh destination
+        const dhakaItems = items.filter(it => (it.city && it.city.toLowerCase().includes('dhaka')) || (it.country && it.country.toLowerCase().includes('bangladesh')));
+        if (dhakaItems.length > 0) {
+          const dGroup = L.featureGroup(dhakaItems.map(m => L.marker([m.latitude, m.longitude])));
+          leafletMap.fitBounds(dGroup.getBounds().pad(0.35), { maxZoom: 12 });
         } else {
           const bounds = mapMarkersGroup.getBounds();
           if (bounds.isValid()) {
@@ -2636,7 +2636,7 @@
           }
         }
       } catch (e) {
-        leafletMap.setView([12.9716, 77.5946], 11);
+        leafletMap.setView([23.8103, 90.4125], 11);
       }
     }
 
@@ -2794,14 +2794,14 @@
       if (type === 'hotel') {
         if (hotelBtn) hotelBtn.className = activeClass;
         if (hotelMobBtn) hotelMobBtn.className = activeClass;
-        if (destInput) destInput.placeholder = "Where to? (e.g. Bangalore, San Francisco)";
-        if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Bangalore, San Francisco)";
+        if (destInput) destInput.placeholder = "Where to? (e.g. Dhaka, Gulshan, Banani)";
+        if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Dhaka, Gulshan, Banani)";
         loadHotels(currentQuery);
       } else if (type === 'resort') {
         if (resortBtn) resortBtn.className = activeClass;
         if (resortMobBtn) resortMobBtn.className = activeClass;
-        if (destInput) destInput.placeholder = "Where to? (e.g. Bali, Phuket)";
-        if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Bali, Phuket)";
+        if (destInput) destInput.placeholder = "Where to? (e.g. Gazipur, Padma, Sreepur)";
+        if (destInputDesk) destInputDesk.placeholder = "Where to? (e.g. Gazipur, Padma, Sreepur)";
         loadResorts(currentQuery);
       } else if (type === 'guide') {
         if (guideBtn) guideBtn.className = activeClass;

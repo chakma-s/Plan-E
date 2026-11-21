@@ -299,14 +299,14 @@
       <!-- Quick 1-Click Autofill Bar (Only shown in create mode) -->
       <div id="propPresetBar" class="px-6 py-2.5 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 flex items-center space-x-2 overflow-x-auto shrink-0">
         <span class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider whitespace-nowrap">✨ 1-Click Presets:</span>
-        <button type="button" onclick="applyPropertyPreset('hotel_delhi')" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 whitespace-nowrap transition">
-          Grand Oberoi Delhi
+        <button type="button" onclick="applyPropertyPreset('hotel_dhaka')" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 whitespace-nowrap transition">
+          Grand Diplomatic Gulshan
         </button>
-        <button type="button" onclick="applyPropertyPreset('resort_goa')" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 whitespace-nowrap transition">
-          Azure Sands Goa Resort
+        <button type="button" onclick="applyPropertyPreset('resort_gazipur')" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 whitespace-nowrap transition">
+          Bhawal Eco-Resort Gazipur
         </button>
-        <button type="button" onclick="applyPropertyPreset('resort_manali')" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 whitespace-nowrap transition">
-          Himalayan Pine Haven
+        <button type="button" onclick="applyPropertyPreset('resort_padma')" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 whitespace-nowrap transition">
+          Padma Riverfront Retreat
         </button>
       </div>
 
@@ -1094,51 +1094,51 @@
     }
 
     function applyPropertyPreset(presetKey) {
-      if (presetKey === 'hotel_delhi') {
-        document.getElementById('propName').value = "The Grand Oberoi New Delhi";
+      if (presetKey === 'hotel_dhaka') {
+        document.getElementById('propName').value = "The Grand Diplomatic Hotel Gulshan";
         document.getElementById('propType').value = "HOTEL";
-        document.getElementById('propTagline').value = "Ultra-Luxury Diplomatic Sanctuary";
-        document.getElementById('propDescription').value = "An iconic 5-star destination offering refined hospitality, Michelin-grade dining, landscaped private gardens, and heated outdoor pools in the prime center of New Delhi.";
-        document.getElementById('propAddress').value = "Dr. Zakir Hussain Marg";
-        document.getElementById('propCity').value = "New Delhi";
-        document.getElementById('propState').value = "Delhi";
-        document.getElementById('propCountry').value = "India";
-        document.getElementById('propLatitude').value = 28.5991;
-        document.getElementById('propLongitude').value = 77.2384;
+        document.getElementById('propTagline').value = "5-Star Luxury Living in the Heart of Gulshan-2 Diplomatic Zone";
+        document.getElementById('propDescription').value = "An iconic 5-star destination in Gulshan-2 offering refined diplomatic hospitality, panoramic lake views, fine dining, landscaped gardens, and rooftop infinity pool in central Dhaka.";
+        document.getElementById('propAddress').value = "Main Gulshan Avenue, Gulshan-2";
+        document.getElementById('propCity').value = "Dhaka";
+        document.getElementById('propState').value = "Dhaka Division";
+        document.getElementById('propCountry').value = "Bangladesh";
+        document.getElementById('propLatitude').value = 23.7937;
+        document.getElementById('propLongitude').value = 90.4066;
         document.getElementById('propStarRating').value = 5.0;
         document.getElementById('propCoverImage').value = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80";
         document.getElementById('propGalleryImages').value = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80\nhttps://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80";
         document.getElementById('propAmenities').value = "High-Speed WiFi, Olympic Pool, Luxury Spa, Butler Service, Valet Parking, Helipad Access";
-      } else if (presetKey === 'resort_goa') {
-        document.getElementById('propName').value = "Azure Sands Beachfront Resort";
+      } else if (presetKey === 'resort_gazipur') {
+        document.getElementById('propName').value = "Bhawal Forest Sanctuary & Eco-Resort";
         document.getElementById('propType').value = "RESORT";
-        document.getElementById('propTagline').value = "Direct Arabian Sea Access & Coastal Wellness";
-        document.getElementById('propDescription').value = "Private beachfront resort featuring private plunge pool villas, Ayurvedic treatments, seaside infinity pools, and curated local spice plantation tours.";
-        document.getElementById('propAddress').value = "Candolim Beach Road, North Goa";
-        document.getElementById('propCity').value = "Goa";
-        document.getElementById('propState').value = "Goa";
-        document.getElementById('propCountry').value = "India";
-        document.getElementById('propLatitude').value = 15.5186;
-        document.getElementById('propLongitude').value = 73.7634;
+        document.getElementById('propTagline').value = "Secluded Forest Water Villas & Sal Forest Canopy Trails";
+        document.getElementById('propDescription').value = "A luxurious eco-sanctuary set amidst tranquil green forests in Gazipur, just north of Dhaka. Features private overwater villas, infinity pools, organic spa therapies, and nature walks.";
+        document.getElementById('propAddress').value = "Bhawal National Park Road, Gazipur";
+        document.getElementById('propCity').value = "Dhaka";
+        document.getElementById('propState').value = "Dhaka Division";
+        document.getElementById('propCountry').value = "Bangladesh";
+        document.getElementById('propLatitude').value = 24.0850;
+        document.getElementById('propLongitude').value = 90.3950;
         document.getElementById('propStarRating').value = 4.9;
         document.getElementById('propCoverImage').value = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80";
         document.getElementById('propGalleryImages').value = "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80";
-        document.getElementById('propAmenities').value = "Private Beach, Infinity Pool, Ayurveda Spa, Water Sports, Sunset Lounge, Beachfront Dining";
-      } else if (presetKey === 'resort_manali') {
-        document.getElementById('propName').value = "Himalayan Pine Haven Eco Resort";
+        document.getElementById('propAmenities').value = "Private Lake, Infinity Pool, Ayurveda Spa, Water Sports, Sunset Lounge, Organic Dining";
+      } else if (presetKey === 'resort_padma') {
+        document.getElementById('propName').value = "Padma Riverside Retreat & Water Chalets";
         document.getElementById('propType').value = "RESORT";
-        document.getElementById('propTagline').value = "Majestic Snow Peak Panoramas & Pine Forests";
-        document.getElementById('propDescription').value = "Nestled amidst ancient deodar forests, featuring cedar-wood chalets, open-air fire pits, alpine spa, and mountain hiking trails.";
-        document.getElementById('propAddress').value = "Old Manali Road, Himachal Pradesh";
-        document.getElementById('propCity').value = "Manali";
-        document.getElementById('propState').value = "Himachal Pradesh";
-        document.getElementById('propCountry').value = "India";
-        document.getElementById('propLatitude').value = 32.2432;
-        document.getElementById('propLongitude').value = 77.1892;
+        document.getElementById('propTagline').value = "Panoramic River Vistas & Floating Cottage Serenity";
+        document.getElementById('propDescription').value = "Perched along the scenic banks of the Padma River near Mawa. Experience guided sunset boat tours, traditional dining, riverside yoga decks, and starlit river breezes.";
+        document.getElementById('propAddress').value = "Padma Bridge Riverside Expressway, Mawa";
+        document.getElementById('propCity').value = "Dhaka";
+        document.getElementById('propState').value = "Dhaka Division";
+        document.getElementById('propCountry').value = "Bangladesh";
+        document.getElementById('propLatitude').value = 23.4750;
+        document.getElementById('propLongitude').value = 90.3150;
         document.getElementById('propStarRating').value = 4.8;
         document.getElementById('propCoverImage').value = "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1200&q=80";
         document.getElementById('propGalleryImages').value = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80";
-        document.getElementById('propAmenities').value = "Fireplace Suites, Alpine Spa, Heated Floors, Mountain Trekking, Organic Dining, Stargazing Deck";
+        document.getElementById('propAmenities').value = "Floating Chalets, Riverboat Excursions, Yoga Deck, Fresh River Dining, Sunset Lounge";
       }
     }
 

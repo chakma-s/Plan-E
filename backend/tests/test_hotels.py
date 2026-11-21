@@ -16,15 +16,15 @@ async def test_search_hotels(client: AsyncClient):
     assert float(hotel["min_price_per_night"]) == 220.0
 
     # 2. Search by City
-    res_city = await client.get("/api/v1/hotels?city=San Francisco")
+    res_city = await client.get("/api/v1/hotels?city=Dhaka")
     assert res_city.status_code == 200
     city_data = res_city.json()["data"]
     assert len(city_data) >= 1
-    assert all(h["city"] == "San Francisco" for h in city_data)
+    assert all(h["city"] == "Dhaka" for h in city_data)
 
-    # 3. Search by Mapbox Bounding Box (San Francisco Coordinates)
+    # 3. Search by Mapbox Bounding Box (Dhaka Coordinates)
     res_geo = await client.get(
-        "/api/v1/hotels?min_lat=37.0&max_lat=38.5&min_lon=-123.0&max_lon=-121.0"
+        "/api/v1/hotels?min_lat=23.0&max_lat=24.5&min_lon=90.0&max_lon=91.0"
     )
     assert res_geo.status_code == 200
     geo_data = res_geo.json()["data"]

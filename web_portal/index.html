@@ -101,7 +101,7 @@
           <i class="fa-solid fa-magnifying-glass text-black dark:text-white text-sm shrink-0"></i>
           <div class="flex-1 min-w-0">
             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</label>
-            <input type="text" id="heroDestinationInput" placeholder="Where to? (e.g. San Francisco, Miami, Bali)" class="w-full bg-transparent outline-none text-black dark:text-white font-bold text-xs placeholder-slate-400">
+            <input type="text" id="heroDestinationInput" placeholder="Where to? (e.g. Dhaka, Gulshan, Gazipur)" class="w-full bg-transparent outline-none text-black dark:text-white font-bold text-xs placeholder-slate-400">
           </div>
         </div>
 
@@ -126,10 +126,10 @@
       <!-- Quick Destination Suggestions -->
       <div class="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400 pt-1 flex-wrap gap-y-1">
         <span class="text-[11px] font-semibold">Popular:</span>
-        <button type="button" onclick="quickFillHero('San Francisco')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">San Francisco</button>
-        <button type="button" onclick="quickFillHero('Miami Beach')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">Miami Beach</button>
-        <button type="button" onclick="quickFillHero('Bali')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">Bali</button>
-        <button type="button" onclick="quickFillHero('Phuket')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">Phuket</button>
+        <button type="button" onclick="quickFillHero('Dhaka')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">Dhaka</button>
+        <button type="button" onclick="quickFillHero('Gulshan')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">Gulshan</button>
+        <button type="button" onclick="quickFillHero('Gazipur')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">Gazipur</button>
+        <button type="button" onclick="quickFillHero('Padma River')" class="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-black dark:text-white transition text-[11px] font-medium">Padma River</button>
       </div>
     </div>
 
@@ -378,12 +378,12 @@
         hotelBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-white border border-white/20 shadow-sm";
         resortBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white";
         if (label) label.innerText = "Search Hotels";
-        if (input) input.placeholder = "Where to? (e.g. San Francisco, Miami Beach)";
+        if (input) input.placeholder = "Where to? (e.g. Dhaka, Gulshan, Banani)";
       } else {
         resortBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center space-x-2 bg-brand text-white border border-white/20 shadow-sm";
         hotelBtn.className = "flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white";
         if (label) label.innerText = "Search Resorts & Guides";
-        if (input) input.placeholder = "Where to? (e.g. Bali, Phuket, Costa Rica)";
+        if (input) input.placeholder = "Where to? (e.g. Gazipur, Padma, Sreepur)";
       }
     }
 
