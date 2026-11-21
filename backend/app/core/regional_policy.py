@@ -20,8 +20,8 @@ from pydantic import BaseModel, Field
 class RegionalPolicy(BaseModel):
     region_code: str = Field(description="ISO 3166-1 alpha-2 country code or region code (e.g. US, EU, GB, IN, BD, AE, GLOBAL)")
     region_name: str
-    currency: str = Field(default="USD", description="ISO 4217 currency code")
-    currency_symbol: str = Field(default="$")
+    currency: str = Field(default="BDT", description="ISO 4217 currency code")
+    currency_symbol: str = Field(default="৳")
     tax_rate_percentage: float = Field(default=8.5, description="Regional lodging tax or VAT percentage")
     tax_display_mode: str = Field(default="exclusive", description="'inclusive' (VAT included in list price) or 'exclusive' (tax added at checkout)")
     platform_fee_percentage: float = Field(default=5.0, description="Platform service commission percentage")
@@ -36,8 +36,8 @@ REGIONAL_PRESETS: Dict[str, RegionalPolicy] = {
     "GLOBAL": RegionalPolicy(
         region_code="GLOBAL",
         region_name="Global Default Jurisdiction",
-        currency="USD",
-        currency_symbol="$",
+        currency="BDT",
+        currency_symbol="৳",
         tax_rate_percentage=8.5,
         tax_display_mode="exclusive",
         platform_fee_percentage=5.0,

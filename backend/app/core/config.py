@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     # Multi-Region & Global Compliance
     DEFAULT_REGION_CODE: str = "GLOBAL"  # e.g. US, EU, GB, IN, BD, AE, GLOBAL
-    DEFAULT_CURRENCY: str = "USD"
+    DEFAULT_CURRENCY: str = "BDT"
     RATE_LIMIT_PER_MINUTE: int = 120
 
     # Database (Default to local SQLite for instant zero-dependency execution; override via .env for Postgres)

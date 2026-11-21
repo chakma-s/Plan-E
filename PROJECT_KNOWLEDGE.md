@@ -483,5 +483,6 @@ To balance rapid ongoing engineering with commercial market readiness, the repos
 2. **Environment Variables Configuration:** Set `DATABASE_URL` (auto-wired by Railway), `SECRET_KEY`, `ENVIRONMENT=production`, and `BACKEND_CORS_ORIGINS`.
 3. **Domain & SSL/HTTPS Termination:** Add your custom domain in Railway's service settings and configure your registrar's DNS records.
 4. **External Media Storage (S3/R2):** Wire Cloudflare R2 or AWS S3 credentials for direct-to-cloud photo uploads.
-5. **Live Payment Gateway:** Activate live Stripe/Razorpay merchant API keys in `PaymentGatewayFactory`.
-5. **Environment Flag:** Set `ENVIRONMENT=production` to ensure demo mock data auto-seeding is suppressed on startup.
+5. **Live Payment Gateway:** Activate live payment gateway merchant API keys (e.g., bKash, SSLCommerz, Stripe, Razorpay) in `PaymentGatewayFactory`.
+6. **Active Currency Configuration:** Bangladeshi Taka (`৳` / ISO code `BDT`) is configured as the active platform default currency across backend configuration (`config.py`), regional compliance policy (`regional_policy.py`), reservation data models, price quote calculations, and consumer/vendor/admin web portal UI interfaces.
+7. **Environment Flag:** Set `ENVIRONMENT=production` to ensure demo mock data auto-seeding is suppressed on startup.

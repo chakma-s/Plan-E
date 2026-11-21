@@ -106,7 +106,7 @@
           <span>Gross Booking Volume</span>
           <i class="fa-solid fa-chart-line text-indigo-500 dark:text-indigo-400"></i>
         </div>
-        <div class="text-2xl font-black text-slate-900 dark:text-white mt-2" id="metric-volume">$0.00</div>
+        <div class="text-2xl font-black text-slate-900 dark:text-white mt-2" id="metric-volume">৳0.00</div>
         <div class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1"><i class="fa-solid fa-arrow-up"></i> Real-time Beta Activity</div>
       </div>
 
@@ -115,7 +115,7 @@
           <span>Platform Revenue (5%)</span>
           <i class="fa-solid fa-sack-dollar text-emerald-500 dark:text-emerald-400"></i>
         </div>
-        <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2" id="metric-revenue">$0.00</div>
+        <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-2" id="metric-revenue">৳0.00</div>
         <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Direct platform fee cut</div>
       </div>
 
@@ -492,9 +492,9 @@
                 <input type="text" id="newRoomName" required placeholder="e.g. Deluxe Ocean View Suite" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white outline-none focus:border-indigo-500">
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">Base Price / Night (₹ / $) *</label>
+                <label class="block text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">Base Price / Night (৳) *</label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600 font-bold text-xs">₹</span>
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600 font-bold text-xs">৳</span>
                   <input type="number" step="0.01" min="1" id="newRoomPrice" required placeholder="185.00" class="w-full bg-white dark:bg-slate-800 border border-emerald-300 dark:border-emerald-800 rounded-xl pl-7 pr-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 outline-none focus:border-emerald-500">
                 </div>
               </div>
@@ -754,8 +754,8 @@
       localStorage.removeItem('plane_admin_token');
       localStorage.removeItem('plane_admin_user');
       updateAdminUI();
-      document.getElementById('metric-volume').innerText = "$0.00";
-      document.getElementById('metric-revenue').innerText = "$0.00";
+      document.getElementById('metric-volume').innerText = "৳0.00";
+      document.getElementById('metric-revenue').innerText = "৳0.00";
       document.getElementById('metric-properties').innerText = "0";
       document.getElementById('metric-hotels').innerText = "0";
       document.getElementById('metric-resorts').innerText = "0";
@@ -850,8 +850,8 @@
         });
         const json = await res.json();
         const d = json.data;
-        document.getElementById('metric-volume').innerText = `$${d.gross_booking_volume.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-        document.getElementById('metric-revenue').innerText = `$${d.total_platform_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        document.getElementById('metric-volume').innerText = `৳${d.gross_booking_volume.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        document.getElementById('metric-revenue').innerText = `৳${d.total_platform_revenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
         document.getElementById('metric-properties').innerText = d.total_hotels + d.total_resorts;
         document.getElementById('metric-hotels').innerText = d.total_hotels;
         document.getElementById('metric-resorts').innerText = d.total_resorts;
@@ -1338,10 +1338,10 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div class="md:col-span-1">
               <label class="block text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400 mb-1">
-                Nightly Base Rate (₹ / $) *
+                Nightly Base Rate (৳) *
               </label>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-xs">₹</span>
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-xs">৳</span>
                 <input 
                   type="number" 
                   step="0.01" 
@@ -1570,7 +1570,7 @@
             </td>
             <td class="px-4 py-3 text-xs font-mono text-slate-600 dark:text-slate-300">USCG-VERIFIED</td>
             <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-300">${g.specialties.slice(0, 2).join(', ')}</td>
-            <td class="px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400">$${g.daily_rate}/day</td>
+            <td class="px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400">৳${g.daily_rate}/day</td>
             <td class="px-4 py-3 text-xs font-bold text-amber-600 dark:text-amber-400">★ ${g.rating}</td>
             <td class="px-4 py-3">
               ${g.is_verified 

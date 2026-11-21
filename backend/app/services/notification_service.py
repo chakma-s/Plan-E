@@ -85,7 +85,7 @@ class NotificationService:
         check_out_date: str,
         total_nights: int,
         total_amount: float,
-        currency: str = "USD",
+        currency: str = "BDT",
         guide_name: Optional[str] = None,
     ) -> bool:
         """Send immediate booking voucher confirmation to traveler."""
@@ -120,7 +120,7 @@ class NotificationService:
         traveler_name: str,
         property_name: str,
         refund_amount: float,
-        currency: str = "USD",
+        currency: str = "BDT",
     ) -> bool:
         """Send cancellation and refund advice notice to traveler."""
         body = (

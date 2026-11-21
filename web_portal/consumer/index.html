@@ -741,7 +741,7 @@
           <div class="flex items-center space-x-3 shrink-0">
             <div class="text-right">
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Total Stay</span>
-              <span id="detailTotalEstimate" class="font-extrabold text-lg text-brand leading-none">$0</span>
+              <span id="detailTotalEstimate" class="font-extrabold text-lg text-brand leading-none">৳0</span>
             </div>
             <button id="detailReserveBtn" onclick="proceedToCheckoutFromDetail()"
               class="bg-brand text-white border border-white/20 hover:bg-[#66093F] font-extrabold px-6 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition flex items-center space-x-2">
@@ -1024,7 +1024,7 @@
           <div>
             <label
               class="block text-[11px] font-bold uppercase tracking-wider text-black dark:text-white mb-1.5">Max
-              Price Per Night ($)</label>
+              Price Per Night (৳)</label>
             <input type="number" id="filterMaxPriceInput" placeholder="No limit" min="50" max="2000"
               class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs outline-none text-black dark:text-white font-medium focus:border-slate-400 dark:focus:border-slate-500 transition">
           </div>
@@ -1501,7 +1501,7 @@
                   Allocation Engine</span>
               </div>
               <div class="text-right">
-                <span id="voucherTotalPaid" class="font-black text-base text-slate-900 dark:text-white">$0.00 USD</span>
+                <span id="voucherTotalPaid" class="font-black text-base text-slate-900 dark:text-white">৳0.00 BDT</span>
               </div>
             </div>
           </div>
@@ -1800,7 +1800,7 @@
           const badge = document.getElementById('complianceRegionBadge');
           if (badge && policy) {
             const taxMode = (policy.tax_display_mode || policy.tax_mode || 'exclusive').toUpperCase();
-            badge.innerText = `${policy.region_name || 'Global'} (${policy.currency || 'USD'}) • ${taxMode}`;
+            badge.innerText = `${policy.region_name || 'Global'} (${policy.currency || 'BDT'}) • ${taxMode}`;
             badge.title = policy.statutory_disclosure || (policy.disclosures ? policy.disclosures.pricing : 'Statutory Regional Policy');
           }
         }
@@ -2583,8 +2583,8 @@
         if (!item.latitude || !item.longitude) return;
 
         const price = isResort
-          ? `From $${item.starting_price_per_night}`
-          : `$${item.min_price_per_night}`;
+          ? `From ৳${item.starting_price_per_night}`
+          : `৳${item.min_price_per_night}`;
 
         const badgeBg = isResort ? '#0d9488' : '#4f46e5';
 
@@ -2836,7 +2836,7 @@
       document.getElementById('voucherGuestCount').innerText = `${t.guest_count || 2} Guests (${t.total_nights} Nights)`;
       document.getElementById('voucherCheckIn').innerText = t.check_in_date;
       document.getElementById('voucherCheckOut').innerText = t.check_out_date;
-      document.getElementById('voucherTotalPaid').innerText = `$${t.total_amount} ${t.currency}`;
+      document.getElementById('voucherTotalPaid').innerText = `৳${t.total_amount} ${t.currency || 'BDT'}`;
 
       const guideRow = document.getElementById('voucherGuideRow');
       if (t.guide_item) {
@@ -2994,7 +2994,7 @@
                 <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div>
                     <span class="text-[10px] text-slate-400 block font-semibold">Exclusivity Rate</span>
-                    <span class="text-sm font-black text-slate-900 dark:text-white">$${g.daily_rate} <span class="text-[10px] font-normal text-slate-400">/ day</span></span>
+                    <span class="text-sm font-black text-slate-900 dark:text-white">৳${g.daily_rate} <span class="text-[10px] font-normal text-slate-400">/ day</span></span>
                   </div>
                   <button onclick="showGuideModal('${g.id}')" class="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-black text-amber-600 dark:text-amber-400 font-extrabold text-xs rounded-xl transition border border-amber-500/30 shadow-xs flex items-center space-x-1.5">
                     <span>Preview Profile</span>
@@ -3084,7 +3084,7 @@
 
               <!-- Bottom-Right Badge: Price / night in dark pill -->
               <span class="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg shadow text-xs font-black">
-                $${Math.round(h.min_price_per_night || 100)} <span class="text-white/70 font-normal text-[10px]">/ night</span>
+                ৳${Math.round(h.min_price_per_night || 100)} <span class="text-white/70 font-normal text-[10px]">/ night</span>
               </span>
             </div>
 
@@ -3193,7 +3193,7 @@
               </span>
 
               <span class="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white px-2.5 py-1 rounded-lg shadow text-xs font-black">
-                From $${Math.round(r.starting_price_per_night || 280)} <span class="text-white/70 font-normal text-[10px]">/ night</span>
+                From ৳${Math.round(r.starting_price_per_night || 280)} <span class="text-white/70 font-normal text-[10px]">/ night</span>
               </span>
             </div>
 
@@ -3248,7 +3248,7 @@
         document.getElementById('guideModalHeadline').innerText = g.headline;
         document.getElementById('guideModalRating').innerText = `★ ${g.rating} (${g.review_count} reviews)`;
         document.getElementById('guideModalExp').innerText = `${g.years_of_experience} Years`;
-        document.getElementById('guideModalRate').innerText = `$${g.daily_rate}/day`;
+        document.getElementById('guideModalRate').innerText = `৳${g.daily_rate}/day`;
         document.getElementById('guideModalLangs').innerText = g.languages.join(', ');
         document.getElementById('guideModalBio').innerText = g.bio;
         document.getElementById('guideModalSpecs').innerHTML = g.specialties.map(s => `<span class="bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${s}</span>`).join('');
@@ -3481,8 +3481,8 @@
                     </div>
                   </div>
                   <div class="text-right shrink-0">
-                    <span class="text-sm font-extrabold text-brand leading-none">$${nightlyRate.toFixed(0)} / nt</span>
-                    <span class="text-[10px] text-slate-400 block mt-0.5">Est. $${estTotal} (${nights} nts)</span>
+                    <span class="text-sm font-extrabold text-brand leading-none">৳${nightlyRate.toFixed(0)} / nt</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Est. ৳${estTotal} (${nights} nts)</span>
                   </div>
                 </div>
 
@@ -3531,9 +3531,9 @@
       }
 
       document.getElementById('detailSelectedRoomName').innerText = activeRoom.name;
-      document.getElementById('detailSelectedRoomRate').innerText = `$${nightlyRate.toFixed(0)} / nt`;
+      document.getElementById('detailSelectedRoomRate').innerText = `৳${nightlyRate.toFixed(0)} / nt`;
       document.getElementById('detailSelectedStaySummary').innerText = `${label}${selectedGuide ? ` • + Guide (${selectedGuide.full_name})` : ''}`;
-      document.getElementById('detailTotalEstimate').innerText = `$${total.toFixed(2)}`;
+      document.getElementById('detailTotalEstimate').innerText = `৳${total.toFixed(2)}`;
     }
 
     function proceedToCheckoutFromDetail() {
@@ -3678,21 +3678,21 @@
               <img src="${selectedGuide.profile_photo_url}" class="w-10 h-10 rounded-full object-cover">
               <div class="flex-1">
                 <div class="flex items-center space-x-1"><strong class="text-xs text-slate-900 dark:text-white">${selectedGuide.full_name}</strong><span class="text-[9px] text-brand font-bold bg-brand/20 px-1 rounded">BUNDLED</span></div>
-                <p class="text-[10px] text-slate-500 dark:text-gray-400">Curated Local Expedition ($${selectedGuide.daily_rate})</p>
+                <p class="text-[10px] text-slate-500 dark:text-gray-400">Curated Local Expedition (৳${selectedGuide.daily_rate})</p>
               </div>
             </div>
           ` : ''}
 
           <div class="bg-slate-50 dark:bg-darkcard p-3 rounded-xl border border-slate-200 dark:border-darkborder space-y-1.5 text-xs">
-            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Room (${q.total_nights} nts)</span><span>$${q.room_subtotal}</span></div>
-            ${selectedGuide ? `<div class="flex justify-between text-brand font-bold"><span>Bundled Guide Fee</span><span>+$${q.guide_subtotal}</span></div>` : ''}
-            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Platform Service Fee (5%)</span><span>$${q.platform_fee}</span></div>
-            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Lodging Tax (8.5%)</span><span>$${q.tax_amount}</span></div>
-            <div class="border-t border-slate-200 dark:border-darkborder pt-1.5 flex justify-between font-black text-sm text-slate-900 dark:text-white"><span>Total</span><span>$${q.total_amount} USD</span></div>
+            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Room (${q.total_nights} nts)</span><span>৳${q.room_subtotal}</span></div>
+            ${selectedGuide ? `<div class="flex justify-between text-brand font-bold"><span>Bundled Guide Fee</span><span>+৳${q.guide_subtotal}</span></div>` : ''}
+            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Platform Service Fee (${q.platform_fee_percentage || 5}%)</span><span>৳${q.platform_fee}</span></div>
+            <div class="flex justify-between text-slate-600 dark:text-gray-400"><span>Lodging Tax (${q.tax_rate_percentage || 8.5}%)</span><span>৳${q.tax_amount}</span></div>
+            <div class="border-t border-slate-200 dark:border-darkborder pt-1.5 flex justify-between font-black text-sm text-slate-900 dark:text-white"><span>Total</span><span>৳${q.total_amount} ${q.currency || 'BDT'}</span></div>
           </div>
         `;
 
-        document.getElementById('payBtnText').innerText = `Confirm & Pay $${q.total_amount}`;
+        document.getElementById('payBtnText').innerText = `Confirm & Pay ৳${q.total_amount}`;
         document.getElementById('checkoutModal').classList.remove('hidden');
       } catch (e) {
         alert("Quote calculation failed");
@@ -3924,7 +3924,7 @@
                 </div>
                 <div class="text-right">
                   <span class="text-[9px] text-slate-400 font-semibold">Total Paid</span>
-                  <p class="font-black text-slate-900 dark:text-white">$${t.total_amount} ${t.currency}</p>
+                  <p class="font-black text-slate-900 dark:text-white">৳${t.total_amount} ${t.currency || 'BDT'}</p>
                 </div>
               </div>
 

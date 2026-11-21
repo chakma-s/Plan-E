@@ -90,7 +90,7 @@ class Reservation(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     platform_fee: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
     tax_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"), nullable=False)
     total_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
-    currency: Mapped[str] = mapped_column(String(3), default="USD", nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), default="BDT", nullable=False)
 
     special_requests: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 

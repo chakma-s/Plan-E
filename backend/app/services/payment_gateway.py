@@ -107,7 +107,7 @@ class MockRegionalPaymentGateway(PaymentGatewayInterface):
             transaction_id=transaction_id,
             status="succeeded",
             amount=amount or Decimal("0.00"),
-            currency="USD",
+            currency="BDT",
             provider=self.provider_name,
         )
 

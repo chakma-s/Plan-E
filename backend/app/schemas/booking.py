@@ -53,7 +53,7 @@ class PriceQuoteResponse(BaseModel):
     platform_fee: Decimal
     tax_amount: Decimal
     total_amount: Decimal
-    currency: str = "USD"
+    currency: str = "BDT"
     is_available: bool = True
     unavailability_reason: Optional[str] = None
 
