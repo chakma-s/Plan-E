@@ -121,40 +121,159 @@
     }
 
     /* =========================================================================
-       CLEAN COMPONENT BOUNDARIES IN LIGHT THEME
-       Crisp outer boundaries for sections, cards, modals & containers.
-       Soft, elegant inner dividers & borderless chips to prevent visual clutter.
-       Dark theme remains strictly preserved.
+       BOOKING.COM INSPIRED LIGHT THEME COMPONENT COLOR PALETTE (REF IMAGE)
+       - Primary Golden-Yellow: #ffb700 (4px solid container border & dividers)
+       - Primary Action Blue: #006ce4 (CTA buttons, search actions, active states)
+       - Interior Card Surfaces: Pure White #ffffff with crisp dark slate text #0f172a
+       - Dark theme strictly preserved without alteration.
        ========================================================================= */
 
-    /* Outer Component & Section Boundaries */
+    /* 1. Iconic Search Bar Container (Directly modeled on Reference Image) */
+    html:not(.dark) #searchBarContainer {
+      background-color: #ffb700 !important;
+      border: 4px solid #ffb700 !important;
+      border-radius: 14px !important;
+      padding: 4px !important;
+      box-shadow: 0 4px 16px rgba(255, 183, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon {
+      gap: 4px !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > div,
+    html:not(.dark) #desktopSearchRibbon > button {
+      background-color: #ffffff !important;
+      border: none !important;
+      border-radius: 8px !important;
+      color: #0f172a !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > div input {
+      color: #0f172a !important;
+      font-weight: 700 !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > div input::placeholder {
+      color: #64748b !important;
+      font-weight: 500 !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > div i,
+    html:not(.dark) #desktopSearchRibbon > button i {
+      color: #475569 !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > button:hover {
+      background-color: #f8fafc !important;
+    }
+
+    /* Primary Search Action Button (Royal Blue from Reference Image) */
+    html:not(.dark) #desktopSearchRibbon > button#mapToggleBtnDesktop {
+      background-color: #006ce4 !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      border: none !important;
+      border-radius: 8px !important;
+      box-shadow: 0 2px 6px rgba(0, 108, 228, 0.3) !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > button#mapToggleBtnDesktop:hover {
+      background-color: #0057b8 !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > button#mapToggleBtnDesktop i,
+    html:not(.dark) #desktopSearchRibbon > button#mapToggleBtnDesktop span {
+      color: #ffffff !important;
+    }
+
+    /* Mobile Search Ribbon (Matching Reference Color Palette) */
+    html:not(.dark) #mobileSearchRibbon {
+      gap: 4px !important;
+    }
+
+    html:not(.dark) #mobileSearchRibbon > div {
+      background-color: #ffffff !important;
+      border: none !important;
+      border-radius: 8px !important;
+      color: #0f172a !important;
+      margin-bottom: 4px !important;
+    }
+
+    html:not(.dark) #mobileSearchRibbon input {
+      color: #0f172a !important;
+      font-weight: 700 !important;
+    }
+
+    html:not(.dark) #mobileSearchRibbon input::placeholder {
+      color: #64748b !important;
+      font-weight: 500 !important;
+    }
+
+    html:not(.dark) #mobileSearchRibbon button {
+      background-color: #ffffff !important;
+      border: none !important;
+      border-radius: 8px !important;
+      color: #0f172a !important;
+    }
+
+    html:not(.dark) #mobileSearchRibbon button#mapToggleBtn {
+      background-color: #006ce4 !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      box-shadow: 0 2px 6px rgba(0, 108, 228, 0.3) !important;
+    }
+
+    html:not(.dark) #mobileSearchRibbon button#mapToggleBtn i,
+    html:not(.dark) #mobileSearchRibbon button#mapToggleBtn span {
+      color: #ffffff !important;
+    }
+
+    /* 2. Journey Segmented Switcher */
+    html:not(.dark) #desktopJourneySwitcher,
+    html:not(.dark) #mobileJourneySwitcherRow {
+      border: 2px solid #ffb700 !important;
+      background-color: #ffffff !important;
+      border-radius: 14px !important;
+    }
+
+    html:not(.dark) #desktopJourneySwitcher button.active-tab,
+    html:not(.dark) #mobileJourneySwitcherRow button.active-tab {
+      background-color: #006ce4 !important;
+      color: #ffffff !important;
+      border: none !important;
+      box-shadow: 0 2px 4px rgba(0, 108, 228, 0.25) !important;
+    }
+
+    html:not(.dark) #desktopJourneySwitcher button:not(.active-tab),
+    html:not(.dark) #mobileJourneySwitcherRow button:not(.active-tab) {
+      color: #334155 !important;
+    }
+
+    html:not(.dark) #desktopJourneySwitcher button:not(.active-tab):hover,
+    html:not(.dark) #mobileJourneySwitcherRow button:not(.active-tab):hover {
+      color: #006ce4 !important;
+      background-color: #eff6ff !important;
+    }
+
+    /* 3. Outer Component & Section Boundaries */
     html:not(.dark) header {
       border-bottom: 1.5px solid #cbd5e1 !important;
     }
 
     html:not(.dark) .property-card {
-      border: 1.5px solid #cbd5e1 !important;
-      box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.04) !important;
+      border: 1.5px solid #e2e8f0 !important;
+      box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.04) !important;
     }
 
     html:not(.dark) .property-card:hover {
-      border-color: #94a3b8 !important;
-      box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.04) !important;
-    }
-
-    html:not(.dark) #searchBarContainer {
-      border: 1.5px solid #cbd5e1 !important;
-      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.06) !important;
-    }
-
-    html:not(.dark) #desktopJourneySwitcher,
-    html:not(.dark) #mobileJourneySwitcherRow {
-      border: 1.5px solid #cbd5e1 !important;
-      background-color: #f1f5f9 !important;
+      border-color: #ffb700 !important;
+      box-shadow: 0 10px 20px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(255, 183, 0, 0.2) !important;
     }
 
     html:not(.dark) #mapViewContainer {
-      border: 1.5px solid #cbd5e1 !important;
+      border: 2px solid #ffb700 !important;
+      border-radius: 14px !important;
     }
 
     html:not(.dark) #bottomNav {
@@ -172,71 +291,76 @@
     html:not(.dark) #reviewModal > div,
     html:not(.dark) #successModal > div,
     html:not(.dark) #lightboxModal > div {
-      border: 1.5px solid #cbd5e1 !important;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06) !important;
+      border: 2px solid #ffb700 !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
     }
 
     /* Room Cards inside Detail Modal */
     html:not(.dark) #detailRoomsList > div {
-      border: 1.5px solid #cbd5e1 !important;
+      border: 1.5px solid #e2e8f0 !important;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
     }
 
     html:not(.dark) #detailRoomsList > div:hover {
-      border-color: #94a3b8 !important;
+      border-color: #ffb700 !important;
     }
 
-    /* My Trips Cards */
-    html:not(.dark) #tripsListContainer > div {
-      border: 1.5px solid #cbd5e1 !important;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    /* 4. Action Buttons & Badges (Matching Royal Blue & Golden Yellow) */
+    html:not(.dark) .property-card button.bg-brand,
+    html:not(.dark) #detailStickyBar button.bg-brand,
+    html:not(.dark) #checkoutModal button[type="submit"] {
+      background-color: #006ce4 !important;
+      border-color: #006ce4 !important;
+      color: #ffffff !important;
+      box-shadow: 0 2px 6px rgba(0, 108, 228, 0.3) !important;
     }
 
-    /* =========================================================================
-       REFINED & SOFTENED INNER BORDERS (Prevent clutter & heavy wireframing)
-       ========================================================================= */
-
-    /* Inner Card Dividers & Amenity Chips */
-    html:not(.dark) .property-card .border-t {
-      border-top: 1px solid #f1f5f9 !important;
+    html:not(.dark) .property-card button.bg-brand:hover,
+    html:not(.dark) #detailStickyBar button.bg-brand:hover,
+    html:not(.dark) #checkoutModal button[type="submit"]:hover {
+      background-color: #0057b8 !important;
     }
 
-    html:not(.dark) .property-card span.bg-slate-100 {
-      border: none !important;
-      background-color: #f1f5f9 !important;
-      color: #334155 !important;
-    }
-
+    /* Secondary Action "Show on Map" */
     html:not(.dark) .property-card button:not(.bg-brand) {
-      border: 1px solid #e2e8f0 !important;
-      background-color: transparent !important;
-      color: #334155 !important;
+      border: 1.5px solid #006ce4 !important;
+      color: #006ce4 !important;
+      background-color: #ffffff !important;
     }
 
     html:not(.dark) .property-card button:not(.bg-brand):hover {
-      background-color: #f8fafc !important;
-      border-color: #cbd5e1 !important;
+      background-color: #eff6ff !important;
     }
 
-    /* Inner Search Ribbon Segments (Soft, sleek pill-style controls) */
-    html:not(.dark) #desktopSearchRibbon > div,
-    html:not(.dark) #desktopSearchRibbon > button,
-    html:not(.dark) #mobileSearchRibbon > div,
-    html:not(.dark) #mobileSearchRibbon button {
+    /* Instant Booking Badges */
+    html:not(.dark) .property-card span.bg-brand {
+      background-color: #ffb700 !important;
+      color: #000000 !important;
+      border-color: #ffb700 !important;
+      font-weight: 800 !important;
+    }
+
+    html:not(.dark) .property-card span.bg-brand i,
+    html:not(.dark) .property-card span.bg-brand span {
+      color: #000000 !important;
+    }
+
+    /* Bottom-Right Nightly Price Badge */
+    html:not(.dark) .property-card span.bg-black\/75 {
+      background-color: #003580 !important;
+      color: #ffffff !important;
+    }
+
+    /* Amenity Chips */
+    html:not(.dark) .property-card span.bg-slate-100 {
       border: 1px solid #e2e8f0 !important;
       background-color: #f8fafc !important;
+      color: #334155 !important;
     }
 
-    html:not(.dark) #desktopSearchRibbon > button:hover,
-    html:not(.dark) #mobileSearchRibbon button:hover {
-      background-color: #ffffff !important;
-      border-color: #cbd5e1 !important;
-    }
-
-    html:not(.dark) #desktopSearchRibbon > div:focus-within,
-    html:not(.dark) #mobileSearchRibbon > div:focus-within {
-      background-color: #ffffff !important;
-      border-color: #94a3b8 !important;
+    /* Card Inner Hairline Divider */
+    html:not(.dark) .property-card .border-t {
+      border-top: 1px solid #f1f5f9 !important;
     }
 
     /* Header Action Buttons */
@@ -250,7 +374,7 @@
     html:not(.dark) #desktopTripsBtn:hover,
     html:not(.dark) #authHeaderBtn:hover,
     html:not(.dark) header button:hover {
-      border-color: #cbd5e1 !important;
+      border-color: #006ce4 !important;
       background-color: #ffffff !important;
     }
 
@@ -266,11 +390,11 @@
     }
 
     html:not(.dark) #mapViewContainer button:hover {
-      border-color: #cbd5e1 !important;
+      border-color: #006ce4 !important;
       background-color: #ffffff !important;
     }
 
-    /* Modal Inner Headers, Dividers & Sticky Bars */
+    /* Modal Inner Headers & Dividers */
     html:not(.dark) #propertyDetailModal .border-b,
     html:not(.dark) #checkoutModal .border-b,
     html:not(.dark) #voucherModal .border-b,
@@ -286,10 +410,6 @@
       border-top: 1px solid #e2e8f0 !important;
     }
 
-    html:not(.dark) #tripsListContainer .border-t {
-      border-top: 1px solid #f1f5f9 !important;
-    }
-
     /* Modal Form Controls */
     html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
     html:not(.dark) select,
@@ -300,8 +420,22 @@
     html:not(.dark) input:focus,
     html:not(.dark) select:focus,
     html:not(.dark) textarea:focus {
-      border-color: #4A062e !important;
-      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.12) !important;
+      border-color: #006ce4 !important;
+      box-shadow: 0 0 0 2px rgba(0, 108, 228, 0.2) !important;
+    }
+
+    /* My Trips Section */
+    html:not(.dark) #tripsListContainer > div {
+      border: 1.5px solid #e2e8f0 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    html:not(.dark) #tripsListContainer > div:hover {
+      border-color: #ffb700 !important;
+    }
+
+    html:not(.dark) #tripsListContainer .border-t {
+      border-top: 1px solid #f1f5f9 !important;
     }
 
     /* Official Printable Voucher Stylesheet */
