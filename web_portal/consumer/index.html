@@ -121,86 +121,47 @@
     }
 
     /* =========================================================================
-       HIGH-CONTRAST BORDER LINES IN LIGHT THEME
-       Ensures every section, card, button, input, modal and chip is distinctly visible
-       in Light Theme. Dark theme is strictly preserved without any alteration.
+       CLEAN COMPONENT BOUNDARIES IN LIGHT THEME
+       Crisp outer boundaries for sections, cards, modals & containers.
+       Soft, elegant inner dividers & borderless chips to prevent visual clutter.
+       Dark theme remains strictly preserved.
        ========================================================================= */
-    html:not(.dark) .border-slate-100,
-    html:not(.dark) .border-slate-200,
-    html:not(.dark) .border-slate-200\/60,
-    html:not(.dark) .border-slate-300,
-    html:not(.dark) .border-gray-100,
-    html:not(.dark) .border-gray-200,
-    html:not(.dark) .border-gray-300 {
-      border-color: #94a3b8 !important;
+
+    /* Outer Component & Section Boundaries */
+    html:not(.dark) header {
+      border-bottom: 1.5px solid #cbd5e1 !important;
     }
 
-    html:not(.dark) header {
-      border-bottom: 1.5px solid #94a3b8 !important;
+    html:not(.dark) .property-card {
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.06), 0 1px 3px -1px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html:not(.dark) .property-card:hover {
+      border-color: #94a3b8 !important;
+      box-shadow: 0 8px 16px -2px rgba(0, 0, 0, 0.08), 0 3px 6px -2px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html:not(.dark) #searchBarContainer {
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.06) !important;
     }
 
     html:not(.dark) #desktopJourneySwitcher,
     html:not(.dark) #mobileJourneySwitcherRow {
-      border: 1.5px solid #94a3b8 !important;
+      border: 1.5px solid #cbd5e1 !important;
       background-color: #f1f5f9 !important;
-    }
-
-    html:not(.dark) #searchBarContainer {
-      border: 1.5px solid #94a3b8 !important;
-      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    html:not(.dark) #desktopSearchRibbon > div,
-    html:not(.dark) #desktopSearchRibbon > button,
-    html:not(.dark) #mobileSearchRibbon > div,
-    html:not(.dark) #mobileSearchRibbon button,
-    html:not(.dark) #desktopTripsBtn,
-    html:not(.dark) #authHeaderBtn,
-    html:not(.dark) header button {
-      border: 1.5px solid #94a3b8 !important;
     }
 
     html:not(.dark) #mapViewContainer {
-      border: 1.5px solid #94a3b8 !important;
-    }
-
-    html:not(.dark) #mapViewContainer > div:first-child {
-      border-bottom: 1.5px solid #94a3b8 !important;
-    }
-
-    html:not(.dark) #mapViewContainer button,
-    html:not(.dark) #mapViewContainer label {
-      border: 1.5px solid #94a3b8 !important;
-    }
-
-    html:not(.dark) .property-card {
-      border: 1.5px solid #94a3b8 !important;
-      box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 1px 4px -1px rgba(0, 0, 0, 0.06) !important;
-    }
-
-    html:not(.dark) .property-card:hover {
-      border-color: #64748b !important;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    html:not(.dark) .property-card .border-t {
-      border-top: 1.5px solid #94a3b8 !important;
-    }
-
-    html:not(.dark) .property-card span.bg-slate-100 {
-      border: 1px solid #94a3b8 !important;
-      background-color: #f1f5f9 !important;
-    }
-
-    html:not(.dark) .property-card button:not(.bg-brand) {
-      border: 1.5px solid #94a3b8 !important;
+      border: 1.5px solid #cbd5e1 !important;
     }
 
     html:not(.dark) #bottomNav {
-      border-top: 1.5px solid #94a3b8 !important;
+      border-top: 1.5px solid #cbd5e1 !important;
     }
 
-    /* Modals & Dialog Boxes */
+    /* Modals & Dialog Containers */
     html:not(.dark) #propertyDetailModal > div,
     html:not(.dark) #checkoutModal > div,
     html:not(.dark) #voucherModal > div,
@@ -211,45 +172,136 @@
     html:not(.dark) #reviewModal > div,
     html:not(.dark) #successModal > div,
     html:not(.dark) #lightboxModal > div {
-      border: 1.5px solid #94a3b8 !important;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.06) !important;
     }
 
+    /* Room Cards inside Detail Modal */
     html:not(.dark) #detailRoomsList > div {
-      border: 1.5px solid #94a3b8 !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
     }
 
     html:not(.dark) #detailRoomsList > div:hover {
-      border-color: #64748b !important;
+      border-color: #94a3b8 !important;
+    }
+
+    /* My Trips Cards */
+    html:not(.dark) #tripsListContainer > div {
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* =========================================================================
+       REFINED & SOFTENED INNER BORDERS (Prevent clutter & heavy wireframing)
+       ========================================================================= */
+
+    /* Inner Card Dividers & Amenity Chips */
+    html:not(.dark) .property-card .border-t {
+      border-top: 1px solid #f1f5f9 !important;
+    }
+
+    html:not(.dark) .property-card span.bg-slate-100 {
+      border: none !important;
+      background-color: #f1f5f9 !important;
+      color: #334155 !important;
+    }
+
+    html:not(.dark) .property-card button:not(.bg-brand) {
+      border: 1px solid #e2e8f0 !important;
+      background-color: transparent !important;
+      color: #334155 !important;
+    }
+
+    html:not(.dark) .property-card button:not(.bg-brand):hover {
+      background-color: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    /* Inner Search Ribbon Segments (Soft, sleek pill-style controls) */
+    html:not(.dark) #desktopSearchRibbon > div,
+    html:not(.dark) #desktopSearchRibbon > button,
+    html:not(.dark) #mobileSearchRibbon > div,
+    html:not(.dark) #mobileSearchRibbon button {
+      border: 1px solid #e2e8f0 !important;
+      background-color: #f8fafc !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > button:hover,
+    html:not(.dark) #mobileSearchRibbon button:hover {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon > div:focus-within,
+    html:not(.dark) #mobileSearchRibbon > div:focus-within {
+      background-color: #ffffff !important;
+      border-color: #94a3b8 !important;
+    }
+
+    /* Header Action Buttons */
+    html:not(.dark) #desktopTripsBtn,
+    html:not(.dark) #authHeaderBtn,
+    html:not(.dark) header button {
+      border: 1px solid #e2e8f0 !important;
+      background-color: #f8fafc !important;
+    }
+
+    html:not(.dark) #desktopTripsBtn:hover,
+    html:not(.dark) #authHeaderBtn:hover,
+    html:not(.dark) header button:hover {
+      border-color: #cbd5e1 !important;
+      background-color: #ffffff !important;
+    }
+
+    /* Map View Inner Controls */
+    html:not(.dark) #mapViewContainer > div:first-child {
+      border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    html:not(.dark) #mapViewContainer button,
+    html:not(.dark) #mapViewContainer label {
+      border: 1px solid #e2e8f0 !important;
+      background-color: #f8fafc !important;
+    }
+
+    html:not(.dark) #mapViewContainer button:hover {
+      border-color: #cbd5e1 !important;
+      background-color: #ffffff !important;
+    }
+
+    /* Modal Inner Headers, Dividers & Sticky Bars */
+    html:not(.dark) #propertyDetailModal .border-b,
+    html:not(.dark) #checkoutModal .border-b,
+    html:not(.dark) #voucherModal .border-b,
+    html:not(.dark) #itineraryModal .border-b,
+    html:not(.dark) #filtersModal .border-b,
+    html:not(.dark) #guideModal .border-b,
+    html:not(.dark) #authModal .border-b,
+    html:not(.dark) #reviewModal .border-b {
+      border-color: #e2e8f0 !important;
     }
 
     html:not(.dark) #detailStickyBar {
-      border-top: 1.5px solid #94a3b8 !important;
+      border-top: 1px solid #e2e8f0 !important;
     }
 
-    /* Form Controls */
+    html:not(.dark) #tripsListContainer .border-t {
+      border-top: 1px solid #f1f5f9 !important;
+    }
+
+    /* Modal Form Controls */
     html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
     html:not(.dark) select,
     html:not(.dark) textarea {
-      border: 1.5px solid #94a3b8 !important;
+      border: 1px solid #cbd5e1 !important;
     }
 
     html:not(.dark) input:focus,
     html:not(.dark) select:focus,
     html:not(.dark) textarea:focus {
       border-color: #4A062e !important;
-      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.15) !important;
-    }
-
-    /* My Trips Section */
-    html:not(.dark) #tripsListContainer > div {
-      border: 1.5px solid #94a3b8 !important;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
-    }
-
-    html:not(.dark) #tripsListContainer .border-t {
-      border-top: 1.5px solid #94a3b8 !important;
+      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.12) !important;
     }
 
     /* Official Printable Voucher Stylesheet */

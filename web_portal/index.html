@@ -35,40 +35,44 @@
     }
 
     /* =========================================================================
-       HIGH-CONTRAST BORDER LINES IN LIGHT THEME
-       Ensures every section, card, button, input, modal and chip is distinctly visible
-       in Light Theme. Dark theme is strictly preserved without any alteration.
+       CLEAN COMPONENT BOUNDARIES IN LIGHT THEME
+       Crisp outer boundaries for sections & ecosystem cards.
+       Soft, elegant inner dividers to prevent visual clutter.
        ========================================================================= */
-    html:not(.dark) .border-slate-100,
-    html:not(.dark) .border-slate-200,
-    html:not(.dark) .border-slate-200\/60,
-    html:not(.dark) .border-slate-300,
-    html:not(.dark) .border-gray-100,
-    html:not(.dark) .border-gray-200,
-    html:not(.dark) .border-gray-300 {
-      border-color: #94a3b8 !important;
-    }
 
+    /* Outer Component & Section Boundaries */
     html:not(.dark) header {
-      border-bottom: 1.5px solid #94a3b8 !important;
+      border-bottom: 1.5px solid #cbd5e1 !important;
     }
 
-    html:not(.dark) .grid > a,
-    html:not(.dark) .grid > div {
-      border-color: #94a3b8 !important;
+    html:not(.dark) .grid > a {
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.05) !important;
     }
 
+    html:not(.dark) .grid > a:hover {
+      border-color: #0d9488 !important;
+    }
+
+    html:not(.dark) .max-w-4xl {
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    /* Soft Inner Controls */
     html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
-    html:not(.dark) select,
-    html:not(.dark) textarea {
-      border: 1.5px solid #94a3b8 !important;
+    html:not(.dark) select {
+      border: 1px solid #cbd5e1 !important;
     }
 
     html:not(.dark) input:focus,
-    html:not(.dark) select:focus,
-    html:not(.dark) textarea:focus {
+    html:not(.dark) select:focus {
       border-color: #4A062e !important;
-      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.15) !important;
+      box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.12) !important;
+    }
+
+    html:not(.dark) #themeToggleBtn {
+      border: 1px solid #e2e8f0 !important;
     }
   </style>
   <script>
