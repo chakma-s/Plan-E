@@ -87,15 +87,22 @@
     }
 
     /* Form Inputs */
-    html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
+    html:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not(#heroDestinationInput),
     html:not(.dark) select {
       border: 1px solid #cbd5e1 !important;
     }
 
-    html:not(.dark) input:focus,
+    html:not(.dark) input:not(#heroDestinationInput):focus,
     html:not(.dark) select:focus {
       border-color: #4A062e !important;
       box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.15) !important;
+    }
+
+    html:not(.dark) #heroDestinationInput {
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
     }
 
     html:not(.dark) #themeToggleBtn {

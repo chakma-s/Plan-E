@@ -155,12 +155,29 @@
       transition: all 0.15s ease-in-out !important;
     }
 
-    html:not(.dark) #desktopSearchRibbon > div input {
+    /* Seamless Search Input (No inner rectangular box, keeps clean text strings) */
+    html:not(.dark) #desktopSearchRibbon input,
+    html:not(.dark) #mobileSearchRibbon input,
+    html:not(.dark) #searchBarContainer input {
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
       color: #0f172a !important;
       font-weight: 600 !important;
+      padding: 0 !important;
     }
 
-    html:not(.dark) #desktopSearchRibbon > div input::placeholder {
+    html:not(.dark) #desktopSearchRibbon input:focus,
+    html:not(.dark) #mobileSearchRibbon input:focus,
+    html:not(.dark) #searchBarContainer input:focus {
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    html:not(.dark) #desktopSearchRibbon input::placeholder,
+    html:not(.dark) #mobileSearchRibbon input::placeholder {
       color: #64748b !important;
       font-weight: 500 !important;
     }
@@ -432,17 +449,29 @@
     }
 
     /* Modal Form Controls */
-    html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
+    html:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not(#destinationInputDesktop):not(#destinationInput),
     html:not(.dark) select,
     html:not(.dark) textarea {
       border: 1px solid #cbd5e1 !important;
     }
 
-    html:not(.dark) input:focus,
+    html:not(.dark) input:not(#destinationInputDesktop):not(#destinationInput):focus,
     html:not(.dark) select:focus,
     html:not(.dark) textarea:focus {
       border-color: #4A062e !important;
       box-shadow: 0 0 0 2px rgba(74, 6, 46, 0.15) !important;
+    }
+
+    /* Strict seamless search input (Zero inner border boxes, keeps clean text strings) */
+    html:not(.dark) #searchBarContainer input,
+    html:not(.dark) #desktopSearchRibbon input,
+    html:not(.dark) #mobileSearchRibbon input,
+    html:not(.dark) #destinationInputDesktop,
+    html:not(.dark) #destinationInput {
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
     }
 
     /* My Trips Section */
